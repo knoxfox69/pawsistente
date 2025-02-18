@@ -6,6 +6,7 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import { marked } from 'marked'
+  import DOMPurify from 'isomorphic-dompurify'
   import { goto } from '$app/navigation'
   import { topicsStore } from '$lib/stores/topics'
   // Import icons
@@ -165,6 +166,31 @@
     const diffMonths = Math.floor(diffDays / 30);
     return `${diffMonths} ${diffMonths === 1 ? 'month' : 'months'} ago`;
   };
+
+  // Create a function to safely render markdown
+  const renderMarkdown = (content: string): string => {
+    // Force marked to return a string synchronously
+    const rawHtml = marked.parse(content, { async: false }) as string
+    return DOMPurify.sanitize(rawHtml, {
+      USE_PROFILES: { html: true },
+      ALLOWED_TAGS: [
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'a', 'ul', 'ol', 'li',
+        'code', 'pre', 'strong', 'em', 'blockquote', 'table', 'thead',
+        'tbody', 'tr', 'th', 'td', 'br', 'hr'
+      ],
+      ALLOWED_ATTR: ['href', 'target', 'rel', 'class']
+    })
+  }
+
+  // Function to scroll markdown content to top when loaded
+  const scrollMarkdownToTop = (node: HTMLElement) => {
+    node.scrollTop = 0
+    return {
+      update() {
+        node.scrollTop = 0
+      }
+    }
+  }
 </script>
 
 <div class="snap-y snap-mandatory h-screen w-full overflow-y-scroll">
@@ -196,14 +222,13 @@
         </div>
 
         <!-- Middle: README Content -->
-        <div class="flex-1 flex items-center overflow-hidden my-4">
-          <div class="w-full bg-gray-800/30 backdrop-blur-sm rounded-xl p-6 markdown-content overflow-y-auto">
+        <div class="flex-1 flex overflow-y-scroll my-4">
+          <div class="w-full bg-gray-800/30 backdrop-blur-sm rounded-xl p-6 markdown-content overflow-y-auto"
+               use:scrollMarkdownToTop>
             {#if project.readmeSnippet.includes('Loading')}
               <div class="text-gray-400 animate-pulse">Loading README...</div>
             {:else}
-              <div class="prose prose-invert prose-sm md:prose-base max-w-none">
-                {@html marked(project.readmeSnippet)}
-              </div>
+              {@html renderMarkdown(project.readmeSnippet)}
             {/if}
           </div>
         </div>
