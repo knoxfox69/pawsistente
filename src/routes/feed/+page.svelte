@@ -136,9 +136,9 @@
 
   onMount(async () => {
     // Redirect to setup if no topics selected
-    if ($topicsStore.selected.size === 0) {
-      goto('/setup')
-    }
+    // if ($topicsStore.selected.size === 0) {
+    //   goto('/setup')
+    // }
 
     // Load initial projects
     const initialProjects = await fetchProjects(1)
