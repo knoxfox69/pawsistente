@@ -8,7 +8,22 @@ const config = {
 	preprocess: vitePreprocess(),
 
 	kit: {
-		adapter: adapter()
+		adapter: adapter({
+			// Enable SPA fallback
+			fallback: '200.html',
+			// Pages will be built into this directory
+			pages: 'build',
+			// Assets will be built into this directory
+			assets: 'build',
+			// Precompress files
+			precompress: false,
+			// Strict mode ensures all pages are prerenderable
+			strict: true
+		}),
+		// Add paths configuration for GitHub Pages
+		paths: {
+			base: process.env.BASE_PATH || ''
+		}
 	}
 };
 
