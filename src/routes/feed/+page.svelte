@@ -8,6 +8,8 @@
   import { marked } from 'marked'
   import { goto } from '$app/navigation'
   import { topicsStore } from '$lib/stores/topics'
+  // Import icons
+  import { Star, Eye, GitFork } from 'lucide-svelte'
   // Sample GitHub projects - in a real app, these would come from GitHub API
 
   type Project = {
@@ -81,7 +83,9 @@
     }
 
     const url = new URL('https://api.github.com/search/repositories')
-    url.searchParams.set('q', [...$topicsStore.selected].map(t => t).join(' ') + ' stars:>1000')
+    url.searchParams.set('q', 'stars:>1000')
+    url.searchParams.set('sort', 'forks')
+    url.searchParams.set('order', 'desc')
     url.searchParams.set('per_page', '100')
     const res = await fetch(url)
     const data = await res.json()
@@ -179,9 +183,7 @@
               class="p-2 rounded-full bg-gray-800/50 backdrop-blur-sm hover:bg-gray-700/50 transition-colors"
               aria-label={`Star repository (${formatNumber(project.stars)} stars)`}
             >
-              <svg class="w-8 h-8 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-              </svg>
+              <Star class="w-8 h-8 text-yellow-400" />
             </a>
             <span class="text-white font-mono text-sm mt-1">{formatNumber(project.stars)}</span>
           </div>
@@ -192,10 +194,7 @@
               class="p-2 rounded-full bg-gray-800/50 backdrop-blur-sm"
               aria-label={`${formatNumber(project.watchers)} watchers`}
             >
-              <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
+              <Eye class="w-8 h-8 text-blue-400" />
             </div>
             <span class="text-white font-mono text-sm mt-1">{formatNumber(project.watchers)}</span>
           </div>
@@ -209,9 +208,7 @@
               class="p-2 rounded-full bg-gray-800/50 backdrop-blur-sm hover:bg-gray-700/50 transition-colors"
               aria-label={`Fork repository (${formatNumber(project.forks)} forks)`}
             >
-              <svg class="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 1a1.993 1.993 0 0 0-1 3.72V6L5 8 3 6V4.72A1.993 1.993 0 0 0 2 1a1.993 1.993 0 0 0-1 3.72V6.5l3 3v1.78A1.993 1.993 0 0 0 5 15a1.993 1.993 0 0 0 1-3.72V9.5l3-3V4.72A1.993 1.993 0 0 0 8 1zM2 4.2C1.34 4.2.8 3.65.8 3c0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zm3 10c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2zM8 4.2c-.66 0-1.2-.55-1.2-1.2 0-.65.55-1.2 1.2-1.2.65 0 1.2.55 1.2 1.2 0 .65-.55 1.2-1.2 1.2z"/>
-              </svg>
+              <GitFork class="w-8 h-8 text-gray-400" />
             </a>
             <span class="text-white font-mono text-sm mt-1">{formatNumber(project.forks)}</span>
           </div>
@@ -241,10 +238,6 @@
   {/each}
 </div>
 
-<!-- Add progress indicator -->
-<div class="fixed bottom-4 left-4 bg-gray-800/50 backdrop-blur-sm rounded-lg p-2 text-white font-mono text-sm">
-  Viewed: {viewedIndices.size}/{projects.length}
-</div>
 
 <style>
   /* Hide scrollbar for Chrome, Safari and Opera */
