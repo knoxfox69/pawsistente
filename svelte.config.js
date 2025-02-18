@@ -22,7 +22,7 @@ const config = {
 		}),
 		// Add paths configuration for GitHub Pages
 		paths: {
-			base: process.env.BASE_PATH || ''
+			base: ''
 		}
 	}
 };
