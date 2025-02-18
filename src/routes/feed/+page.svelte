@@ -30,6 +30,10 @@
 
   let projects: Project[] = []
   let viewedIndices = new Set<number>()
+  let currentPage = 1
+  let isLoading = false
+  let hasMore = true
+  const MAX_PAGES = 10
 
   // Function to fetch README content
   const fetchReadme = async (author: string, repo: string) => {
@@ -47,7 +51,56 @@
     }
   }
 
-  // Update the intersection observer to fetch README when item is viewed
+  // Function to fetch projects from GitHub API
+  const fetchProjects = async (page: number) => {
+    const url = new URL('https://api.github.com/search/repositories')
+    url.searchParams.set('q', 'stars:>1000')
+    url.searchParams.set('sort', 'forks')
+    url.searchParams.set('order', 'desc')
+    url.searchParams.set('per_page', '100')
+    url.searchParams.set('page', page.toString())
+
+    const res = await fetch(url)
+    const data = await res.json()
+
+    return data.items.map((item: any) => ({
+      id: item.id,
+      name: item.name,
+      description: item.description || 'No description provided',
+      readmeSnippet: 'Loading README...',
+      stars: item.stargazers_count,
+      forks: item.forks_count,
+      watchers: item.watchers_count,
+      author: item.owner.login,
+      avatar: item.owner.avatar_url,
+      language: item.language,
+      languageColor: '#3178c6',
+      stargazersUrl: item.html_url + '/stargazers',
+      forksUrl: item.html_url + '/fork'
+    }))
+  }
+
+  // Function to load more projects
+  const loadMoreProjects = async () => {
+    if (isLoading || !hasMore) return
+
+    isLoading = true
+    try {
+      const newProjects = await fetchProjects(currentPage + 1)
+      projects = [...projects, ...newProjects]
+      currentPage++
+
+      if (currentPage >= MAX_PAGES) {
+        hasMore = false
+      }
+    } catch (error) {
+      console.error('Error loading more projects:', error)
+    } finally {
+      isLoading = false
+    }
+  }
+
+  // Update the intersection observer to handle pagination
   const observeElement = (element: HTMLElement, index: number) => {
     const observer = new IntersectionObserver(
       async (entries) => {
@@ -61,6 +114,11 @@
               const readme = await fetchReadme(projects[index].author, projects[index].name)
               projects[index].readmeSnippet = readme
               projects = projects // trigger reactivity
+            }
+
+            // If we're getting close to the end, load more projects
+            if (index >= projects.length - 20) {
+              loadMoreProjects()
             }
           }
         })
@@ -82,32 +140,10 @@
       goto('/setup')
     }
 
-    const url = new URL('https://api.github.com/search/repositories')
-    url.searchParams.set('q', 'stars:>1000')
-    url.searchParams.set('sort', 'forks')
-    url.searchParams.set('order', 'desc')
-    url.searchParams.set('per_page', '100')
-    const res = await fetch(url)
-    const data = await res.json()
-    console.log(data)
-
-    projects = data.items.map((item: any) => ({
-      id: item.id,
-      name: item.name,
-      description: item.description || 'No description provided',
-      readmeSnippet: 'Loading README...',
-      stars: item.stargazers_count,
-      forks: item.forks_count,
-      watchers: item.watchers_count,
-      author: item.owner.login,
-      avatar: item.owner.avatar_url,
-      language: item.language,
-      languageColor: '#3178c6',
-      stargazersUrl: item.html_url + '/stargazers',
-      forksUrl: item.html_url + '/fork'
-    }))
+    // Load initial projects
+    const initialProjects = await fetchProjects(1)
+    projects = initialProjects
   })
-
 
   // Format numbers to human readable format (e.g., 73.5k)
   const formatNumber = (num: number): string => {
@@ -236,6 +272,18 @@
       </div>
     </div>
   {/each}
+
+  {#if isLoading}
+    <div class="h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-900 to-black">
+      <div class="text-white font-mono">Loading more repositories...</div>
+    </div>
+  {/if}
+
+  {#if !hasMore && !isLoading}
+    <div class="h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-900 to-black">
+      <div class="text-white font-mono">You've reached the end!</div>
+    </div>
+  {/if}
 </div>
 
 

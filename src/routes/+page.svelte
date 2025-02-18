@@ -8,14 +8,18 @@
   import { goto } from '$app/navigation';
   import { topicsStore } from '$lib/stores/topics';
 
-  onMount(() => {
-    const unsubscribe = topicsStore.subscribe(d => {
-      const hasTopics = d.selected.size > 0 || d.custom.length > 0;
-      // Automatically redirect based on topic selection status
-      // goto(hasTopics ? '/feed' : '/setup');
-    });
+  let hasVisited = false;
 
-    return () => unsubscribe();
+  onMount(() => {
+    // Check if user has visited before
+    hasVisited = localStorage.getItem('hasVisitedGitTok') === 'true';
+
+    if (hasVisited) {
+      goto('/feed');
+    } else {
+      // Set visited flag
+      localStorage.setItem('hasVisitedGitTok', 'true');
+    }
   });
 </script>
 
@@ -44,7 +48,12 @@
         *Results may vary. Side effects include improved git skills and random urges to refactor everything.
       </p>
     </div>
-    <p class="text-blue-400 mt-8 animate-pulse">Loading your productivity boost...</p>
+    <a
+      href="/feed"
+      class="inline-block mt-8 px-6 py-3 bg-blue-400 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors duration-200"
+    >
+      Start Scrolling
+    </a>
   </div>
 </div>
 
