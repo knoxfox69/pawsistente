@@ -49,12 +49,14 @@
 	},
 	"dependencies": {
 		"@libsql/client": "^0.14.0",
+		"@octokit/rest": "^21.1.1",
 		"@sveltejs/adapter-static": "^3.0.8",
 		"drizzle-orm": "^0.38.4",
 		"isomorphic-dompurify": "^2.21.0",
 		"lucide-svelte": "^0.475.0",
 		"marked": "^15.0.7",
 		"marked-base-url": "^1.1.6",
+		"marked-emoji": "^1.4.3",
 		"vite-plugin-mkcert": "^1.17.6"
 	},
 	"license": "Proprietary"

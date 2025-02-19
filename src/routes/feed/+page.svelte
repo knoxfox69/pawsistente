@@ -9,8 +9,10 @@
 	import DOMPurify from 'isomorphic-dompurify';
 	import { topicsStore } from '$lib/stores/topics';
 	import { topics as allTopics } from '$lib/all_topics';
+  import {Octokit} from "@octokit/rest";
 
 	import { baseUrl } from 'marked-base-url';
+  import {markedEmoji} from "marked-emoji";
 	// Import icons
 	import { Star, Eye, GitFork, Share2 } from 'lucide-svelte';
 	// Sample GitHub projects - in a real app, these would come from GitHub API
@@ -59,6 +61,8 @@
 		Svelte: '#ff3e00',
 		React: '#61dafb'
 	} as const;
+
+
 
 
 	// Function to fetch README content
@@ -300,6 +304,20 @@
 	};
 
 	onMount(async () => {
+
+    const octokit = new Octokit();
+    // Get all the emojis available to use on GitHub.
+    const res = await octokit.rest.emojis.get();
+
+    const emojis = res.data;
+
+
+    marked.use(markedEmoji({
+      emojis,
+      renderer: (token) => `<img alt="${token.name}" src="${token.emoji}" class="marked-emoji-img">`
+    }));
+
+
 		// Load initial projects
     const url = new URL(window.location.href);
     const project = url.searchParams.get('project');
