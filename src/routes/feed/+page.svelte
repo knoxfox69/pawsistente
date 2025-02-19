@@ -7,13 +7,12 @@
 	import { onMount } from 'svelte';
 	import { marked } from 'marked';
 	import DOMPurify from 'isomorphic-dompurify';
-	import { goto } from '$app/navigation';
 	import { topicsStore } from '$lib/stores/topics';
 	import { topics as allTopics } from '$lib/all_topics';
 
 	import { baseUrl } from 'marked-base-url';
 	// Import icons
-	import { Star, Eye, GitFork } from 'lucide-svelte';
+	import { Star, Eye, GitFork, Share2 } from 'lucide-svelte';
 	// Sample GitHub projects - in a real app, these would come from GitHub API
 
 	type Project = {
@@ -35,11 +34,8 @@
 
 	let projects: Project[] = [];
 	let viewedIndices = new Set<number>();
-	let currentPage = 1;
 	let isLoading = false;
 	let hasMore = true;
-	const MAX_PAGES = 10;
-
 	// Add this language color mapping object before the fetchProjects function
 	const languageColors = {
 		TypeScript: '#3178c6',
@@ -63,6 +59,7 @@
 		Svelte: '#ff3e00',
 		React: '#61dafb'
 	} as const;
+
 
 	// Function to fetch README content
 	const fetchReadme = async (author: string, repo: string, default_branch: string) => {
@@ -142,6 +139,31 @@
 		return searchParams;
 	}
 
+  const fetchProject = async (project: string, author: string) => {
+    const url = new URL(`https://api.github.com/repos/${author}/${project}`);
+    const res = await fetch(url);
+    const data = await res.json();
+
+    return {
+      name: data.name,
+      description: data.description,
+      default_branch: data.default_branch,
+      readmeSnippet: null,
+      language: data.language,
+      languageColor: data.language
+				? languageColors[data.language as keyof typeof languageColors] || '#858585'
+				: undefined,
+      stargazersUrl: data.stargazers_url,
+      forksUrl: data.forks_url,
+      author: data.owner.login,
+      avatar: data.owner.avatar_url,
+      stars: data.stargazers_count,
+      forks: data.forks_count,
+      watchers: data.watchers_count,
+      id: data.id,
+    };
+  }
+
 	// Function to fetch projects from GitHub API
 	const fetchProjects = async () => {
 		const url = new URL('https://api.github.com/search/repositories');
@@ -214,12 +236,20 @@
 		}
 	};
 
+  function seturlparams(project: Project) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('project', project.name);
+    url.searchParams.set('author', project.author);
+    window.history.replaceState({}, '', url.toString());
+  }
+
 	// Update the intersection observer to handle pagination
 	const observeElement = (element: HTMLElement, index: number) => {
 		const observer = new IntersectionObserver(
 			async (entries) => {
 				entries.forEach(async (entry) => {
 					if (entry.isIntersecting) {
+            seturlparams(projects[index]);
 						console.log('isIntersecting', index);
 						viewedIndices.add(index);
 						viewedIndices = viewedIndices; // trigger reactivity
@@ -271,8 +301,21 @@
 
 	onMount(async () => {
 		// Load initial projects
-		const initialProjects = await fetchProjects(1);
-		projects = initialProjects;
+    const url = new URL(window.location.href);
+    const project = url.searchParams.get('project');
+    const author = url.searchParams.get('author');
+    const initialProjects = [];
+    if (project && author) {
+      const initialProject = await fetchProject(project, author);
+      initialProjects.push(initialProject);
+    }
+
+
+    initialProjects.push(...await fetchProjects());
+    console.log(initialProjects);
+    projects = initialProjects;
+
+
 	});
 
 	// Format numbers to human readable format (e.g., 73.5k)
@@ -283,18 +326,6 @@
 		return num.toString();
 	};
 
-	// Format date to relative time (e.g., "2 days ago")
-	const getRelativeTime = (dateString: string) => {
-		const date = new Date(dateString);
-		const now = new Date();
-		const diffTime = Math.abs(now.getTime() - date.getTime());
-		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-		if (diffDays === 1) return 'yesterday';
-		if (diffDays < 30) return `${diffDays} days ago`;
-		const diffMonths = Math.floor(diffDays / 30);
-		return `${diffMonths} ${diffMonths === 1 ? 'month' : 'months'} ago`;
-	};
 
 	// Create a function to safely render markdown
 	const renderMarkdown = (content: string, repo: string): string => {
@@ -345,6 +376,33 @@
 			}
 		};
 	};
+
+	// Add share functionality
+	const shareProject = async (project: Project) => {
+		const shareUrl = `https://gittok.dev/feed?project=${project.name}&author=${project.author}`;
+		const shareText = `Check out ${project.name} on gittok.dev`;
+
+		if (navigator.share) {
+			try {
+				await navigator.share({
+					title: project.name,
+					text: shareText,
+					url: shareUrl
+				});
+			} catch (err) {
+				if (err instanceof Error && err.name !== 'AbortError') {
+					console.error('Error sharing:', err);
+					// Fallback to clipboard
+					await navigator.clipboard.writeText(shareUrl);
+					alert('Link copied to clipboard!');
+				}
+			}
+		} else {
+			// Fallback for browsers that don't support Web Share API
+			await navigator.clipboard.writeText(shareUrl);
+			alert('Link copied to clipboard!');
+		}
+	};
 </script>
 
 <div class="h-screen w-full snap-y snap-mandatory overflow-y-scroll">
@@ -356,9 +414,9 @@
 			<!-- Main Content Container -->
 			<div class="mx-auto flex h-full w-full max-w-3xl flex-col justify-between p-6">
 				<!-- Add viewed indicator -->
-				<div class="absolute top-4 left-4 font-mono text-sm text-gray-400">
+				<!-- <div class="absolute top-4 left-4 font-mono text-sm text-gray-400">
 					{viewedIndices.has(index) ? '✓ Viewed' : 'New'}
-				</div>
+				</div> -->
 
 				<!-- Top: Repository Name and Description -->
 				<div class="space-y-3 pt-4">
@@ -413,7 +471,6 @@
 						</div>
 						<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.watchers)}</span>
 					</div>
-
 					<!-- Forks -->
 					<div class="flex flex-col items-center">
 						<a
@@ -426,6 +483,18 @@
 							<GitFork class="h-8 w-8 text-gray-400" />
 						</a>
 						<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.forks)}</span>
+					</div>
+
+					<!-- Share Button -->
+					<div class="flex flex-col items-center">
+						<button
+							on:click={() => shareProject(project)}
+							class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+							aria-label="Share repository"
+						>
+							<Share2 class="h-8 w-8 text-purple-400" />
+						</button>
+						<span class="mt-1 font-mono text-sm text-white">Share</span>
 					</div>
 				</div>
 
@@ -480,13 +549,6 @@
 		-ms-overflow-style: none; /* IE and Edge */
 		scrollbar-width: none; /* Firefox */
 	}
-
-	.markdown-content pre {
-		font-family:
-			ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
-			monospace;
-	}
-
 	/* Style markdown content */
 	:global(.prose) {
 		color: rgb(229 231 235); /* gray-200 */
