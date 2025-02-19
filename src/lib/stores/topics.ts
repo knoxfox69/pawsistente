@@ -1,4 +1,4 @@
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 
 type TopicsStore = {
@@ -25,7 +25,7 @@ const createTopicsStore = () => {
 
     const { subscribe, set, update } = writable<TopicsStore>(initial);
 
-    return {
+    const store = {
         subscribe,
         toggleTopic: (topic: string) => update(store => {
             const selected = new Set(store.selected);
@@ -61,7 +61,27 @@ const createTopicsStore = () => {
                 localStorage.setItem('customTopics', JSON.stringify(custom));
             }
             return { ...store, custom };
-        })
+        }),
+        getAll: () => {
+            let store: TopicsStore;
+            subscribe(s => store = s)();
+            return [...store.selected, ...store.custom];
+        },
+        reset: () => {
+            if (browser) {
+                localStorage.removeItem('selectedTopics');
+                localStorage.removeItem('customTopics');
+            }
+            set({ selected: new Set(), custom: [], expanded: new Set() });
+        }
+    };
+
+    // Create a derived store for all topics
+    const all = derived(store, $store => [...$store.selected, ...$store.custom]);
+
+    return {
+        ...store,
+        all
     };
 };
 

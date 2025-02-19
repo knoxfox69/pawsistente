@@ -4,349 +4,508 @@
 -->
 
 <script lang="ts">
-  import { onMount } from 'svelte'
-  import { marked } from 'marked'
-  import DOMPurify from 'isomorphic-dompurify'
-  import { goto } from '$app/navigation'
-  import { topicsStore } from '$lib/stores/topics'
-  // Import icons
-  import { Star, Eye, GitFork } from 'lucide-svelte'
-  // Sample GitHub projects - in a real app, these would come from GitHub API
+	import { onMount } from 'svelte';
+	import { marked } from 'marked';
+	import DOMPurify from 'isomorphic-dompurify';
+	import { goto } from '$app/navigation';
+	import { topicsStore } from '$lib/stores/topics';
+	import { topics as allTopics } from '$lib/all_topics';
 
-  type Project = {
-    id: number;
-    name: string;
-    description: string;
-    readmeSnippet: string;
-    stars: number;
-    forks: number;
-    watchers: number;
-    author: string;
-    avatar: string;
-    language?: string;
-    languageColor?: string;
-    stargazersUrl: string;
-    forksUrl: string;
-  }
+	import { baseUrl } from 'marked-base-url';
+	// Import icons
+	import { Star, Eye, GitFork } from 'lucide-svelte';
+	// Sample GitHub projects - in a real app, these would come from GitHub API
 
-  let projects: Project[] = []
-  let viewedIndices = new Set<number>()
-  let currentPage = 1
-  let isLoading = false
-  let hasMore = true
-  const MAX_PAGES = 10
+	type Project = {
+		id: number;
+		name: string;
+		description: string;
+		readmeSnippet: string;
+		stars: number;
+		forks: number;
+		watchers: number;
+		author: string;
+		avatar: string;
+		language?: string;
+		languageColor?: string;
+		stargazersUrl: string;
+		forksUrl: string;
+		default_branch: string;
+	};
 
-  // Function to fetch README content
-  const fetchReadme = async (author: string, repo: string) => {
-    try {
-      const response = await fetch(`https://api.github.com/repos/${author}/${repo}/readme`)
-      const data = await response.json()
-      // GitHub returns README content in base64
-      const decodedContent = atob(data.content)
-      // Take only first 20 lines
-      const first20Lines = decodedContent.split('\n').slice(0, 40).join('\n')
-      return first20Lines
-    } catch (error) {
-      console.error('Error fetching README:', error)
-      return 'Failed to load README'
-    }
-  }
+	let projects: Project[] = [];
+	let viewedIndices = new Set<number>();
+	let currentPage = 1;
+	let isLoading = false;
+	let hasMore = true;
+	const MAX_PAGES = 10;
 
-  // Function to fetch projects from GitHub API
-  const fetchProjects = async (page: number) => {
-    const url = new URL('https://api.github.com/search/repositories')
-    url.searchParams.set('q', 'stars:>1000')
-    url.searchParams.set('sort', 'forks')
-    url.searchParams.set('order', 'desc')
-    url.searchParams.set('per_page', '100')
-    url.searchParams.set('page', page.toString())
+	// Add this language color mapping object before the fetchProjects function
+	const languageColors = {
+		TypeScript: '#3178c6',
+		JavaScript: '#f1e05a',
+		Python: '#3572A5',
+		Java: '#b07219',
+		Ruby: '#701516',
+		Go: '#00ADD8',
+		Rust: '#dea584',
+		C: '#555555',
+		'C++': '#f34b7d',
+		'C#': '#178600',
+		PHP: '#4F5D95',
+		Swift: '#ffac45',
+		Kotlin: '#A97BFF',
+		Dart: '#00B4AB',
+		Shell: '#89e051',
+		HTML: '#e34c26',
+		CSS: '#563d7c',
+		Vue: '#41b883',
+		Svelte: '#ff3e00',
+		React: '#61dafb'
+	} as const;
 
-    const res = await fetch(url)
-    const data = await res.json()
+	// Function to fetch README content
+	const fetchReadme = async (author: string, repo: string, default_branch: string) => {
+		try {
+			const response = await fetch(
+				`https://raw.githubusercontent.com/${author}/${repo}/${default_branch}/README.md`
+			);
+			const data = await response.text();
 
-    return data.items.map((item: any) => ({
-      id: item.id,
-      name: item.name,
-      description: item.description || 'No description provided',
-      readmeSnippet: 'Loading README...',
-      stars: item.stargazers_count,
-      forks: item.forks_count,
-      watchers: item.watchers_count,
-      author: item.owner.login,
-      avatar: item.owner.avatar_url,
-      language: item.language,
-      languageColor: '#3178c6',
-      stargazersUrl: item.html_url + '/stargazers',
-      forksUrl: item.html_url + '/fork'
-    }))
-  }
+			// Take only first 20 lines
+			const firstXLines = data.split('\n').slice(0, 40).join('\n');
+			return firstXLines;
+		} catch (error) {
+			console.error('Error fetching README:', error);
+			return 'Failed to load README';
+		}
+	};
 
-  // Function to load more projects
-  const loadMoreProjects = async () => {
-    if (isLoading || !hasMore) return
+	const stars = [
+		// 'stars:>20000',
+		// 'stars:10000..20000',
+		// 'stars:5000..10000',
+		// 'stars:1000..5000',
+		'stars:>1000',
+		'stars:500..1000',
+		'stars:100..500'
+	];
 
-    isLoading = true
-    try {
-      const newProjects = await fetchProjects(currentPage + 1)
-      projects = [...projects, ...newProjects]
-      currentPage++
+	const languages = [
+		'language:typescript',
+		'language:javascript',
+		'language:python',
+		'language:java',
+		'language:ruby',
+		'language:go',
+		'language:rust',
+		'language:c',
+		'language:cpp',
+		'language:csharp',
+		'language:php',
+		'language:swift',
+		'language:kotlin',
+		'language:dart',
+		'language:shell',
+		'language:html',
+		'language:css',
+		'language:vue',
+		'language:svelte',
+		'language:react'
+	];
 
-      if (currentPage >= MAX_PAGES) {
-        hasMore = false
-      }
-    } catch (error) {
-      console.error('Error loading more projects:', error)
-    } finally {
-      isLoading = false
-    }
-  }
+	const topics = $topicsStore?.all?.length > 0 ? $topicsStore?.all : allTopics;
 
-  // Update the intersection observer to handle pagination
-  const observeElement = (element: HTMLElement, index: number) => {
-    const observer = new IntersectionObserver(
-      async (entries) => {
-        entries.forEach(async entry => {
-          if (entry.isIntersecting) {
-            viewedIndices.add(index)
-            viewedIndices = viewedIndices // trigger reactivity
+	const seenqueries: Record<string, { current_page: number; total_projects: number }> = {};
 
-            // Fetch README when item comes into view
-            if (projects[index] && !projects[index].readmeSnippet.includes('#')) {
-              const readme = await fetchReadme(projects[index].author, projects[index].name)
-              projects[index].readmeSnippet = readme
-              projects = projects // trigger reactivity
-            }
+	function getRandomSearchQuery(attempt: number = 0) {
+		const searchParams = new URLSearchParams();
 
-            // If we're getting close to the end, load more projects
-            if (index >= projects.length - 20) {
-              loadMoreProjects()
-            }
-          }
-        })
-      },
-      { threshold: 0.5 }
-    )
+		const randomTopic = `topic:${topics[Math.floor(Math.random() * topics.length)]}`;
+		const randomStars = stars[Math.floor(Math.random() * stars.length)];
+		const randomLanguages = languages[Math.floor(Math.random() * languages.length)];
 
-    observer.observe(element)
-    return {
-      destroy() {
-        observer.disconnect()
-      }
-    }
-  }
+		const q = `${randomStars} ${randomTopic}`;
 
-  onMount(async () => {
-    // Redirect to setup if no topics selected
-    // if ($topicsStore.selected.size === 0) {
-    //   goto('/setup')
-    // }
+		searchParams.set('q', q);
+		searchParams.set('page', '1');
+		searchParams.set('per_page', '25');
 
-    // Load initial projects
-    const initialProjects = await fetchProjects(1)
-    projects = initialProjects
-  })
+		if (seenqueries[q] && attempt < 10000) {
+			if (seenqueries[q].current_page < seenqueries[q].total_projects / 25) {
+				searchParams.set('page', (seenqueries[q].current_page + 1).toString());
+			} else {
+				return getRandomSearchQuery(attempt + 1);
+			}
+		}
 
-  // Format numbers to human readable format (e.g., 73.5k)
-  const formatNumber = (num: number): string => {
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'k';
-    }
-    return num.toString();
-  };
+		return searchParams;
+	}
 
-  // Format date to relative time (e.g., "2 days ago")
-  const getRelativeTime = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+	// Function to fetch projects from GitHub API
+	const fetchProjects = async () => {
+		const url = new URL('https://api.github.com/search/repositories');
 
-    if (diffDays === 1) return 'yesterday';
-    if (diffDays < 30) return `${diffDays} days ago`;
-    const diffMonths = Math.floor(diffDays / 30);
-    return `${diffMonths} ${diffMonths === 1 ? 'month' : 'months'} ago`;
-  };
+		const query = getRandomSearchQuery();
+		const queryKey = query.get('q');
 
-  // Create a function to safely render markdown
-  const renderMarkdown = (content: string): string => {
-    // Force marked to return a string synchronously
-    const rawHtml = marked.parse(content, { async: false }) as string
-    return DOMPurify.sanitize(rawHtml, {
-      USE_PROFILES: { html: true },
-      ALLOWED_TAGS: [
-        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'a', 'ul', 'ol', 'li',
-        'code', 'pre', 'strong', 'em', 'blockquote', 'table', 'thead',
-        'tbody', 'tr', 'th', 'td', 'br', 'hr'
-      ],
-      ALLOWED_ATTR: ['href', 'target', 'rel', 'class']
-    })
-  }
+		if (!queryKey) {
+			throw new Error('No query key found');
+		}
 
-  // Function to scroll markdown content to top when loaded
-  const scrollMarkdownToTop = (node: HTMLElement) => {
-    node.scrollTop = 0
-    return {
-      update() {
-        node.scrollTop = 0
-      }
-    }
-  }
+		url.search = query.toString();
+
+		const res = await fetch(url);
+		const data = await res.json();
+
+		seenqueries[queryKey] = {
+			current_page: parseInt(query.get('page') || '1'),
+			total_projects: data.total_count
+		};
+
+		return data.items.map((item: any) => ({
+			id: item.id,
+			name: item.name,
+			description: item.description || 'No description provided',
+			default_branch: item.default_branch,
+			readmeSnippet: null,
+			stars: item.stargazers_count,
+			forks: item.forks_count,
+			watchers: item.watchers_count,
+			author: item.owner.login,
+			avatar: item.owner.avatar_url,
+			language: item.language,
+			languageColor: item.language
+				? languageColors[item.language as keyof typeof languageColors] || '#858585'
+				: undefined,
+			stargazersUrl: item.html_url + '/stargazers',
+			forksUrl: item.html_url + '/fork'
+		}));
+	};
+
+	// Function to load more projects and randomly merge them after the current index
+	const loadMoreProjects = async (index: number) => {
+		if (isLoading || !hasMore) return;
+
+		isLoading = true;
+		try {
+			const newProjects = await fetchProjects();
+
+			// Split existing projects into before and after index
+			const beforeProjects = projects.slice(0, index + 1);
+			const afterProjects = projects.slice(index + 1);
+
+			// Randomly merge new projects with remaining projects after index
+			const mergedProjects = [];
+			const combined = [...afterProjects, ...newProjects];
+
+			while (combined.length > 0) {
+				const randomIndex = Math.floor(Math.random() * combined.length);
+				mergedProjects.push(combined.splice(randomIndex, 1)[0]);
+			}
+
+			// Combine all parts
+			projects = [...beforeProjects, ...mergedProjects];
+
+		} catch (error) {
+			console.error('Error loading more projects:', error);
+		} finally {
+			isLoading = false;
+		}
+	};
+
+	// Update the intersection observer to handle pagination
+	const observeElement = (element: HTMLElement, index: number) => {
+		const observer = new IntersectionObserver(
+			async (entries) => {
+				entries.forEach(async (entry) => {
+					if (entry.isIntersecting) {
+						console.log('isIntersecting', index);
+						viewedIndices.add(index);
+						viewedIndices = viewedIndices; // trigger reactivity
+
+						// Fetch README when item comes into view
+						// Fetch current and next 3 READMEs when an item comes into view
+						if (projects[index] && !projects[index].readmeSnippet) {
+							// Fetch current README
+							const readme = await fetchReadme(
+								projects[index].author,
+								projects[index].name,
+								projects[index].default_branch
+							);
+							projects[index].readmeSnippet = readme;
+
+							projects = projects; // trigger reactivity
+						}
+
+						// Fetch next 2 READMEs
+						for (let i = 1; i <= 2; i++) {
+							const nextIndex = index + i;
+							if (projects[nextIndex] && !projects[nextIndex].readmeSnippet) {
+								const nextReadme = await fetchReadme(
+									projects[nextIndex].author,
+									projects[nextIndex].name,
+									projects[nextIndex].default_branch
+								);
+								projects[nextIndex].readmeSnippet = nextReadme;
+							}
+						}
+
+						// If we're getting close to the end, load more projects
+						if (index >= projects.length - 20) {
+							loadMoreProjects(index);
+						}
+					}
+				});
+			},
+			{ threshold: 0.5 }
+		);
+
+		observer.observe(element);
+		return {
+			destroy() {
+				observer.disconnect();
+			}
+		};
+	};
+
+	onMount(async () => {
+		// Load initial projects
+		const initialProjects = await fetchProjects(1);
+		projects = initialProjects;
+	});
+
+	// Format numbers to human readable format (e.g., 73.5k)
+	const formatNumber = (num: number): string => {
+		if (num >= 1000) {
+			return (num / 1000).toFixed(1) + 'k';
+		}
+		return num.toString();
+	};
+
+	// Format date to relative time (e.g., "2 days ago")
+	const getRelativeTime = (dateString: string) => {
+		const date = new Date(dateString);
+		const now = new Date();
+		const diffTime = Math.abs(now.getTime() - date.getTime());
+		const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+		if (diffDays === 1) return 'yesterday';
+		if (diffDays < 30) return `${diffDays} days ago`;
+		const diffMonths = Math.floor(diffDays / 30);
+		return `${diffMonths} ${diffMonths === 1 ? 'month' : 'months'} ago`;
+	};
+
+	// Create a function to safely render markdown
+	const renderMarkdown = (content: string, repo: string): string => {
+		// Force marked to return a string synchronously
+		marked.use({
+			gfm: true
+		});
+		marked.use(baseUrl(repo));
+		const rawHtml = marked.parse(content, { async: false }) as string;
+		return DOMPurify.sanitize(rawHtml, {
+			USE_PROFILES: { html: true },
+			ALLOWED_TAGS: [
+				'h1',
+				'h2',
+				'h3',
+				'h4',
+				'h5',
+				'h6',
+				'p',
+				'a',
+				'ul',
+				'ol',
+				'li',
+				'code',
+				'pre',
+				'strong',
+				'em',
+				'blockquote',
+				'table',
+				'thead',
+				'tbody',
+				'tr',
+				'th',
+				'td',
+				'br',
+				'hr'
+			],
+			ALLOWED_ATTR: ['href', 'target', 'rel', 'class']
+		});
+	};
+
+	// Function to scroll markdown content to top when loaded
+	const scrollMarkdownToTop = (node: HTMLElement) => {
+		node.scrollTop = 0;
+		return {
+			update() {
+				node.scrollTop = 0;
+			}
+		};
+	};
 </script>
 
-<div class="snap-y snap-mandatory h-screen w-full overflow-y-scroll">
-  {#each projects as project, index}
-    <div
-      class="snap-start h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-900 to-black relative"
-      use:observeElement={index}
-    >
-      <!-- Main Content Container -->
-      <div class="h-full w-full max-w-3xl mx-auto flex flex-col justify-between p-6">
-        <!-- Add viewed indicator -->
-        <div class="absolute top-4 left-4 text-gray-400 font-mono text-sm">
-          {viewedIndices.has(index) ? '✓ Viewed' : 'New'}
-        </div>
+<div class="h-screen w-full snap-y snap-mandatory overflow-y-scroll">
+	{#each projects as project, index}
+		<div
+			class="relative flex h-screen w-full snap-start items-center justify-center bg-gradient-to-b from-gray-900 to-black"
+			use:observeElement={index}
+		>
+			<!-- Main Content Container -->
+			<div class="mx-auto flex h-full w-full max-w-3xl flex-col justify-between p-6">
+				<!-- Add viewed indicator -->
+				<div class="absolute top-4 left-4 font-mono text-sm text-gray-400">
+					{viewedIndices.has(index) ? '✓ Viewed' : 'New'}
+				</div>
 
-        <!-- Top: Repository Name and Description -->
-        <div class="pt-4 space-y-3">
-          <h1 class="text-white text-2xl md:text-3xl font-serif flex items-center gap-2">
-            {project.name}
-            {#if project.language}
-              <span
-                class="w-3 h-3 rounded-full"
-                style="background-color: {project.languageColor}"
-              ></span>
-              <span class="text-sm font-mono text-gray-400">{project.language}</span>
-            {/if}
-          </h1>
-          <p class="text-gray-200 text-lg font-serif">{project.description}</p>
-        </div>
+				<!-- Top: Repository Name and Description -->
+				<div class="space-y-3 pt-4">
+					<h1 class="flex items-center gap-2 font-serif text-2xl text-white md:text-3xl">
+						{project.name}
+						{#if project.language}
+							<span class="h-3 w-3 rounded-full" style="background-color: {project.languageColor}"
+							></span>
+							<span class="font-mono text-sm text-gray-400">{project.language}</span>
+						{/if}
+					</h1>
+					<p class="font-serif text-lg text-gray-200">{project.description}</p>
+				</div>
 
-        <!-- Middle: README Content -->
-        <div class="flex-1 flex overflow-y-scroll my-4">
-          <div class="w-full bg-gray-800/30 backdrop-blur-sm rounded-xl p-6 markdown-content overflow-y-auto"
-               use:scrollMarkdownToTop>
-            {#if project.readmeSnippet.includes('Loading')}
-              <div class="text-gray-400 animate-pulse">Loading README...</div>
-            {:else}
-              {@html renderMarkdown(project.readmeSnippet)}
-            {/if}
-          </div>
-        </div>
+				<!-- Middle: README Content -->
+				<div class="my-4 flex flex-1 overflow-y-scroll">
+					<div
+						class="markdown-content w-full overflow-y-auto rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm"
+						use:scrollMarkdownToTop
+					>
+						{#if !project.readmeSnippet}
+							<div class="animate-pulse text-gray-400">Loading README...</div>
+						{:else}
+							{@html renderMarkdown(project.readmeSnippet, `https://github.com/${project.author}/${project.name}/${project.default_branch}/` )}
+						{/if}
+					</div>
+				</div>
 
-        <!-- Right Side: Stats -->
-        <div class="absolute right-4 bottom-24 flex flex-col items-center gap-6">
-          <!-- Stars -->
-          <div class="flex flex-col items-center">
-            <a
-              href={project.stargazersUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="p-2 rounded-full bg-gray-800/50 backdrop-blur-sm hover:bg-gray-700/50 transition-colors"
-              aria-label={`Star repository (${formatNumber(project.stars)} stars)`}
-            >
-              <Star class="w-8 h-8 text-yellow-400" />
-            </a>
-            <span class="text-white font-mono text-sm mt-1">{formatNumber(project.stars)}</span>
-          </div>
+				<!-- Right Side: Stats -->
+				<div class="absolute right-4 bottom-24 flex flex-col items-center gap-6">
+					<!-- Stars -->
+					<div class="flex flex-col items-center">
+						<a
+							href={project.stargazersUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+							aria-label={`Star repository (${formatNumber(project.stars)} stars)`}
+						>
+							<Star class="h-8 w-8 text-yellow-400" />
+						</a>
+						<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.stars)}</span>
+					</div>
 
-          <!-- Watchers -->
-          <div class="flex flex-col items-center">
-            <div
-              class="p-2 rounded-full bg-gray-800/50 backdrop-blur-sm"
-              aria-label={`${formatNumber(project.watchers)} watchers`}
-            >
-              <Eye class="w-8 h-8 text-blue-400" />
-            </div>
-            <span class="text-white font-mono text-sm mt-1">{formatNumber(project.watchers)}</span>
-          </div>
+					<!-- Watchers -->
+					<div class="flex flex-col items-center">
+						<div
+							class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm"
+							aria-label={`${formatNumber(project.watchers)} watchers`}
+						>
+							<Eye class="h-8 w-8 text-blue-400" />
+						</div>
+						<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.watchers)}</span>
+					</div>
 
-          <!-- Forks -->
-          <div class="flex flex-col items-center">
-            <a
-              href={project.forksUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="p-2 rounded-full bg-gray-800/50 backdrop-blur-sm hover:bg-gray-700/50 transition-colors"
-              aria-label={`Fork repository (${formatNumber(project.forks)} forks)`}
-            >
-              <GitFork class="w-8 h-8 text-gray-400" />
-            </a>
-            <span class="text-white font-mono text-sm mt-1">{formatNumber(project.forks)}</span>
-          </div>
-        </div>
+					<!-- Forks -->
+					<div class="flex flex-col items-center">
+						<a
+							href={project.forksUrl}
+							target="_blank"
+							rel="noopener noreferrer"
+							class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+							aria-label={`Fork repository (${formatNumber(project.forks)} forks)`}
+						>
+							<GitFork class="h-8 w-8 text-gray-400" />
+						</a>
+						<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.forks)}</span>
+					</div>
+				</div>
 
-        <!-- Bottom: Author Info -->
-        <div class="flex items-center gap-3 pb-4">
-          <img
-            src={project.avatar}
-            alt={`${project.author}'s avatar`}
-            class="w-10 h-10 rounded-full"
-          />
-          <div>
-            <h2 class="text-white font-mono text-lg">{project.author}</h2>
-          </div>
-          <a
-            href={`https://github.com/${project.author}/${project.name}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="ml-auto bg-white/10 hover:bg-white/20 transition-colors duration-200 text-white font-mono py-2 px-4 rounded-lg"
-          >
-            View Repository
-          </a>
-        </div>
-      </div>
-    </div>
-  {/each}
+				<!-- Bottom: Author Info -->
+				<div class="flex items-center gap-3 pb-4">
+					<img
+						src={project.avatar}
+						alt={`${project.author}'s avatar`}
+						class="h-10 w-10 rounded-full"
+					/>
+					<div>
+						<h2 class="font-mono text-lg text-white">{project.author}</h2>
+					</div>
+					<a
+						href={`https://github.com/${project.author}/${project.name}`}
+						target="_blank"
+						rel="noopener noreferrer"
+						class="ml-auto rounded-lg bg-white/10 px-4 py-2 font-mono text-white transition-colors duration-200 hover:bg-white/20"
+					>
+						View
+					</a>
+				</div>
+			</div>
+		</div>
+	{/each}
 
-  {#if isLoading}
-    <div class="h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-900 to-black">
-      <div class="text-white font-mono">Loading more repositories...</div>
-    </div>
-  {/if}
+	{#if isLoading}
+		<div
+			class="flex h-screen w-full items-center justify-center bg-gradient-to-b from-gray-900 to-black"
+		>
+			<div class="font-mono text-white">Loading more repositories...</div>
+		</div>
+	{/if}
 
-  {#if !hasMore && !isLoading}
-    <div class="h-screen w-full flex items-center justify-center bg-gradient-to-b from-gray-900 to-black">
-      <div class="text-white font-mono">You've reached the end!</div>
-    </div>
-  {/if}
+	{#if !hasMore && !isLoading}
+		<div
+			class="flex h-screen w-full items-center justify-center bg-gradient-to-b from-gray-900 to-black"
+		>
+			<div class="font-mono text-white">You've reached the end!</div>
+		</div>
+	{/if}
 </div>
 
-
 <style>
-  /* Hide scrollbar for Chrome, Safari and Opera */
-  .snap-y::-webkit-scrollbar {
-    display: none;
-  }
+	/* Hide scrollbar for Chrome, Safari and Opera */
+	.snap-y::-webkit-scrollbar {
+		display: none;
+	}
 
-  /* Hide scrollbar for IE, Edge and Firefox */
-  .snap-y {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
+	/* Hide scrollbar for IE, Edge and Firefox */
+	.snap-y {
+		-ms-overflow-style: none; /* IE and Edge */
+		scrollbar-width: none; /* Firefox */
+	}
 
-  .markdown-content pre {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  }
+	.markdown-content pre {
+		font-family:
+			ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+			monospace;
+	}
 
-  /* Style markdown content */
-  :global(.prose) {
-    color: rgb(229 231 235); /* gray-200 */
-  }
+	/* Style markdown content */
+	:global(.prose) {
+		color: rgb(229 231 235); /* gray-200 */
+	}
 
-  :global(.prose a) {
-    color: rgb(96 165 250); /* blue-400 */
-  }
+	:global(.prose a) {
+		color: rgb(96 165 250); /* blue-400 */
+	}
 
-  :global(.prose code) {
-    color: rgb(249 168 212); /* pink-300 */
-    background: rgb(31 41 55); /* gray-800 */
-    padding: 0.2em 0.4em;
-    border-radius: 0.25em;
-  }
+	:global(.prose code) {
+		color: rgb(249 168 212); /* pink-300 */
+		background: rgb(31 41 55); /* gray-800 */
+		padding: 0.2em 0.4em;
+		border-radius: 0.25em;
+	}
 
-  :global(.prose pre) {
-    background: rgb(17 24 39); /* gray-900 */
-    padding: 1em;
-    border-radius: 0.5em;
-  }
+	:global(.prose pre) {
+		background: rgb(17 24 39); /* gray-900 */
+		padding: 1em;
+		border-radius: 0.5em;
+	}
 </style>

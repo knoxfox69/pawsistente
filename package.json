@@ -16,7 +16,8 @@
 		"test": "npm run test:unit -- --run",
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
+		"db:studio": "drizzle-kit studio",
+		"update-topics": "bun run scripts/get_all_curated_topics.js"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
@@ -53,6 +54,7 @@
 		"isomorphic-dompurify": "^2.21.0",
 		"lucide-svelte": "^0.475.0",
 		"marked": "^15.0.7",
+		"marked-base-url": "^1.1.6",
 		"vite-plugin-mkcert": "^1.17.6"
 	},
 	"license": "Proprietary"
