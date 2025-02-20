@@ -14,7 +14,7 @@
 	import { baseUrl } from 'marked-base-url';
   import {markedEmoji} from "marked-emoji";
 	// Import icons
-	import { Star, Eye, GitFork, Share2 } from 'lucide-svelte';
+	import { Star, Eye, GitFork, Share2, Settings } from 'lucide-svelte';
 	// Sample GitHub projects - in a real app, these would come from GitHub API
 
 	type Project = {
@@ -115,7 +115,9 @@
 		'language:react'
 	];
 
-	const topics = $topicsStore?.all?.length > 0 ? $topicsStore?.all : allTopics;
+	const topics = $topicsStore.size > 0 ? [...$topicsStore] : allTopics;
+
+	$: console.log("topics", topics)
 
 	const seenqueries: Record<string, { current_page: number; total_projects: number }> = {};
 
@@ -424,6 +426,15 @@
 </script>
 
 <div class="h-screen w-full snap-y snap-mandatory overflow-y-scroll">
+	<!-- Add Settings Link -->
+	<a
+		href="/setup"
+		class="fixed top-4 right-4 z-50 rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+		aria-label="Settings"
+	>
+		<Settings class="h-6 w-6 text-gray-400" />
+	</a>
+
 	{#each projects as project, index}
 		<div
 			class="relative flex h-screen w-full snap-start items-center justify-center bg-gradient-to-b from-gray-900 to-black"

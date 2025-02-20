@@ -1,88 +1,40 @@
-import { writable, derived } from 'svelte/store';
+import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-type TopicsStore = {
-    selected: Set<string>;
-    custom: string[];
-    expanded: Set<string>;
-}
+// Load initial state from localStorage if available
+const getStoredTopics = (): Set<string> => {
+    if (!browser) return new Set();
 
-const createTopicsStore = () => {
-    // Initialize with stored values or defaults
-    const initial: TopicsStore = {
-        selected: new Set(),
-        custom: [],
-        expanded: new Set()
-    };
+    const stored = localStorage.getItem('topics');
+    if (!stored) return new Set();
 
-    if (browser) {
-        const storedSelected = localStorage.getItem('selectedTopics');
-        const storedCustom = localStorage.getItem('customTopics');
-
-        if (storedSelected) initial.selected = new Set(JSON.parse(storedSelected));
-        if (storedCustom) initial.custom = JSON.parse(storedCustom);
-    }
-
-    const { subscribe, set, update } = writable<TopicsStore>(initial);
-
-    const store = {
-        subscribe,
-        toggleTopic: (topic: string) => update(store => {
-            const selected = new Set(store.selected);
-            if (selected.has(topic)) {
-                selected.delete(topic);
-            } else {
-                selected.add(topic);
-            }
-            if (browser) {
-                localStorage.setItem('selectedTopics', JSON.stringify([...selected]));
-            }
-            return { ...store, selected };
-        }),
-        toggleExpanded: (topic: string) => update(store => {
-            const expanded = new Set(store.expanded);
-            if (expanded.has(topic)) {
-                expanded.delete(topic);
-            } else {
-                expanded.add(topic);
-            }
-            return { ...store, expanded };
-        }),
-        addCustomTopic: (topic: string) => update(store => {
-            const custom = [...store.custom, topic];
-            if (browser) {
-                localStorage.setItem('customTopics', JSON.stringify(custom));
-            }
-            return { ...store, custom };
-        }),
-        removeCustomTopic: (topic: string) => update(store => {
-            const custom = store.custom.filter(t => t !== topic);
-            if (browser) {
-                localStorage.setItem('customTopics', JSON.stringify(custom));
-            }
-            return { ...store, custom };
-        }),
-        getAll: () => {
-            let store: TopicsStore;
-            subscribe(s => store = s)();
-            return [...store.selected, ...store.custom];
-        },
-        reset: () => {
-            if (browser) {
-                localStorage.removeItem('selectedTopics');
-                localStorage.removeItem('customTopics');
-            }
-            set({ selected: new Set(), custom: [], expanded: new Set() });
-        }
-    };
-
-    // Create a derived store for all topics
-    const all = derived(store, $store => [...$store.selected, ...$store.custom]);
-
-    return {
-        ...store,
-        all
-    };
+    return new Set(JSON.parse(stored));
 };
 
-export const topicsStore = createTopicsStore();
+// Create the store with initial state
+const { subscribe, set, update } = writable<Set<string>>(getStoredTopics());
+
+// Save state to localStorage
+const saveToStorage = (topics: Set<string>) => {
+    if (!browser) return;
+    localStorage.setItem('topics', JSON.stringify([...topics]));
+};
+
+// Export the store with actions
+export const topicsStore = {
+    subscribe,
+    set,
+    update,
+    toggle: (topic: string) => update(topics => {
+        const newTopics = new Set(topics);
+        topics.has(topic) ? newTopics.delete(topic) : newTopics.add(topic);
+        saveToStorage(newTopics);
+        return newTopics;
+    }),
+
+    reset: () => {
+        const newTopics = new Set<string>();
+        if (browser) localStorage.removeItem('topics');
+        set(newTopics);
+    }
+};
