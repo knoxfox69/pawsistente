@@ -452,7 +452,7 @@
 				<!-- Middle: README Content -->
 				<div class="my-4 flex flex-1 overflow-y-auto">
 					<div
-						class="markdown-content w-full overflow-y-auto rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm"
+						class="markdown-content w-full overflow-y-auto rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm overscroll-contain"
 						use:scrollMarkdownToTop
 					>
 						{#if !project.readmeSnippet}
