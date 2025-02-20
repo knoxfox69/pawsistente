@@ -441,19 +441,13 @@
 			use:observeElement={index}
 		>
 			<!-- Main Content Container -->
-			<div class="mx-auto flex h-full w-full max-w-3xl flex-col justify-between p-6">
-				<!-- Add viewed indicator -->
-				<!-- <div class="absolute top-4 left-4 font-mono text-sm text-gray-400">
-					{viewedIndices.has(index) ? '✓ Viewed' : 'New'}
-				</div> -->
-
+			<div class="mx-auto flex h-full w-full max-w-3xl flex-col p-6">
 				<!-- Top: Repository Name and Description -->
-				<div class="space-y-2">
+				<div class="space-y-2 flex-none">
 					<h1 class="flex items-center gap-2 font-serif text-2xl text-white md:text-3xl">
 						{project.name}
 						{#if project.language}
-							<span class="h-3 w-3 rounded-full" style="background-color: {project.languageColor}"
-							></span>
+							<span class="h-3 w-3 rounded-full" style="background-color: {project.languageColor}"></span>
 							<span class="font-mono text-sm text-gray-400">{project.language}</span>
 						{/if}
 					</h1>
@@ -461,9 +455,9 @@
 				</div>
 
 				<!-- Middle: README Content -->
-				<div class="my-4 flex flex-1 overflow-y-auto">
+				<div class="my-4 flex min-h-0 flex-1">
 					<div
-						class="markdown-content w-full overflow-y-auto rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm overscroll-contain"
+						class="markdown-content w-full overflow-y-auto rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm"
 						use:scrollMarkdownToTop
 					>
 						{#if !project.readmeSnippet}
@@ -528,7 +522,7 @@
 				</div>
 
 				<!-- Bottom: Author Info -->
-				<div class="flex items-center gap-3 mb-4">
+				<div class="flex-none flex items-center gap-3 mb-4">
 					<img
 						src={project.avatar}
 						alt={`${project.author}'s avatar`}
