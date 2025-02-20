@@ -437,7 +437,7 @@
 				</div> -->
 
 				<!-- Top: Repository Name and Description -->
-				<div class="space-y-3 pt-4">
+				<div class="space-y-2">
 					<h1 class="flex items-center gap-2 font-serif text-2xl text-white md:text-3xl">
 						{project.name}
 						{#if project.language}
@@ -450,7 +450,7 @@
 				</div>
 
 				<!-- Middle: README Content -->
-				<div class="my-4 flex flex-1 overflow-y-scroll">
+				<div class="my-4 flex flex-1 overflow-y-auto">
 					<div
 						class="markdown-content w-full overflow-y-auto rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm"
 						use:scrollMarkdownToTop
@@ -517,7 +517,7 @@
 				</div>
 
 				<!-- Bottom: Author Info -->
-				<div class="flex items-center gap-3 pb-4">
+				<div class="flex items-center gap-3 mb-4">
 					<img
 						src={project.avatar}
 						alt={`${project.author}'s avatar`}
