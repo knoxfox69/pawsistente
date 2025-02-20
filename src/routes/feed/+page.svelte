@@ -117,8 +117,6 @@
 
 	const topics = $topicsStore.size > 0 ? [...$topicsStore] : allTopics;
 
-	$: console.log("topics", topics)
-
 	const seenqueries: Record<string, { current_page: number; total_projects: number }> = {};
 
 	function getRandomSearchQuery(attempt: number = 0) {
@@ -437,7 +435,7 @@
 
 	{#each projects as project, index}
 		<div
-			class="relative flex h-screen w-full snap-start items-center justify-center bg-gradient-to-b from-gray-900 to-black"
+			class="relative flex h-screen w-full snap-start items-center justify-center bg-gradient-to-b from-gray-900 to-black project-container"
 			use:observeElement={index}
 		>
 			<!-- Main Content Container -->
@@ -455,7 +453,7 @@
 				</div>
 
 				<!-- Middle: README Content -->
-				<div class="my-4 flex min-h-0 flex-1">
+				<div class="my-4 flex min-h-0 flex-1 readme-container">
 					<div
 						class="markdown-content w-full overflow-y-auto rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm"
 						use:scrollMarkdownToTop
@@ -565,6 +563,18 @@
 	/* Hide scrollbar for Chrome, Safari and Opera */
 	.snap-y::-webkit-scrollbar {
 		display: none;
+	}
+
+	.readme-container {
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+		overscroll-behavior: none;
+		touch-action: pan-y;
+		max-height: 70vh;
+	}
+
+	.project-container {
+		-webkit-overflow-scrolling: touch;
 	}
 
 	/* Hide scrollbar for IE, Edge and Firefox */
