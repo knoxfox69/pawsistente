@@ -6,12 +6,14 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
-  import { fade, fly } from 'svelte/transition';
+  import { fade, fly, slide } from 'svelte/transition';
+  import { quintOut } from 'svelte/easing';
   import { Twitter, MessageSquareQuote } from 'lucide-svelte';
 
   let hasVisited = false;
   let visible = false;
   let currentQuoteIndex = 0;
+  let slideDirection = 1; // 1 for right, -1 for left
 
   const quotes = [
     { text: "I spent 2 hours scrolling again. But this time, it was neither mindlessly, nor a waste of time :)", author: "WittyWithoutWorry" },
@@ -27,6 +29,7 @@
     visible = true;
 
     const interval = setInterval(() => {
+      slideDirection = 1;
       currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
     }, 5000);
 
@@ -35,7 +38,6 @@
 
   const features = [
     { icon: '🚀', text: '"No, I\'m not procrastinating, I\'m researching coding patterns!"' },
-    { icon: '💡', text: '"It\'s like TikTok, but instead of dance moves, you\'re stealing code snippets"' },
     { icon: '⚡', text: '"The only infinite scroll that makes you better at your job*"' },
     { icon: '🎯', text: '"Where developers come for inspiration and stay for the algorithms"' },
   ];
@@ -90,21 +92,23 @@
           </div>
 
           <!-- Community Quote Section -->
-          {#key currentQuoteIndex}
-            <div
-              class="mb-8 p-4 rounded-lg bg-white/5 backdrop-blur-sm"
-              in:fade={{ duration: 400 }}
-              out:fade={{ duration: 200 }}
-            >
-              <div class="flex items-start gap-3">
-                <MessageSquareQuote class="h-5 w-5 text-blue-400 flex-shrink-0 mt-1" />
-                <div class="text-left">
-                  <p class="text-gray-200 font-serif italic">{quotes[currentQuoteIndex].text}</p>
-                  <p class="text-sm text-gray-400 mt-2 font-mono">- {quotes[currentQuoteIndex].author}</p>
+          <div class="relative h-32 mb-8 overflow-hidden">
+            {#key currentQuoteIndex}
+              <div
+                class="absolute inset-0 p-4 rounded-lg bg-white/5 backdrop-blur-sm"
+                in:slide|local={{ duration: 400, delay: 0, axis: 'x', easing: quintOut }}
+                out:slide|local={{ duration: 400, delay: 0, axis: 'x', easing: quintOut }}
+              >
+                <div class="flex items-start gap-3">
+                  <MessageSquareQuote class="h-5 w-5 text-blue-400 flex-shrink-0 mt-1" />
+                  <div class="text-left">
+                    <p class="text-gray-200 font-serif italic">{quotes[currentQuoteIndex].text}</p>
+                    <p class="text-sm text-gray-400 mt-2 font-mono">- {quotes[currentQuoteIndex].author}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-          {/key}
+            {/key}
+          </div>
 
           <div class="space-y-6 text-gray-300 font-serif">
             {#each features as feature, i}
