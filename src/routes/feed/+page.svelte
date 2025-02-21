@@ -453,9 +453,9 @@
 				</div>
 
 				<!-- Middle: README Content -->
-				<div class="my-4 flex min-h-0 flex-1 readme-container">
+				<div class="my-4 flex min-h-0 flex-1">
 					<div
-						class="markdown-content w-full overflow-y-auto rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm"
+						class="markdown-content w-full overflow-y-clip rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm readme-container"
 						use:scrollMarkdownToTop
 					>
 						{#if !project.readmeSnippet}
@@ -565,17 +565,6 @@
 		display: none;
 	}
 
-	.readme-container {
-		overflow-y: auto;
-		-webkit-overflow-scrolling: touch;
-		overscroll-behavior: none;
-		touch-action: pan-y;
-		max-height: 70vh;
-	}
-
-	.project-container {
-		-webkit-overflow-scrolling: touch;
-	}
 
 	/* Hide scrollbar for IE, Edge and Firefox */
 	.snap-y {
