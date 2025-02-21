@@ -10,11 +10,12 @@
 	import { topicsStore } from '$lib/stores/topics';
 	import { topics as allTopics } from '$lib/all_topics';
   import {Octokit} from "@octokit/rest";
+  import { Twitter } from 'lucide-svelte';
 
 	import { baseUrl } from 'marked-base-url';
   import {markedEmoji} from "marked-emoji";
 	// Import icons
-	import { Star, Eye, GitFork, Share2, Settings } from 'lucide-svelte';
+	import { Star, Eye, GitFork, Share2, Settings, Globe } from 'lucide-svelte';
 	// Sample GitHub projects - in a real app, these would come from GitHub API
 
 	type Project = {
@@ -38,6 +39,7 @@
 	let viewedIndices = new Set<number>();
 	let isLoading = false;
 	let hasMore = true;
+	let hasShownFollowMessage = false;
 	// Add this language color mapping object before the fetchProjects function
 	const languageColors = {
 		TypeScript: '#3178c6',
@@ -258,6 +260,31 @@
 						viewedIndices.add(index);
 						viewedIndices = viewedIndices; // trigger reactivity
 
+						// Show follow message after viewing 10 items
+						if (viewedIndices.size === 10 && !hasShownFollowMessage) {
+							hasShownFollowMessage = true;
+							// Insert the follow message card after the current item
+							const followMessageProject: Project = {
+								id: -1,
+								name: "Enjoying GitTok?",
+								description: "If you're finding this useful, consider following me on Twitter for more cool projects!",
+								readmeSnippet: "",
+								stars: 0,
+								forks: 0,
+								watchers: 0,
+								author: "@brsc2909",
+								avatar: "https://avatars.githubusercontent.com/u/1?v=4",
+								stargazersUrl: "",
+								forksUrl: "",
+								default_branch: ""
+							};
+							projects = [
+								...projects.slice(0, index + 1),
+								followMessageProject,
+								...projects.slice(index + 1)
+							];
+						}
+
 						// Fetch README when item comes into view
 						// Fetch current and next 3 READMEs when an item comes into view
 						if (projects[index] && !projects[index].readmeSnippet) {
@@ -424,14 +451,23 @@
 </script>
 
 <div class="h-screen w-full snap-y snap-mandatory overflow-y-scroll">
-	<!-- Add Settings Link -->
-	<a
-		href="/setup"
-		class="fixed top-4 right-4 z-50 rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
-		aria-label="Settings"
-	>
-		<Settings class="h-6 w-6 text-gray-400" />
-	</a>
+	<!-- Add Settings and About Links -->
+	<div class="fixed top-4 right-4 z-50 flex gap-4">
+		<a
+			href="/about"
+			class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+			aria-label="About"
+		>
+			<Globe class="h-6 w-6 text-gray-400" />
+		</a>
+		<a
+			href="/setup"
+			class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+			aria-label="Settings"
+		>
+			<Settings class="h-6 w-6 text-gray-400" />
+		</a>
+	</div>
 
 	{#each projects as project, index}
 		<div
@@ -440,104 +476,123 @@
 		>
 			<!-- Main Content Container -->
 			<div class="mx-auto flex h-full w-full max-w-3xl flex-col p-6">
-				<!-- Top: Repository Name and Description -->
-				<div class="space-y-2 flex-none">
-					<h1 class="flex items-center gap-2 font-serif text-2xl text-white md:text-3xl">
-						{project.name}
-						{#if project.language}
-							<span class="h-3 w-3 rounded-full" style="background-color: {project.languageColor}"></span>
-							<span class="font-mono text-sm text-gray-400">{project.language}</span>
-						{/if}
-					</h1>
-					<p class="font-serif text-lg text-gray-200">{project.description}</p>
-				</div>
-
-				<!-- Middle: README Content -->
-				<div class="my-4 flex min-h-0 flex-1">
-					<div
-						class="markdown-content w-full overflow-y-clip rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm readme-container"
-						use:scrollMarkdownToTop
-					>
-						{#if !project.readmeSnippet}
-							<div class="animate-pulse text-gray-400">Loading README...</div>
-						{:else}
-							{@html renderMarkdown(project.readmeSnippet, `https://github.com/${project.author}/${project.name}/${project.default_branch}/` )}
-						{/if}
-					</div>
-				</div>
-
-				<!-- Right Side: Stats -->
-				<div class="absolute right-4 bottom-24 flex flex-col items-center gap-6">
-					<!-- Stars -->
-					<div class="flex flex-col items-center">
+				{#if project.id === -1}
+					<!-- Special Follow Message Card -->
+					<div class="flex flex-col items-center justify-center h-full text-center space-y-8">
+						<h1 class="text-4xl font-serif text-white">{project.name}</h1>
+						<p class="text-xl font-serif text-gray-200 max-w-lg">{project.description}</p>
 						<a
-							href={project.stargazersUrl}
+							href="https://twitter.com/brsc2909"
 							target="_blank"
 							rel="noopener noreferrer"
-							class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
-							aria-label={`Star repository (${formatNumber(project.stars)} stars)`}
+							class="flex items-center gap-3 px-6 py-3 bg-blue-400 hover:bg-blue-500 text-white rounded-full transition-colors duration-200"
 						>
-							<Star class="h-8 w-8 text-yellow-400" />
+							<Twitter class="h-5 w-5" />
+							<span class="font-mono">Follow @brsc2909</span>
 						</a>
-						<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.stars)}</span>
+						<p class="text-sm text-gray-400 mt-4">Keep scrolling for more awesome projects!</p>
+					</div>
+				{:else}
+					<!-- Regular Repository Card -->
+					<!-- Top: Repository Name and Description -->
+					<div class="space-y-2 flex-none">
+						<h1 class="flex items-center gap-2 font-serif text-2xl text-white md:text-3xl">
+							{project.name}
+							{#if project.language}
+								<span class="h-3 w-3 rounded-full" style="background-color: {project.languageColor}"></span>
+								<span class="font-mono text-sm text-gray-400">{project.language}</span>
+							{/if}
+						</h1>
+						<p class="font-serif text-lg text-gray-200">{project.description}</p>
 					</div>
 
-					<!-- Watchers -->
-					<div class="flex flex-col items-center">
+					<!-- Middle: README Content -->
+					<div class="my-4 flex min-h-0 flex-1">
 						<div
-							class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm"
-							aria-label={`${formatNumber(project.watchers)} watchers`}
+							class="markdown-content w-full overflow-y-clip rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm readme-container"
+							use:scrollMarkdownToTop
 						>
-							<Eye class="h-8 w-8 text-blue-400" />
+							{#if !project.readmeSnippet}
+								<div class="animate-pulse text-gray-400">Loading README...</div>
+							{:else}
+								{@html renderMarkdown(project.readmeSnippet, `https://github.com/${project.author}/${project.name}/${project.default_branch}/` )}
+							{/if}
 						</div>
-						<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.watchers)}</span>
 					</div>
-					<!-- Forks -->
-					<div class="flex flex-col items-center">
+
+					<!-- Right Side: Stats -->
+					<div class="absolute right-4 bottom-24 flex flex-col items-center gap-6">
+						<!-- Stars -->
+						<div class="flex flex-col items-center">
+							<a
+								href={project.stargazersUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+								aria-label={`Star repository (${formatNumber(project.stars)} stars)`}
+							>
+								<Star class="h-8 w-8 text-yellow-400" />
+							</a>
+							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.stars)}</span>
+						</div>
+
+						<!-- Watchers -->
+						<div class="flex flex-col items-center">
+							<div
+								class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm"
+								aria-label={`${formatNumber(project.watchers)} watchers`}
+							>
+								<Eye class="h-8 w-8 text-blue-400" />
+							</div>
+							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.watchers)}</span>
+						</div>
+						<!-- Forks -->
+						<div class="flex flex-col items-center">
+							<a
+								href={project.forksUrl}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+								aria-label={`Fork repository (${formatNumber(project.forks)} forks)`}
+							>
+								<GitFork class="h-8 w-8 text-gray-400" />
+							</a>
+							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.forks)}</span>
+						</div>
+
+						<!-- Share Button -->
+						<div class="flex flex-col items-center">
+							<button
+								on:click={() => shareProject(project)}
+								class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+								aria-label="Share repository"
+							>
+								<Share2 class="h-8 w-8 text-purple-400" />
+							</button>
+							<span class="mt-1 font-mono text-sm text-white">Share</span>
+						</div>
+					</div>
+
+					<!-- Bottom: Author Info -->
+					<div class="flex-none flex items-center gap-3 mb-4">
+						<img
+							src={project.avatar}
+							alt={`${project.author}'s avatar`}
+							class="h-10 w-10 rounded-full"
+						/>
+						<div>
+							<h2 class="font-mono text-lg text-white">{project.author}</h2>
+						</div>
 						<a
-							href={project.forksUrl}
+							href={`https://github.com/${project.author}/${project.name}`}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
-							aria-label={`Fork repository (${formatNumber(project.forks)} forks)`}
+							class="ml-auto rounded-lg bg-white/10 px-4 py-2 font-mono text-white transition-colors duration-200 hover:bg-white/20"
 						>
-							<GitFork class="h-8 w-8 text-gray-400" />
+							View
 						</a>
-						<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.forks)}</span>
 					</div>
-
-					<!-- Share Button -->
-					<div class="flex flex-col items-center">
-						<button
-							on:click={() => shareProject(project)}
-							class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
-							aria-label="Share repository"
-						>
-							<Share2 class="h-8 w-8 text-purple-400" />
-						</button>
-						<span class="mt-1 font-mono text-sm text-white">Share</span>
-					</div>
-				</div>
-
-				<!-- Bottom: Author Info -->
-				<div class="flex-none flex items-center gap-3 mb-4">
-					<img
-						src={project.avatar}
-						alt={`${project.author}'s avatar`}
-						class="h-10 w-10 rounded-full"
-					/>
-					<div>
-						<h2 class="font-mono text-lg text-white">{project.author}</h2>
-					</div>
-					<a
-						href={`https://github.com/${project.author}/${project.name}`}
-						target="_blank"
-						rel="noopener noreferrer"
-						class="ml-auto rounded-lg bg-white/10 px-4 py-2 font-mono text-white transition-colors duration-200 hover:bg-white/20"
-					>
-						View
-					</a>
-				</div>
+				{/if}
 			</div>
 		</div>
 	{/each}

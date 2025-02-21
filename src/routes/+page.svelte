@@ -7,20 +7,30 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
   import { fade, fly } from 'svelte/transition';
+  import { Twitter, MessageSquareQuote } from 'lucide-svelte';
 
   let hasVisited = false;
   let visible = false;
+  let currentQuoteIndex = 0;
 
+  const quotes = [
+    { text: "I spent 2 hours scrolling again. But this time, it was neither mindlessly, nor a waste of time :)", author: "WittyWithoutWorry" },
+    { text: "Actually addicting lol", author: "AkhilSundaram" },
+    { text: "Very cool idea, was fun scrolling through it for a bit", author: "Previous-Tune-8896" },
+    { text: "Pretty cool. Would love to be able to filter by tags, keywords etc.", author: "AvidCoco" },
+    { text: "Does it also send all my data to the Chinese government?", author: "Maskdask" },
+  ];
+
+  // Cycle through quotes every 5 seconds
   onMount(() => {
-    // Check if user has visited before
     hasVisited = localStorage.getItem('hasVisitedGitTok') === 'true';
     visible = true;
 
-    if (hasVisited) {
-      // goto('/feed');
-    } else {
-      localStorage.setItem('hasVisitedGitTok', 'true');
-    }
+    const interval = setInterval(() => {
+      currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+    }, 5000);
+
+    return () => clearInterval(interval);
   });
 
   const features = [
@@ -64,7 +74,37 @@
           <h1 class="text-5xl font-serif mb-2 text-white font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
             GitTok
           </h1>
-          <p class="text-xl mb-8 text-gray-300">Where Code Meets Creativity</p>
+          <div class="flex items-center justify-center gap-2 mb-8">
+            <p class="text-xl text-gray-300">Get addicted to code</p>
+            <span class="text-gray-500">•</span>
+            <a
+              href="https://twitter.com/brsc2909"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="flex items-center gap-1.5 text-gray-400 hover:text-blue-400 transition-colors duration-200 group"
+            >
+              <span class="text-sm">by</span>
+              <Twitter class="h-4 w-4 group-hover:text-blue-400 transition-colors duration-200" />
+              <span class="text-sm font-mono group-hover:text-blue-400 transition-colors duration-200">@brsc2909</span>
+            </a>
+          </div>
+
+          <!-- Community Quote Section -->
+          {#key currentQuoteIndex}
+            <div
+              class="mb-8 p-4 rounded-lg bg-white/5 backdrop-blur-sm"
+              in:fade={{ duration: 400 }}
+              out:fade={{ duration: 200 }}
+            >
+              <div class="flex items-start gap-3">
+                <MessageSquareQuote class="h-5 w-5 text-blue-400 flex-shrink-0 mt-1" />
+                <div class="text-left">
+                  <p class="text-gray-200 font-serif italic">{quotes[currentQuoteIndex].text}</p>
+                  <p class="text-sm text-gray-400 mt-2 font-mono">- {quotes[currentQuoteIndex].author}</p>
+                </div>
+              </div>
+            </div>
+          {/key}
 
           <div class="space-y-6 text-gray-300 font-serif">
             {#each features as feature, i}
@@ -87,13 +127,15 @@
             </p>
           </div>
 
-          <a
-            href="/feed"
-            class="inline-block mt-8 px-8 py-4 bg-gradient-to-r from-blue-400 to-blue-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
-            in:fade={{ delay: 1000, duration: 800 }}
-          >
-            Start Scrolling
-          </a>
+          <div class="flex flex-col items-center gap-4 mt-8">
+            <a
+              href="/feed"
+              class="px-8 py-4 bg-gradient-to-r from-blue-400 to-blue-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
+              in:fade={{ delay: 1000, duration: 800 }}
+            >
+              Start Scrolling
+            </a>
+          </div>
         </div>
       </div>
     {/if}
