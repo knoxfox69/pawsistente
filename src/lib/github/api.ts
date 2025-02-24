@@ -4,11 +4,11 @@
 import { Octokit } from "@octokit/rest";
 import type { StargazerData } from "./types";
 
-export async function isWithinLastDay(dateStr: string): Promise<boolean> {
+export function isWithinLastDays(dateStr: string, days: number): boolean {
   const date = new Date(dateStr);
   const now = new Date();
-  const oneDayAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
-  return date >= oneDayAgo;
+  const daysAgo = new Date(now.getTime() - (days * 24 * 60 * 60 * 1000));
+  return date >= daysAgo;
 }
 
 export async function fetchStargazerPage(
@@ -23,21 +23,24 @@ export async function fetchStargazerPage(
     sort: "created",
     direction: "desc",
     per_page: 100,
-    page: page
-  });
+    page: page,
+    headers: {
+      Accept: 'application/vnd.github.v3.star+json'
+    }
+  }
+  );
 
   const stargazers: StargazerData[] = [];
   let foundOldStar = false;
 
   for (const stargazerData of response.data) {
-    console.log(stargazerData);
     const user = 'user' in stargazerData ? stargazerData.user : stargazerData;
     const starredAt = 'starred_at' in stargazerData ? stargazerData.starred_at : null;
     
     if (!user || !starredAt) continue;
 
     // Check if this star is within the last 24 hours
-    if (!await isWithinLastDay(starredAt)) {
+    if (!isWithinLastDays(starredAt, 10)) {
       foundOldStar = true;
       break;
     }
@@ -51,6 +54,8 @@ export async function fetchStargazerPage(
       starred_at: starredAt,
     });
   }
+
+  console.log(`Found ${stargazers.length} stargazers for ${owner}/${repo}`);
 
   const hasMore = response.data.length === 100 && !foundOldStar;
   return { stargazers, hasMore };

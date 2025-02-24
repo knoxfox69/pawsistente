@@ -9,6 +9,7 @@ export async function fetchRecentStargazers(octokit: Octokit, owner: string, rep
   try {
     const stargazers = await fetchAllRecentStargazers(octokit, owner, repo);
 
+
     // Process each stargazer and their repositories
     for (const stargazer of stargazers) {
       console.log(`Processing user ${stargazer.login} who starred at ${stargazer.starred_at}...`);

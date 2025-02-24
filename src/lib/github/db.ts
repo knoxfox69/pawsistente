@@ -5,7 +5,7 @@ import { db } from "../db";
 import { eq, sql } from "drizzle-orm";
 import { stargazers, repositories } from "../db/schema";
 import type { StargazerData } from "./types";
-import { fetchUserRepositories } from "./repositories";
+import { fetchPinnedRepositories, fetchUserRepositories } from "./repositories";
 import type { Octokit } from "@octokit/rest";
 
 export async function upsertStargazer(stargazer: StargazerData) {
@@ -42,6 +42,7 @@ export async function upsertRepository(repo: typeof repositories.$inferSelect) {
 
 export async function processStargazerRepositories(octokit: Octokit, stargazer: StargazerData) {
   // Fetch and store repositories
+//   const pinnedRepos = await fetchPinnedRepositories(octokit, stargazer.login);
   const userRepos = await fetchUserRepositories(octokit, stargazer.login);
   
   // Set owner_id for all repositories

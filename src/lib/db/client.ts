@@ -180,6 +180,8 @@ export async function getRepositories({
     query += ' LIMIT ? OFFSET ?';
     params.push(limit, offset);
 
+    console.log("query", query, params);
+
     return await executeQuery<Repository>(query, params);
 }
 

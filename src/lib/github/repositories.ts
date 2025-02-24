@@ -35,7 +35,7 @@ export async function fetchPinnedRepositories(octokit: Octokit, username: string
     const pinnedRepos = response.user?.pinnedItems?.nodes ?? [];
 
     return pinnedRepos.map(repo => ({
-      id: parseInt(repo.id.split(':')[1], 10),
+      id: repo.id,
       name: repo.name,
       full_name: repo.nameWithOwner,
       description: repo.description,
@@ -63,7 +63,7 @@ export async function fetchUserRepositories(octokit: Octokit, username: string):
 
     // First, get pinned repositories to compare against
     const pinnedRepos = await fetchPinnedRepositories(octokit, username);
-    const pinnedRepoIds = new Set(pinnedRepos.map(repo => repo.id));
+    const pinnedRepoNames = new Set(pinnedRepos.map(repo => repo.name));
 
     while (hasMorePages) {
       console.log(`Fetching repositories for ${username}, page ${page}...`);
@@ -87,7 +87,7 @@ export async function fetchUserRepositories(octokit: Octokit, username: string):
         fork: repo.fork ? 1 : 0,
         created_at: repo.created_at ?? new Date().toISOString(),
         updated_at: repo.updated_at ?? new Date().toISOString(),
-        is_pinned: pinnedRepoIds.has(repo.id) ? 1 : 0,
+        is_pinned: pinnedRepoNames.has(repo.name) ? 1 : 0,
         owner_id: 0, // This will be set later when we know the stargazer's ID
         fetched_at: new Date().toISOString()
       }));

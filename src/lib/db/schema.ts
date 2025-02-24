@@ -16,7 +16,7 @@ export const stargazers = sqliteTable('stargazers', {
 });
 
 export const repositories = sqliteTable('repositories', {
-  id: integer('id').primaryKey(),
+  id: text('id').primaryKey(),
   owner_id: integer('owner_id').notNull().references(() => stargazers.id),
   name: text('name').notNull(),
   full_name: text('full_name').notNull(),

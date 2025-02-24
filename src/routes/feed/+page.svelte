@@ -11,6 +11,7 @@
 	import { topics as allTopics } from '$lib/all_topics';
 	import { Octokit } from '@octokit/rest';
 	import { Twitter } from 'lucide-svelte';
+	import { getRepositories } from '$lib/db/client';
 
 	import { baseUrl } from 'marked-base-url';
 	import { markedEmoji } from 'marked-emoji';
@@ -40,6 +41,9 @@
 	let isLoading = false;
 	let hasMore = true;
 	let hasShownFollowMessage = false;
+	// Cache for prefetched promoted repos
+	let promotedReposCache: Map<number, Project> = new Map();
+
 	// Add this language color mapping object before the fetchProjects function
 	const languageColors = {
 		TypeScript: '#3178c6',
@@ -245,7 +249,156 @@
 		window.history.replaceState({}, '', url.toString());
 	}
 
-	// Update the intersection observer to handle pagination
+	// Function to prefetch promoted repos
+	const prefetchPromotedRepos = async (currentIndex: number) => {
+		// Calculate the next two positions where promoted repos will be needed
+		const currentPosition = Math.floor((currentIndex + 1) / 10);
+		const nextPositions = [currentPosition + 1, currentPosition + 2];
+
+		// Prefetch for each position if not already in cache
+		for (const position of nextPositions) {
+			if (!promotedReposCache.has(position)) {
+				const promotedRepo = await getPromotedRepo(position);
+				promotedReposCache.set(position, promotedRepo);
+			}
+		}
+	};
+
+	// Function to get a promoted repo (either from cache or fetch new)
+	const getPromotedRepoWithCache = async (position: number): Promise<Project> => {
+		// Check cache first
+		if (promotedReposCache.has(position)) {
+			const cachedRepo = promotedReposCache.get(position);
+			// Remove from cache after using
+			promotedReposCache.delete(position);
+			return cachedRepo!;
+		}
+
+		// If not in cache, fetch directly
+		return await getPromotedRepo(position);
+	};
+
+	// Function to insert promoted repos at intervals
+	const insertPromotedRepos = async (index: number) => {
+		// Check if we're at a position where we should insert a promoted repo (every 10 items)
+		if ((index + 1) % 10 === 0) {
+			const promotedPosition = Math.floor(index / 10);
+			const promotedRepo = await getPromotedRepoWithCache(promotedPosition);
+			
+			// Insert the promoted repo after the current index
+			projects = [
+				...projects.slice(0, index + 1),
+				promotedRepo,
+				...projects.slice(index + 1)
+			];
+
+			// Prefetch next promoted repos
+			await prefetchPromotedRepos(index);
+		} else if ((index + 1) % 10 >= 8) {
+			// If we're within 2 positions of needing a promoted repo, start prefetching
+			await prefetchPromotedRepos(index);
+		}
+	};
+
+	// Function to get a random promoted repository
+	const getPromotedRepo = async (position: number): Promise<Project> => {
+		try {
+			// Get promoted repositories from the database
+			const promotedRepos = await getRepositories({
+				limit: 10,
+				isPinned: 1,
+				orderBy: 'updated_at',
+				order: 'desc'
+			});
+
+			console.log("promotedRepos", promotedRepos);
+
+			// If no promoted repos in DB, fall back to default ones
+			if (!promotedRepos.length) {
+				const defaultRepos = [
+					{
+						id: -2,
+						name: 'gittok.dev',
+						description: 'A TikTok-style interface for discovering amazing open source projects. Built with SvelteKit and Tailwind CSS.',
+						readmeSnippet: '# GitTok\n\nGitTok is an innovative way to discover open source projects. With its TikTok-inspired interface, you can effortlessly scroll through carefully curated GitHub repositories.\n\n## Features\n\n- Vertical scrolling interface\n- Real-time README previews\n- GitHub statistics integration\n- Beautiful dark mode design\n- Mobile-first responsive layout',
+						stars: 1337,
+						forks: 42,
+						watchers: 100,
+						author: 'BlackShoreTech',
+						avatar: 'https://avatars.githubusercontent.com/u/583231?v=4',
+						language: 'Svelte',
+						languageColor: '#ff3e00',
+						stargazersUrl: 'https://github.com/gittok/gittok/stargazers',
+						forksUrl: 'https://github.com/gittok/gittok/fork',
+						default_branch: 'main'
+					},
+					{
+						id: -3,
+						name: 'Sponsor GitTok',
+						description: 'Want to promote your open source project here? Reach thousands of developers daily!',
+						readmeSnippet: '# Promote Your Project\n\nReach thousands of developers who are actively discovering new open source projects.\n\n## Why Sponsor?\n\n- Increase project visibility\n- Reach active developers\n- Support open source\n- Boost community engagement\n\nContact us at sponsor@gittok.dev',
+						stars: 0,
+						forks: 0,
+						watchers: 0,
+						author: 'sponsor',
+						avatar: 'https://avatars.githubusercontent.com/u/583231?v=4',
+						language: undefined,
+						languageColor: undefined,
+						stargazersUrl: 'mailto:sponsor@gittok.dev',
+						forksUrl: 'mailto:sponsor@gittok.dev',
+						default_branch: 'main'
+					}
+				];
+				return defaultRepos[position % defaultRepos.length];
+			}
+
+			// Convert database repository to Project type
+			const repo = promotedRepos[position % promotedRepos.length];
+			const readme = await fetchReadme(
+				repo.full_name.split('/')[0],
+				repo.name,
+				'main' // Assuming main branch, you might want to store this in the database
+			);
+
+			return {
+				id: -2,
+				name: repo.name,
+				description: repo.description || '',
+				readmeSnippet: readme,
+				stars: repo.stargazers_count,
+				forks: repo.fork,
+				watchers: repo.stargazers_count, // Using stars count as watchers since we don't store watchers
+				author: repo.full_name.split('/')[0],
+				avatar: `https://github.com/${repo.full_name.split('/')[0]}.png`,
+				language: repo.language || undefined,
+				languageColor: repo.language ? languageColors[repo.language as keyof typeof languageColors] : undefined,
+				stargazersUrl: `${repo.html_url}/stargazers`,
+				forksUrl: `${repo.html_url}/fork`,
+				default_branch: 'main' // Assuming main branch
+			};
+		} catch (error) {
+			console.error('Error fetching promoted repo:', error);
+			// Return the sponsor card as fallback
+			return {
+				id: -3,
+				name: 'Sponsor GitTok',
+				description: 'Want to promote your open source project here? Reach thousands of developers daily!',
+				readmeSnippet: '# Promote Your Project\n\nReach thousands of developers who are actively discovering new open source projects.\n\n## Why Sponsor?\n\n- Increase project visibility\n- Reach active developers\n- Support open source\n- Boost community engagement\n\nContact us at sponsor@gittok.dev',
+				stars: 0,
+				forks: 0,
+				watchers: 0,
+				author: 'sponsor',
+				avatar: 'https://avatars.githubusercontent.com/u/583231?v=4',
+				language: undefined,
+				languageColor: undefined,
+				stargazersUrl: 'mailto:sponsor@gittok.dev',
+				forksUrl: 'mailto:sponsor@gittok.dev',
+				default_branch: 'main'
+			};
+		}
+	};
+
+	// Update the intersection observer to handle pagination and promoted repos
 	const observeElement = (element: HTMLElement, index: number) => {
 		const observer = new IntersectionObserver(
 			async (entries) => {
@@ -281,6 +434,9 @@
 								...projects.slice(index + 1)
 							];
 						}
+
+						// Insert promoted repos at intervals
+						await insertPromotedRepos(index);
 
 						// Fetch README when item comes into view
 						// Fetch current and next 3 READMEs when an item comes into view
@@ -352,8 +508,10 @@
 			initialProjects.push(initialProject);
 		}
 
+		prefetchPromotedRepos(10);
+
 		initialProjects.push(...(await fetchProjects()));
-		console.log(initialProjects);
+		
 		projects = initialProjects;
 	});
 
@@ -489,7 +647,25 @@
 					<!-- Regular Repository Card -->
 					<!-- Top: Repository Name and Description -->
 					<div class="flex-none space-y-2">
-						<h1 class="flex items-center gap-2 font-serif text-2xl text-white md:text-3xl">
+						{#if project.id === -2}
+							<!-- Promoted Repository Badge -->
+							<div class="mb-4 flex items-center justify-between">
+								<div class="flex items-center gap-2">
+									<span class="rounded-full bg-gradient-to-r from-yellow-400 via-purple-400 to-blue-400 px-3 py-1 text-sm font-bold text-black">Featured Project</span>
+									<Star class="h-5 w-5 text-yellow-400" />
+								</div>
+								<a
+									href="https://github.com/BlackShoreTech/gittok.dev"
+									target="_blank"
+									rel="noopener noreferrer"
+									class="flex items-center gap-2 rounded-full bg-gray-800/50 px-4 py-2 text-sm text-gray-200 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+								>
+									<Star class="h-4 w-4 text-yellow-400" />
+									<span>Star us to get featured!</span>
+								</a>
+							</div>
+						{/if}
+						<h1 class="flex items-center gap-2 font-serif text-2xl text-white md:text-3xl {project.id === -2 ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-purple-400 to-blue-400' : ''}">
 							{project.name}
 							{#if project.language}
 								<span class="h-3 w-3 rounded-full" style="background-color: {project.languageColor}"
@@ -503,7 +679,7 @@
 					<!-- Middle: README Content -->
 					<div class="my-4 flex min-h-0 flex-1">
 						<div
-							class="markdown-content readme-container w-full overflow-y-clip rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm"
+							class="markdown-content readme-container w-full overflow-y-clip rounded-xl {project.id === -2 ? 'bg-gradient-to-br from-gray-800/30 via-gray-800/40 to-gray-800/30 shadow-lg shadow-purple-500/10' : 'bg-gray-800/30'} p-6 backdrop-blur-sm"
 							use:scrollMarkdownToTop
 						>
 							{#if !project.readmeSnippet}
@@ -525,10 +701,10 @@
 								href={project.stargazersUrl}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+								class="rounded-full {project.id === -2 ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
 								aria-label={`Star repository (${formatNumber(project.stars)} stars)`}
 							>
-								<Star class="h-8 w-8 text-yellow-400" />
+								<Star class="h-8 w-8 {project.id === -2 ? 'text-yellow-300' : 'text-yellow-400'}" />
 							</a>
 							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.stars)}</span>
 						</div>
@@ -536,13 +712,12 @@
 						<!-- Watchers -->
 						<div class="flex flex-col items-center">
 							<div
-								class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm"
+								class="rounded-full {project.id === -2 ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm"
 								aria-label={`${formatNumber(project.watchers)} watchers`}
 							>
-								<Eye class="h-8 w-8 text-blue-400" />
+								<Eye class="h-8 w-8 {project.id === -2 ? 'text-blue-300' : 'text-blue-400'}" />
 							</div>
-							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.watchers)}</span
-							>
+							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.watchers)}</span>
 						</div>
 						<!-- Forks -->
 						<div class="flex flex-col items-center">
@@ -550,10 +725,10 @@
 								href={project.forksUrl}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+								class="rounded-full {project.id === -2 ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
 								aria-label={`Fork repository (${formatNumber(project.forks)} forks)`}
 							>
-								<GitFork class="h-8 w-8 text-gray-400" />
+								<GitFork class="h-8 w-8 {project.id === -2 ? 'text-gray-300' : 'text-gray-400'}" />
 							</a>
 							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.forks)}</span>
 						</div>
@@ -562,10 +737,10 @@
 						<div class="flex flex-col items-center">
 							<button
 								on:click={() => shareProject(project)}
-								class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+								class="rounded-full {project.id === -2 ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
 								aria-label="Share repository"
 							>
-								<Share2 class="h-8 w-8 text-purple-400" />
+								<Share2 class="h-8 w-8 {project.id === -2 ? 'text-purple-300' : 'text-purple-400'}" />
 							</button>
 							<span class="mt-1 font-mono text-sm text-white">Share</span>
 						</div>
@@ -576,7 +751,7 @@
 						<img
 							src={project.avatar}
 							alt={`${project.author}'s avatar`}
-							class="h-10 w-10 rounded-full"
+							class="h-10 w-10 rounded-full {project.id === -2 ? 'ring-2 ring-purple-400/50 ring-offset-2 ring-offset-black' : ''}"
 						/>
 						<div>
 							<h2 class="font-mono text-lg text-white">{project.author}</h2>
@@ -585,7 +760,7 @@
 							href={`https://github.com/${project.author}/${project.name}`}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="ml-auto rounded-lg bg-white/10 px-4 py-2 font-mono text-white transition-colors duration-200 hover:bg-white/20"
+							class="ml-auto rounded-lg {project.id === -2 ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30' : 'bg-white/10 hover:bg-white/20'} px-4 py-2 font-mono text-white transition-colors duration-200"
 						>
 							View
 						</a>
