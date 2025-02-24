@@ -16,7 +16,7 @@ export default defineConfig({
 		tailwindcss(),
 		mkcert(),
 		{
-			name: 'copy-sql-wasm',
+			name: 'sql.js-httpvfs',
 			configureServer(server) {
 				// Copy SQL.js files to public directory in development
 				server.middlewares.use(async (req, res, next) => {
@@ -24,23 +24,33 @@ export default defineConfig({
 						const file = req.url.replace('/sql.js-httpvfs/', '');
 						const filePath = resolve(__dirname, 'node_modules/sql.js-httpvfs/dist', file);
 						try {
-							await server.ssrLoadModule(filePath);
-							return res.end();
-						} catch {
+							const content = await fs.readFile(filePath);
+							const contentType = file.endsWith('.wasm') 
+								? 'application/wasm'
+								: file.endsWith('.js') 
+									? 'application/javascript'
+									: 'application/octet-stream';
+							
+							res.setHeader('Content-Type', contentType);
+							res.end(content);
+						} catch (error) {
+							console.error(`Error serving ${file}:`, error);
 							next();
 						}
+					} else {
+						next();
 					}
-					next();
 				});
 			},
 			async writeBundle() {
 				// Copy SQL.js files to build directory in production
 				const sourceDir = resolve(__dirname, 'node_modules/sql.js-httpvfs/dist');
-				const targetDir = resolve(__dirname, '.svelte-kit/output/client/sql.js-httpvfs');
+				const targetDir = resolve(__dirname, 'build/sql.js-httpvfs');
 				
 				await fs.mkdir(targetDir, { recursive: true });
 				
-				for (const file of ['sqlite.worker.js', 'sql-wasm.wasm']) {
+				const files = ['sqlite.worker.js', 'sql-wasm.wasm'];
+				for (const file of files) {
 					await fs.copyFile(
 						path.join(sourceDir, file),
 						path.join(targetDir, file)

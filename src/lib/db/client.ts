@@ -2,15 +2,21 @@
 // Context: Provides functions to query and filter stargazers and repositories data over HTTP
 
 import { createDbWorker } from 'sql.js-httpvfs';
-import type { WorkerHttpvfs } from 'sql.js-httpvfs';
+import type { WorkerHttpvfs } from 'sql.js-httpvfs/dist/db';
+import type { SplitFileConfigPure, SplitFileConfigInner } from 'sql.js-httpvfs/dist/sqlite.worker';
 import type { Repository, Stargazer, QueryParams } from '$lib/db/types';
 import { dev as isDev } from '$app/environment';
 
-// Worker configuration
-const workerConfig = {
-    from: 'cdn' as const,
-    wasmUrl: 'https://cdn.jsdelivr.net/npm/sql.js-httpvfs@0.1.0/dist/sql-wasm.wasm'
-};
+// Worker configuration for sql.js-httpvfs
+const workerConfig: SplitFileConfigPure[] = [{
+    from: 'inline' as const,
+    config: {
+        serverMode: 'full' as const,
+        requestChunkSize: 1024, // Recommended size for better performance
+        url: '', // Will be set during initialization
+        cacheBust: new Date().getTime().toString() // Add cache busting
+    } as SplitFileConfigInner & { serverMode: 'full'; url: string }
+}];
 
 let worker: WorkerHttpvfs | null = null;
 
@@ -32,18 +38,19 @@ function getDatabaseUrl(dbPath: string, dev = isDev): string {
 export async function initDatabase(dbUrl: string, dev = isDev) {
     if (!worker) {
         const finalDbUrl = getDatabaseUrl(dbUrl, dev);
+
+        console.log('Initializing database with URL:', finalDbUrl);
+        
+        // Update the URL in the worker config
+        workerConfig[0].config.url = finalDbUrl;
+        
         worker = await createDbWorker(
-            [{
-                from: 'inline' as const,
-                config: {
-                    serverMode: 'full' as const,
-                    url: finalDbUrl,
-                    requestChunkSize: 1024 // Recommended size for better performance
-                }
-            }],
-            workerConfig.wasmUrl,
-            '/sql.js-httpvfs/sqlite.worker.js'
+            workerConfig,
+            '/sql.js-httpvfs/sqlite.worker.js',
+            '/sql.js-httpvfs/sql-wasm.wasm'
         );
+
+        console.log('Database initialized');
 
         // Initialize the database connection
         await worker.db.query(`
