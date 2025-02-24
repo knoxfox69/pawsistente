@@ -3,9 +3,9 @@ import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/svelte';
 import Page from './feed/+page.svelte';
 
-describe('/+page.svelte', () => {
-	test('should render h1', () => {
+describe('/feed/+page.svelte', () => {
+	test('should render project list container', () => {
 		render(Page);
-		expect(screen.getByRole('heading', { level: 1 })).toBeInTheDocument();
+		expect(screen.getByRole('list')).toBeInTheDocument();
 	});
 });

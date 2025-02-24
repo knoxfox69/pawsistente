@@ -443,7 +443,7 @@
 	};
 </script>
 
-<div class="h-screen w-full snap-y snap-mandatory overflow-y-scroll">
+<div class="h-screen w-full snap-y snap-mandatory overflow-y-scroll svelte-16xb542" role="list" aria-label="GitHub Projects">
 	<!-- Add Settings and About Links -->
 	<div class="fixed top-4 right-4 z-50 flex gap-4">
 		<a

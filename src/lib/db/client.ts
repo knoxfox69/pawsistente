@@ -2,33 +2,58 @@
 // Context: Provides functions to query and filter stargazers and repositories data over HTTP
 
 import { createDbWorker } from 'sql.js-httpvfs';
+import type { WorkerHttpvfs } from 'sql.js-httpvfs';
 import type { Repository, Stargazer, QueryParams } from '$lib/db/types';
+import { dev as isDev } from '$app/environment';
 
-// Worker configuration for sql.js-httpvfs
+// Worker configuration
 const workerConfig = {
     from: 'cdn' as const,
     wasmUrl: 'https://cdn.jsdelivr.net/npm/sql.js-httpvfs@0.1.0/dist/sql-wasm.wasm'
 };
 
-let worker: Awaited<ReturnType<typeof createDbWorker>> | null = null;
+let worker: WorkerHttpvfs | null = null;
+
+/**
+ * Get the database URL based on the environment
+ */
+function getDatabaseUrl(dbPath: string, dev = isDev): string {
+    // In development or test, use the provided path
+    if (dev) return dbPath;
+    
+    // In production (GitHub Pages), use the correct path
+    const baseUrl = import.meta.env.BASE_URL || '';
+    return `${baseUrl}/data/db.sqlite`;
+}
 
 /**
  * Initialize the database connection
  */
-export async function initDatabase(dbUrl: string) {
+export async function initDatabase(dbUrl: string, dev = isDev) {
     if (!worker) {
+        const finalDbUrl = getDatabaseUrl(dbUrl, dev);
         worker = await createDbWorker(
             [{
                 from: 'inline' as const,
                 config: {
                     serverMode: 'full' as const,
-                    url: dbUrl,
-                    requestChunkSize: 4096
+                    url: finalDbUrl,
+                    requestChunkSize: 1024 // Recommended size for better performance
                 }
             }],
             workerConfig.wasmUrl,
             '/sql.js-httpvfs/sqlite.worker.js'
         );
+
+        // Initialize the database connection
+        await worker.db.query(`
+            PRAGMA journal_mode = DELETE;
+            PRAGMA page_size = 1024;
+            PRAGMA cache_size = 5000;
+            PRAGMA temp_store = MEMORY;
+            PRAGMA locking_mode = EXCLUSIVE;
+            PRAGMA synchronous = NORMAL;
+        `);
     }
     return worker;
 }
@@ -38,8 +63,19 @@ export async function initDatabase(dbUrl: string) {
  */
 async function executeQuery<T>(query: string, params: QueryParams[] = []): Promise<T[]> {
     if (!worker) throw new Error('Database not initialized');
+    
     const result = await worker.db.query(query, params);
-    return result as T[];
+
+    if (!result.length) return [];
+    return result.map(row => {
+        const obj: Record<string, unknown> = {};
+        if (row && typeof row === 'object') {
+            Object.entries(row as Record<string, unknown>).forEach(([key, value]) => {
+                obj[key] = value;
+            });
+        }
+        return obj as T;
+    });
 }
 
 /**
@@ -224,4 +260,14 @@ export async function getRecentRepositories(
          LIMIT ? OFFSET ?`,
         [`-${days} days`, limit, offset]
     );
+}
+
+/**
+ * Close the database connection
+ */
+export async function closeDatabase() {
+    if (worker) {
+        await worker.db.query('PRAGMA optimize');
+        worker = null;
+    }
 }

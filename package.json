@@ -12,8 +12,9 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
-		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run",
+		"test": "vitest run",
+		"test:watch": "vitest",
+		"test:coverage": "vitest run --coverage",
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
 		"db:studio": "drizzle-kit studio",
@@ -32,6 +33,7 @@
 		"@testing-library/jest-dom": "^6.6.3",
 		"@testing-library/svelte": "^5.2.4",
 		"@types/dompurify": "^3.2.0",
+		"bun-types": "^1.2.3",
 		"drizzle-kit": "^0.30.2",
 		"eslint": "^9.18.0",
 		"eslint-config-prettier": "^10.0.1",
@@ -60,7 +62,6 @@
 		"marked-base-url": "^1.1.6",
 		"marked-emoji": "^1.4.3",
 		"sql.js-httpvfs": "^0.8.12",
-		"sqlite-wasm-http": "^1.2.0",
 		"vite-plugin-mkcert": "^1.17.6"
 	},
 	"license": "Proprietary"
