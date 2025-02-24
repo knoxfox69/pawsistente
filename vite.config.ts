@@ -22,7 +22,14 @@ export default defineConfig({
 				server.middlewares.use(async (req, res, next) => {
 					if (req.url?.startsWith('/sql.js-httpvfs/')) {
 						const file = req.url.replace('/sql.js-httpvfs/', '');
-						const filePath = resolve(__dirname, 'node_modules/sql.js-httpvfs/dist', file);
+						// First try static directory
+						let filePath = resolve(__dirname, 'static/sql.js-httpvfs', file);
+						
+						// If not in static, try node_modules
+						if (!await fs.access(filePath).then(() => true).catch(() => false)) {
+							filePath = resolve(__dirname, 'node_modules/sql.js-httpvfs/dist', file);
+						}
+						
 						try {
 							const content = await fs.readFile(filePath);
 							const contentType = file.endsWith('.wasm') 
@@ -42,19 +49,28 @@ export default defineConfig({
 					}
 				});
 			},
-			async writeBundle() {
-				// Copy SQL.js files to build directory in production
+			async buildStart() {
+				// Ensure files are in static directory at build start
 				const sourceDir = resolve(__dirname, 'node_modules/sql.js-httpvfs/dist');
-				const targetDir = resolve(__dirname, 'build/sql.js-httpvfs');
+				const targetDir = resolve(__dirname, 'static/sql.js-httpvfs');
 				
 				await fs.mkdir(targetDir, { recursive: true });
 				
 				const files = ['sqlite.worker.js', 'sql-wasm.wasm'];
 				for (const file of files) {
-					await fs.copyFile(
-						path.join(sourceDir, file),
-						path.join(targetDir, file)
-					);
+					const sourcePath = path.join(sourceDir, file);
+					const targetPath = path.join(targetDir, file);
+					
+					// Only copy if source is newer than target or target doesn't exist
+					const [sourceStats, targetExists] = await Promise.all([
+						fs.stat(sourcePath),
+						fs.access(targetPath).then(() => true).catch(() => false)
+					]);
+					
+					if (!targetExists || (await fs.stat(targetPath)).mtime < sourceStats.mtime) {
+						await fs.copyFile(sourcePath, targetPath);
+						console.log(`Copied ${file} to static directory`);
+					}
 				}
 			}
 		}

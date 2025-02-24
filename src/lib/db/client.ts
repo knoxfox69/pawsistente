@@ -3,9 +3,10 @@
 
 import { createDbWorker } from 'sql.js-httpvfs';
 import type { WorkerHttpvfs } from 'sql.js-httpvfs/dist/db';
-import type { SplitFileConfigPure, SplitFileConfigInner } from 'sql.js-httpvfs/dist/sqlite.worker';
+import type { SplitFileConfigPure } from 'sql.js-httpvfs/dist/sqlite.worker';
 import type { Repository, Stargazer, QueryParams } from '$lib/db/types';
-import { dev as isDev } from '$app/environment';
+import { dev } from '$app/environment';
+import { base } from '$app/paths';
 
 // Worker configuration for sql.js-httpvfs
 const workerConfig: SplitFileConfigPure[] = [{
@@ -13,27 +14,44 @@ const workerConfig: SplitFileConfigPure[] = [{
     config: {
         serverMode: 'full' as const,
         requestChunkSize: 1024, // Recommended size for better performance
-        url: '/data/db.sqlite', // Will be set during initialization
+        url: '', // Will be set during initialization
         cacheBust: new Date().getTime().toString() // Add cache busting
-    } as SplitFileConfigInner & { serverMode: 'full'; url: string }
+    }
 }];
 
 let worker: WorkerHttpvfs | null = null;
 
+/**
+ * Get the database URL based on the environment
+ */
+function getDatabaseUrl(dbPath: string): string {
+    // In development, use the provided path
+    if (dev) return dbPath;
+    
+    // In production, use the correct path with base URL
+    return `${base}/data/db.sqlite`;
+}
 
 /**
  * Initialize the database connection
  */
 export async function initDatabase(dbUrl: string) {
     if (!worker) {
+        // Set the database URL in the configuration
+        const finalDbUrl = getDatabaseUrl(dbUrl);
+        workerConfig[0].config = {
+            ...workerConfig[0].config,
+            serverMode: 'full' as const,
+            url: finalDbUrl
+        };
 
-        console.log('Initializing database with URL:', workerConfig[0].config.url);
-
+        console.log('Initializing database with URL:', finalDbUrl);
         
+        // Create the worker with the correct paths
         worker = await createDbWorker(
             workerConfig,
-            '/sql.js-httpvfs/sqlite.worker.js',
-            '/sql.js-httpvfs/sql-wasm.wasm'
+            `${base}/sql.js-httpvfs/sqlite.worker.js`,
+            `${base}/sql.js-httpvfs/sql-wasm.wasm`
         );
 
         console.log('Database initialized');
