@@ -59,6 +59,8 @@
 		"marked": "^15.0.7",
 		"marked-base-url": "^1.1.6",
 		"marked-emoji": "^1.4.3",
+		"sql.js-httpvfs": "^0.8.12",
+		"sqlite-wasm-http": "^1.2.0",
 		"vite-plugin-mkcert": "^1.17.6"
 	},
 	"license": "Proprietary"
