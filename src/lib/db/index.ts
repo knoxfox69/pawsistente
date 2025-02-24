@@ -7,7 +7,7 @@ import * as schema from './schema';
 
 // Create a SQLite database client
 const client = createClient({
-  url: 'file:stars.db',
+  url: 'file:static/data/db.sqlite',
 });
 
 // Create a Drizzle ORM instance

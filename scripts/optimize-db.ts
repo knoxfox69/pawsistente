@@ -3,7 +3,7 @@
 
 import { Database } from 'bun:sqlite';
 
-const DB_PATH = '.svelte-kit/output/client/data/db.sqlite';
+const DB_PATH = 'static/data/db.sqlite';
 
 async function optimizeDatabase() {
     console.log('Optimizing database for HTTP serving...');

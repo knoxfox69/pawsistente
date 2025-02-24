@@ -32,15 +32,6 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Create data directory
-        run: mkdir -p .svelte-kit/output/client/data
-
-      - name: Copy SQLite database
-        run: |
-          cp stars.db .svelte-kit/output/client/data/db.sqlite
-          # Optimize the database for HTTP serving using Bun's built-in SQLite
-          bun run scripts/optimize-db.ts
-
       - name: Build application
         run: bun run build
 

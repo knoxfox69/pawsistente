@@ -2,7 +2,7 @@
 // Context: Used to maintain a list of users who have starred this repository in the last 24 hours
 
 import { Octokit } from "@octokit/rest";
-import { fetchRecentStargazers } from "../src/lib/github";
+import { fetchRecentStargazers } from "../src/lib/github/stargazers";
 
 async function main() {
   const octokit = new Octokit({

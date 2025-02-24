@@ -3,6 +3,15 @@
 
 import type { repositories } from '../db/schema';
 
+export interface StargazerData {
+  id: number;
+  login: string;
+  avatar_url: string;
+  html_url: string;
+  type: string;
+  starred_at: string;
+}
+
 export interface GraphQLPinnedRepo {
   id: string;
   name: string;
