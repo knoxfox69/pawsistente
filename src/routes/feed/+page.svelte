@@ -9,11 +9,11 @@
 	import DOMPurify from 'isomorphic-dompurify';
 	import { topicsStore } from '$lib/stores/topics';
 	import { topics as allTopics } from '$lib/all_topics';
-  import {Octokit} from "@octokit/rest";
-  import { Twitter } from 'lucide-svelte';
+	import { Octokit } from '@octokit/rest';
+	import { Twitter } from 'lucide-svelte';
 
 	import { baseUrl } from 'marked-base-url';
-  import {markedEmoji} from "marked-emoji";
+	import { markedEmoji } from 'marked-emoji';
 	// Import icons
 	import { Star, Eye, GitFork, Share2, Settings, Globe } from 'lucide-svelte';
 	// Sample GitHub projects - in a real app, these would come from GitHub API
@@ -63,9 +63,6 @@
 		Svelte: '#ff3e00',
 		React: '#61dafb'
 	} as const;
-
-
-
 
 	// Function to fetch README content
 	const fetchReadme = async (author: string, repo: string, default_branch: string) => {
@@ -145,30 +142,30 @@
 		return searchParams;
 	}
 
-  const fetchProject = async (project: string, author: string) => {
-    const url = new URL(`https://api.github.com/repos/${author}/${project}`);
-    const res = await fetch(url);
-    const data = await res.json();
+	const fetchProject = async (project: string, author: string) => {
+		const url = new URL(`https://api.github.com/repos/${author}/${project}`);
+		const res = await fetch(url);
+		const data = await res.json();
 
-    return {
-      name: data.name,
-      description: data.description,
-      default_branch: data.default_branch,
-      readmeSnippet: null,
-      language: data.language,
-      languageColor: data.language
+		return {
+			name: data.name,
+			description: data.description,
+			default_branch: data.default_branch,
+			readmeSnippet: null,
+			language: data.language,
+			languageColor: data.language
 				? languageColors[data.language as keyof typeof languageColors] || '#858585'
 				: undefined,
-      stargazersUrl: data.stargazers_url,
-      forksUrl: data.forks_url,
-      author: data.owner.login,
-      avatar: data.owner.avatar_url,
-      stars: data.stargazers_count,
-      forks: data.forks_count,
-      watchers: data.watchers_count,
-      id: data.id,
-    };
-  }
+			stargazersUrl: data.stargazers_url,
+			forksUrl: data.forks_url,
+			author: data.owner.login,
+			avatar: data.owner.avatar_url,
+			stars: data.stargazers_count,
+			forks: data.forks_count,
+			watchers: data.watchers_count,
+			id: data.id
+		};
+	};
 
 	// Function to fetch projects from GitHub API
 	const fetchProjects = async () => {
@@ -234,7 +231,6 @@
 
 			// Combine all parts
 			projects = [...beforeProjects, ...mergedProjects];
-
 		} catch (error) {
 			console.error('Error loading more projects:', error);
 		} finally {
@@ -242,12 +238,12 @@
 		}
 	};
 
-  function seturlparams(project: Project) {
-    const url = new URL(window.location.href);
-    url.searchParams.set('project', project.name);
-    url.searchParams.set('author', project.author);
-    window.history.replaceState({}, '', url.toString());
-  }
+	function seturlparams(project: Project) {
+		const url = new URL(window.location.href);
+		url.searchParams.set('project', project.name);
+		url.searchParams.set('author', project.author);
+		window.history.replaceState({}, '', url.toString());
+	}
 
 	// Update the intersection observer to handle pagination
 	const observeElement = (element: HTMLElement, index: number) => {
@@ -255,7 +251,7 @@
 			async (entries) => {
 				entries.forEach(async (entry) => {
 					if (entry.isIntersecting) {
-            seturlparams(projects[index]);
+						seturlparams(projects[index]);
 						console.log('isIntersecting', index);
 						viewedIndices.add(index);
 						viewedIndices = viewedIndices; // trigger reactivity
@@ -266,17 +262,18 @@
 							// Insert the follow message card after the current item
 							const followMessageProject: Project = {
 								id: -1,
-								name: "Enjoying GitTok?",
-								description: "If you're finding this useful, consider following me on Twitter for more cool projects!",
-								readmeSnippet: "",
+								name: 'Enjoying GitTok?',
+								description:
+									"If you're finding this useful, consider following me on Twitter for more cool projects!",
+								readmeSnippet: '',
 								stars: 0,
 								forks: 0,
 								watchers: 0,
-								author: "@brsc2909",
-								avatar: "https://avatars.githubusercontent.com/u/1?v=4",
-								stargazersUrl: "",
-								forksUrl: "",
-								default_branch: ""
+								author: '@brsc2909',
+								avatar: 'https://avatars.githubusercontent.com/u/1?v=4',
+								stargazersUrl: '',
+								forksUrl: '',
+								default_branch: ''
 							};
 							projects = [
 								...projects.slice(0, index + 1),
@@ -331,36 +328,33 @@
 	};
 
 	onMount(async () => {
+		const octokit = new Octokit();
+		// Get all the emojis available to use on GitHub.
+		const res = await octokit.rest.emojis.get();
 
-    const octokit = new Octokit();
-    // Get all the emojis available to use on GitHub.
-    const res = await octokit.rest.emojis.get();
+		const emojis = res.data;
 
-    const emojis = res.data;
-
-
-    marked.use(markedEmoji({
-      emojis,
-      renderer: (token) => `<img alt="${token.name}" src="${token.emoji}" class="marked-emoji-img">`
-    }));
-
+		marked.use(
+			markedEmoji({
+				emojis,
+				renderer: (token) =>
+					`<img alt="${token.name}" src="${token.emoji}" class="marked-emoji-img">`
+			})
+		);
 
 		// Load initial projects
-    const url = new URL(window.location.href);
-    const project = url.searchParams.get('project');
-    const author = url.searchParams.get('author');
-    const initialProjects = [];
-    if (project && author) {
-      const initialProject = await fetchProject(project, author);
-      initialProjects.push(initialProject);
-    }
+		const url = new URL(window.location.href);
+		const project = url.searchParams.get('project');
+		const author = url.searchParams.get('author');
+		const initialProjects = [];
+		if (project && author) {
+			const initialProject = await fetchProject(project, author);
+			initialProjects.push(initialProject);
+		}
 
-
-    initialProjects.push(...await fetchProjects());
-    console.log(initialProjects);
-    projects = initialProjects;
-
-
+		initialProjects.push(...(await fetchProjects()));
+		console.log(initialProjects);
+		projects = initialProjects;
 	});
 
 	// Format numbers to human readable format (e.g., 73.5k)
@@ -370,7 +364,6 @@
 		}
 		return num.toString();
 	};
-
 
 	// Create a function to safely render markdown
 	const renderMarkdown = (content: string, repo: string): string => {
@@ -471,35 +464,36 @@
 
 	{#each projects as project, index}
 		<div
-			class="relative flex h-screen w-full snap-start items-center justify-center bg-gradient-to-b from-gray-900 to-black project-container"
+			class="project-container relative flex h-screen w-full snap-start items-center justify-center bg-gradient-to-b from-gray-900 to-black"
 			use:observeElement={index}
 		>
 			<!-- Main Content Container -->
 			<div class="mx-auto flex h-full w-full max-w-3xl flex-col p-6">
 				{#if project.id === -1}
 					<!-- Special Follow Message Card -->
-					<div class="flex flex-col items-center justify-center h-full text-center space-y-8">
-						<h1 class="text-4xl font-serif text-white">{project.name}</h1>
-						<p class="text-xl font-serif text-gray-200 max-w-lg">{project.description}</p>
+					<div class="flex h-full flex-col items-center justify-center space-y-8 text-center">
+						<h1 class="font-serif text-4xl text-white">{project.name}</h1>
+						<p class="max-w-lg font-serif text-xl text-gray-200">{project.description}</p>
 						<a
 							href="https://twitter.com/brsc2909"
 							target="_blank"
 							rel="noopener noreferrer"
-							class="flex items-center gap-3 px-6 py-3 bg-blue-400 hover:bg-blue-500 text-white rounded-full transition-colors duration-200"
+							class="flex items-center gap-3 rounded-full bg-blue-400 px-6 py-3 text-white transition-colors duration-200 hover:bg-blue-500"
 						>
 							<Twitter class="h-5 w-5" />
 							<span class="font-mono">Follow @brsc2909</span>
 						</a>
-						<p class="text-sm text-gray-400 mt-4">Keep scrolling for more awesome projects!</p>
+						<p class="mt-4 text-sm text-gray-400">Keep scrolling for more awesome projects!</p>
 					</div>
 				{:else}
 					<!-- Regular Repository Card -->
 					<!-- Top: Repository Name and Description -->
-					<div class="space-y-2 flex-none">
+					<div class="flex-none space-y-2">
 						<h1 class="flex items-center gap-2 font-serif text-2xl text-white md:text-3xl">
 							{project.name}
 							{#if project.language}
-								<span class="h-3 w-3 rounded-full" style="background-color: {project.languageColor}"></span>
+								<span class="h-3 w-3 rounded-full" style="background-color: {project.languageColor}"
+								></span>
 								<span class="font-mono text-sm text-gray-400">{project.language}</span>
 							{/if}
 						</h1>
@@ -509,13 +503,16 @@
 					<!-- Middle: README Content -->
 					<div class="my-4 flex min-h-0 flex-1">
 						<div
-							class="markdown-content w-full overflow-y-clip rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm readme-container"
+							class="markdown-content readme-container w-full overflow-y-clip rounded-xl bg-gray-800/30 p-6 backdrop-blur-sm"
 							use:scrollMarkdownToTop
 						>
 							{#if !project.readmeSnippet}
 								<div class="animate-pulse text-gray-400">Loading README...</div>
 							{:else}
-								{@html renderMarkdown(project.readmeSnippet, `https://github.com/${project.author}/${project.name}/${project.default_branch}/` )}
+								{@html renderMarkdown(
+									project.readmeSnippet,
+									`https://github.com/${project.author}/${project.name}/${project.default_branch}/`
+								)}
 							{/if}
 						</div>
 					</div>
@@ -544,7 +541,8 @@
 							>
 								<Eye class="h-8 w-8 text-blue-400" />
 							</div>
-							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.watchers)}</span>
+							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.watchers)}</span
+							>
 						</div>
 						<!-- Forks -->
 						<div class="flex flex-col items-center">
@@ -574,7 +572,7 @@
 					</div>
 
 					<!-- Bottom: Author Info -->
-					<div class="flex-none flex items-center gap-3 mb-4">
+					<div class="mb-4 flex flex-none items-center gap-3">
 						<img
 							src={project.avatar}
 							alt={`${project.author}'s avatar`}
@@ -619,7 +617,6 @@
 	.snap-y::-webkit-scrollbar {
 		display: none;
 	}
-
 
 	/* Hide scrollbar for IE, Edge and Firefox */
 	.snap-y {
