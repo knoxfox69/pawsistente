@@ -5,6 +5,7 @@ export const topics = {
 			'javascript',
 			'python',
 			'java',
+			"c",
 			'cpp',
 			'csharp',
 			'php',
