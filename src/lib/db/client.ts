@@ -13,36 +13,22 @@ const workerConfig: SplitFileConfigPure[] = [{
     config: {
         serverMode: 'full' as const,
         requestChunkSize: 1024, // Recommended size for better performance
-        url: '', // Will be set during initialization
+        url: '/data/db.sqlite', // Will be set during initialization
         cacheBust: new Date().getTime().toString() // Add cache busting
     } as SplitFileConfigInner & { serverMode: 'full'; url: string }
 }];
 
 let worker: WorkerHttpvfs | null = null;
 
-/**
- * Get the database URL based on the environment
- */
-function getDatabaseUrl(dbPath: string, dev = isDev): string {
-    // In development or test, use the provided path
-    if (dev) return dbPath;
-    
-    // In production (GitHub Pages), use the correct path
-    const baseUrl = import.meta.env.BASE_URL || '';
-    return `${baseUrl}/data/db.sqlite`;
-}
 
 /**
  * Initialize the database connection
  */
-export async function initDatabase(dbUrl: string, dev = isDev) {
+export async function initDatabase(dbUrl: string) {
     if (!worker) {
-        const finalDbUrl = getDatabaseUrl(dbUrl, dev);
 
-        console.log('Initializing database with URL:', finalDbUrl);
-        
-        // Update the URL in the worker config
-        workerConfig[0].config.url = finalDbUrl;
+        console.log('Initializing database with URL:', workerConfig[0].config.url);
+
         
         worker = await createDbWorker(
             workerConfig,
