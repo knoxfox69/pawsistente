@@ -39,7 +39,7 @@ import { initDatabase, getStargazers, getRepositories, getRepositoryStats, searc
 describe('Database Client', () => {
     beforeAll(async () => {
         // Initialize the client with existing database
-        await initDatabase('stars.db', true);
+        await initDatabase('stars.db');
     });
 
     afterAll(async () => {

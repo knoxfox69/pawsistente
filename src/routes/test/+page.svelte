@@ -58,7 +58,7 @@
                   />
                   <div>
                     <h3 class="font-mono text-blue-400">{stargazer.login}</h3>
-                    <p class="text-sm text-gray-400">{new Date(stargazer.starred_at).toLocaleDateString()}</p>
+                    <p class="text-sm text-gray-400">{stargazer.starred_at ? new Date(stargazer.starred_at).toLocaleDateString() : 'Unknown date'}</p>
                   </div>
                 </div>
                 <div class="text-right">

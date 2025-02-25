@@ -23,6 +23,9 @@ export interface GraphQLPinnedRepo {
   } | null;
   stargazerCount: number;
   isFork: boolean;
+  defaultBranchRef: {
+    name: string;
+  } | null;
   createdAt: string;
   updatedAt: string;
 }

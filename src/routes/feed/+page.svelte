@@ -11,206 +11,20 @@
 	import { topics as allTopics } from '$lib/all_topics';
 	import { Octokit } from '@octokit/rest';
 	import { Twitter } from 'lucide-svelte';
-	import { getRepositories } from '$lib/db/client';
-
 	import { baseUrl } from 'marked-base-url';
 	import { markedEmoji } from 'marked-emoji';
-	// Import icons
 	import { Star, Eye, GitFork, Share2, Settings, Globe } from 'lucide-svelte';
-	// Sample GitHub projects - in a real app, these would come from GitHub API
+	import type { FeedProject } from '$lib/github/feed';
+	import { fetchProject, fetchReadme, getRandomSearchQuery, languageColors, searchRepositories } from '$lib/github/feed';
 
-	type Project = {
-		id: number;
-		name: string;
-		description: string;
-		readmeSnippet: string;
-		stars: number;
-		forks: number;
-		watchers: number;
-		author: string;
-		avatar: string;
-		language?: string;
-		languageColor?: string;
-		stargazersUrl: string;
-		forksUrl: string;
-		default_branch: string;
-	};
-
-	let projects: Project[] = [];
+	let projects: FeedProject[] = [];
 	let viewedIndices = new Set<number>();
 	let isLoading = false;
 	let hasMore = true;
 	let hasShownFollowMessage = false;
-	// Cache for prefetched promoted repos
-	let promotedReposCache: Map<number, Project> = new Map();
+	let featuredRepos: FeedProject[] = [];
 
-	// Add this language color mapping object before the fetchProjects function
-	const languageColors = {
-		TypeScript: '#3178c6',
-		JavaScript: '#f1e05a',
-		Python: '#3572A5',
-		Java: '#b07219',
-		Ruby: '#701516',
-		Go: '#00ADD8',
-		Rust: '#dea584',
-		C: '#555555',
-		'C++': '#f34b7d',
-		'C#': '#178600',
-		PHP: '#4F5D95',
-		Swift: '#ffac45',
-		Kotlin: '#A97BFF',
-		Dart: '#00B4AB',
-		Shell: '#89e051',
-		HTML: '#e34c26',
-		CSS: '#563d7c',
-		Vue: '#41b883',
-		Svelte: '#ff3e00',
-		React: '#61dafb'
-	} as const;
-
-	// Function to fetch README content
-	const fetchReadme = async (author: string, repo: string, default_branch: string) => {
-		try {
-			const response = await fetch(
-				`https://raw.githubusercontent.com/${author}/${repo}/${default_branch}/README.md`
-			);
-			const data = await response.text();
-
-			// Take only first 20 lines
-			const firstXLines = data.split('\n').slice(0, 40).join('\n');
-			return firstXLines;
-		} catch (error) {
-			console.error('Error fetching README:', error);
-			return 'Failed to load README';
-		}
-	};
-
-	const stars = [
-		// 'stars:>20000',
-		// 'stars:10000..20000',
-		// 'stars:5000..10000',
-		// 'stars:1000..5000',
-		'stars:>1000',
-		'stars:500..1000',
-		'stars:100..500'
-	];
-
-	const languages = [
-		'language:typescript',
-		'language:javascript',
-		'language:python',
-		'language:java',
-		'language:ruby',
-		'language:go',
-		'language:rust',
-		'language:c',
-		'language:cpp',
-		'language:csharp',
-		'language:php',
-		'language:swift',
-		'language:kotlin',
-		'language:dart',
-		'language:shell',
-		'language:html',
-		'language:css',
-		'language:vue',
-		'language:svelte',
-		'language:react'
-	];
-
-	const topics = $topicsStore.size > 0 ? [...$topicsStore] : allTopics;
-
-	const seenqueries: Record<string, { current_page: number; total_projects: number }> = {};
-
-	function getRandomSearchQuery(attempt: number = 0) {
-		const searchParams = new URLSearchParams();
-
-		const randomTopic = `topic:${topics[Math.floor(Math.random() * topics.length)]}`;
-		const randomStars = stars[Math.floor(Math.random() * stars.length)];
-		const randomLanguages = languages[Math.floor(Math.random() * languages.length)];
-
-		const q = `${randomStars} ${randomTopic}`;
-
-		searchParams.set('q', q);
-		searchParams.set('page', '1');
-		searchParams.set('per_page', '25');
-
-		if (seenqueries[q] && attempt < 10000) {
-			if (seenqueries[q].current_page < seenqueries[q].total_projects / 25) {
-				searchParams.set('page', (seenqueries[q].current_page + 1).toString());
-			} else {
-				return getRandomSearchQuery(attempt + 1);
-			}
-		}
-
-		return searchParams;
-	}
-
-	const fetchProject = async (project: string, author: string) => {
-		const url = new URL(`https://api.github.com/repos/${author}/${project}`);
-		const res = await fetch(url);
-		const data = await res.json();
-
-		return {
-			name: data.name,
-			description: data.description,
-			default_branch: data.default_branch,
-			readmeSnippet: null,
-			language: data.language,
-			languageColor: data.language
-				? languageColors[data.language as keyof typeof languageColors] || '#858585'
-				: undefined,
-			stargazersUrl: data.stargazers_url,
-			forksUrl: data.forks_url,
-			author: data.owner.login,
-			avatar: data.owner.avatar_url,
-			stars: data.stargazers_count,
-			forks: data.forks_count,
-			watchers: data.watchers_count,
-			id: data.id
-		};
-	};
-
-	// Function to fetch projects from GitHub API
-	const fetchProjects = async () => {
-		const url = new URL('https://api.github.com/search/repositories');
-
-		const query = getRandomSearchQuery();
-		const queryKey = query.get('q');
-
-		if (!queryKey) {
-			throw new Error('No query key found');
-		}
-
-		url.search = query.toString();
-
-		const res = await fetch(url);
-		const data = await res.json();
-
-		seenqueries[queryKey] = {
-			current_page: parseInt(query.get('page') || '1'),
-			total_projects: data.total_count
-		};
-
-		return data.items.map((item: any) => ({
-			id: item.id,
-			name: item.name,
-			description: item.description || 'No description provided',
-			default_branch: item.default_branch,
-			readmeSnippet: null,
-			stars: item.stargazers_count,
-			forks: item.forks_count,
-			watchers: item.watchers_count,
-			author: item.owner.login,
-			avatar: item.owner.avatar_url,
-			language: item.language,
-			languageColor: item.language
-				? languageColors[item.language as keyof typeof languageColors] || '#858585'
-				: undefined,
-			stargazersUrl: item.html_url + '/stargazers',
-			forksUrl: item.html_url + '/fork'
-		}));
-	};
+	let seenQueries: Record<string, { current_page: number; total_projects: number }> = {};
 
 	// Function to load more projects and randomly merge them after the current index
 	const loadMoreProjects = async (index: number) => {
@@ -218,7 +32,18 @@
 
 		isLoading = true;
 		try {
-			const newProjects = await fetchProjects();
+			const octokit = new Octokit();
+			const query = getRandomSearchQuery(
+				$topicsStore.size > 0 ? [...$topicsStore] : allTopics,
+				seenQueries
+			);
+			const queryKey = query.get('q');
+
+			if (!queryKey) {
+				throw new Error('No query key found');
+			}
+
+			const newProjects = await searchRepositories(octokit, query.toString());
 
 			// Split existing projects into before and after index
 			const beforeProjects = projects.slice(0, index + 1);
@@ -242,163 +67,127 @@
 		}
 	};
 
-	function seturlparams(project: Project) {
+	function seturlparams(project: FeedProject) {
 		const url = new URL(window.location.href);
 		url.searchParams.set('project', project.name);
-		url.searchParams.set('author', project.author);
+		url.searchParams.set('author', project.full_name.split('/')[0]);
 		window.history.replaceState({}, '', url.toString());
 	}
 
-	// Function to prefetch promoted repos
-	const prefetchPromotedRepos = async (currentIndex: number) => {
-		// Calculate the next two positions where promoted repos will be needed
-		const currentPosition = Math.floor((currentIndex + 1) / 10);
-		const nextPositions = [currentPosition + 1, currentPosition + 2];
-
-		// Prefetch for each position if not already in cache
-		for (const position of nextPositions) {
-			if (!promotedReposCache.has(position)) {
-				const promotedRepo = await getPromotedRepo(position);
-				promotedReposCache.set(position, promotedRepo);
-			}
-		}
-	};
-
-	// Function to get a promoted repo (either from cache or fetch new)
-	const getPromotedRepoWithCache = async (position: number): Promise<Project> => {
-		// Check cache first
-		if (promotedReposCache.has(position)) {
-			const cachedRepo = promotedReposCache.get(position);
-			// Remove from cache after using
-			promotedReposCache.delete(position);
-			return cachedRepo!;
-		}
-
-		// If not in cache, fetch directly
-		return await getPromotedRepo(position);
-	};
-
-	// Function to insert promoted repos at intervals
-	const insertPromotedRepos = async (index: number) => {
-		// Check if we're at a position where we should insert a promoted repo (every 10 items)
-		if ((index + 1) % 10 === 0) {
-			const promotedPosition = Math.floor(index / 10);
-			const promotedRepo = await getPromotedRepoWithCache(promotedPosition);
-			
-			// Insert the promoted repo after the current index
-			projects = [
-				...projects.slice(0, index + 1),
-				promotedRepo,
-				...projects.slice(index + 1)
-			];
-
-			// Prefetch next promoted repos
-			await prefetchPromotedRepos(index);
-		} else if ((index + 1) % 10 >= 8) {
-			// If we're within 2 positions of needing a promoted repo, start prefetching
-			await prefetchPromotedRepos(index);
-		}
-	};
-
-	// Function to get a random promoted repository
-	const getPromotedRepo = async (position: number): Promise<Project> => {
+	// Function to load featured repositories from JSON file
+	const loadFeaturedRepos = async (): Promise<FeedProject[]> => {
 		try {
-			// Get promoted repositories from the database
-			const promotedRepos = await getRepositories({
-				limit: 10,
-				isPinned: 1,
-				orderBy: 'updated_at',
-				order: 'desc'
-			});
-
-			console.log("promotedRepos", promotedRepos);
-
-			// If no promoted repos in DB, fall back to default ones
-			if (!promotedRepos.length) {
-				const defaultRepos = [
-					{
-						id: -2,
-						name: 'gittok.dev',
-						description: 'A TikTok-style interface for discovering amazing open source projects. Built with SvelteKit and Tailwind CSS.',
-						readmeSnippet: '# GitTok\n\nGitTok is an innovative way to discover open source projects. With its TikTok-inspired interface, you can effortlessly scroll through carefully curated GitHub repositories.\n\n## Features\n\n- Vertical scrolling interface\n- Real-time README previews\n- GitHub statistics integration\n- Beautiful dark mode design\n- Mobile-first responsive layout',
-						stars: 1337,
-						forks: 42,
-						watchers: 100,
-						author: 'BlackShoreTech',
-						avatar: 'https://avatars.githubusercontent.com/u/583231?v=4',
-						language: 'Svelte',
-						languageColor: '#ff3e00',
-						stargazersUrl: 'https://github.com/gittok/gittok/stargazers',
-						forksUrl: 'https://github.com/gittok/gittok/fork',
-						default_branch: 'main'
-					},
-					{
-						id: -3,
-						name: 'Sponsor GitTok',
-						description: 'Want to promote your open source project here? Reach thousands of developers daily!',
-						readmeSnippet: '# Promote Your Project\n\nReach thousands of developers who are actively discovering new open source projects.\n\n## Why Sponsor?\n\n- Increase project visibility\n- Reach active developers\n- Support open source\n- Boost community engagement\n\nContact us at sponsor@gittok.dev',
-						stars: 0,
-						forks: 0,
-						watchers: 0,
-						author: 'sponsor',
-						avatar: 'https://avatars.githubusercontent.com/u/583231?v=4',
-						language: undefined,
-						languageColor: undefined,
-						stargazersUrl: 'mailto:sponsor@gittok.dev',
-						forksUrl: 'mailto:sponsor@gittok.dev',
-						default_branch: 'main'
-					}
-				];
-				return defaultRepos[position % defaultRepos.length];
+			const response = await fetch('/data/featured_repos.json');
+			if (!response.ok) {
+				throw new Error(`Failed to fetch featured repos: ${response.status}`);
 			}
-
-			// Convert database repository to Project type
-			const repo = promotedRepos[position % promotedRepos.length];
-			const readme = await fetchReadme(
-				repo.full_name.split('/')[0],
-				repo.name,
-				'main' // Assuming main branch, you might want to store this in the database
-			);
-
-			return {
-				id: -2,
-				name: repo.name,
-				description: repo.description || '',
-				readmeSnippet: readme,
-				stars: repo.stargazers_count,
-				forks: repo.fork,
-				watchers: repo.stargazers_count, // Using stars count as watchers since we don't store watchers
-				author: repo.full_name.split('/')[0],
-				avatar: `https://github.com/${repo.full_name.split('/')[0]}.png`,
-				language: repo.language || undefined,
-				languageColor: repo.language ? languageColors[repo.language as keyof typeof languageColors] : undefined,
-				stargazersUrl: `${repo.html_url}/stargazers`,
-				forksUrl: `${repo.html_url}/fork`,
-				default_branch: 'main' // Assuming main branch
-			};
+			
+			const data = await response.json();
+			
+			// Transform the data to match FeedProject type
+			return Promise.all(data.map(async (repo: any) => {
+				// Fetch README for each featured repo
+				let readmeContent = '';
+				try {
+					readmeContent = await fetchReadme(
+						repo.full_name.split('/')[0],
+						repo.name,
+						repo.default_branch
+					);
+				} catch (error) {
+					console.error(`Error fetching README for ${repo.full_name}:`, error);
+				}
+				
+				return {
+					id: '-2',
+					name: repo.name,
+					full_name: repo.full_name,
+					description: repo.description || '',
+					html_url: repo.html_url,
+					language: repo.language,
+					stargazers_count: repo.stargazers_count,
+					fork: repo.fork,
+					created_at: repo.created_at,
+					updated_at: repo.updated_at,
+					is_pinned: repo.is_pinned,
+					owner_id: repo.owner_id,
+					fetched_at: repo.fetched_at,
+					readmeSnippet: readmeContent,
+					avatar: repo.avatar_url,
+					stargazersUrl: `${repo.html_url}/stargazers`,
+					forksUrl: `${repo.html_url}/fork`,
+					default_branch: repo.default_branch
+				};
+			}));
 		} catch (error) {
-			console.error('Error fetching promoted repo:', error);
-			// Return the sponsor card as fallback
-			return {
-				id: -3,
-				name: 'Sponsor GitTok',
-				description: 'Want to promote your open source project here? Reach thousands of developers daily!',
-				readmeSnippet: '# Promote Your Project\n\nReach thousands of developers who are actively discovering new open source projects.\n\n## Why Sponsor?\n\n- Increase project visibility\n- Reach active developers\n- Support open source\n- Boost community engagement\n\nContact us at sponsor@gittok.dev',
-				stars: 0,
-				forks: 0,
-				watchers: 0,
-				author: 'sponsor',
+			console.error('Error loading featured repos:', error);
+			return getDefaultFeaturedRepos();
+		}
+	};
+
+	// Function to get default featured repos when JSON loading fails
+	const getDefaultFeaturedRepos = (): FeedProject[] => {
+		return [
+			{
+				id: '-2',
+				name: 'gittok.dev',
+				full_name: 'BlackShoreTech/gittok.dev',
+				description: 'A TikTok-style interface for discovering amazing open source projects. Built with SvelteKit and Tailwind CSS.',
+				html_url: 'https://github.com/BlackShoreTech/gittok.dev',
+				language: 'Svelte',
+				stargazers_count: 1337,
+				fork: 0,
+				created_at: new Date().toISOString(),
+				updated_at: new Date().toISOString(),
+				is_pinned: 1,
+				owner_id: 0,
+				fetched_at: new Date().toISOString(),
+				readmeSnippet: '# GitTok\n\nGitTok is an innovative way to discover open source projects. With its TikTok-inspired interface, you can effortlessly scroll through carefully curated GitHub repositories.\n\n## Features\n\n- Vertical scrolling interface\n- Real-time README previews\n- GitHub statistics integration\n- Beautiful dark mode design\n- Mobile-first responsive layout',
 				avatar: 'https://avatars.githubusercontent.com/u/583231?v=4',
-				language: undefined,
-				languageColor: undefined,
+				stargazersUrl: 'https://github.com/gittok/gittok/stargazers',
+				forksUrl: 'https://github.com/gittok/gittok/fork',
+				default_branch: 'main'
+			},
+			{
+				id: '-3',
+				name: 'Sponsor GitTok',
+				full_name: 'sponsor/gittok',
+				description: 'Want to promote your open source project here? Reach thousands of developers daily!',
+				html_url: 'mailto:sponsor@gittok.dev',
+				language: null,
+				stargazers_count: 0,
+				fork: 0,
+				created_at: new Date().toISOString(),
+				updated_at: new Date().toISOString(),
+				is_pinned: 1,
+				owner_id: 0,
+				fetched_at: new Date().toISOString(),
+				readmeSnippet: '# Promote Your Project\n\nReach thousands of developers who are actively discovering new open source projects.\n\n## Why Sponsor?\n\n- Increase project visibility\n- Reach active developers\n- Support open source\n- Boost community engagement\n\nContact us at sponsor@gittok.dev',
+				avatar: 'https://avatars.githubusercontent.com/u/583231?v=4',
 				stargazersUrl: 'mailto:sponsor@gittok.dev',
 				forksUrl: 'mailto:sponsor@gittok.dev',
 				default_branch: 'main'
-			};
+			}
+		];
+	};
+
+	// Simplified function to insert a featured repo at a specific position in the feed
+	const insertFeaturedRepo = (index: number) => {
+		// Only insert if we're at a position divisible by 10 (every 10th item)
+		if ((index + 1) % 10 === 0 && featuredRepos.length > 0) {
+			const position = Math.floor(index / 10);
+			const featuredRepo = featuredRepos[position % featuredRepos.length];
+			
+			// Insert the featured repo after the current index
+			projects = [
+				...projects.slice(0, index + 1),
+				featuredRepo,
+				...projects.slice(index + 1)
+			];
 		}
 	};
 
-	// Update the intersection observer to handle pagination and promoted repos
+	// Update the intersection observer to handle pagination and featured repos
 	const observeElement = (element: HTMLElement, index: number) => {
 		const observer = new IntersectionObserver(
 			async (entries) => {
@@ -413,16 +202,22 @@
 						if (viewedIndices.size === 10 && !hasShownFollowMessage) {
 							hasShownFollowMessage = true;
 							// Insert the follow message card after the current item
-							const followMessageProject: Project = {
-								id: -1,
+							const followMessageProject: FeedProject = {
+								id: '-1',
 								name: 'Enjoying GitTok?',
+								full_name: '@brsc2909/gittok',
 								description:
 									"If you're finding this useful, consider following me on Twitter for more cool projects!",
+								html_url: 'https://twitter.com/brsc2909',
+								language: null,
+								stargazers_count: 0,
+								fork: 0,
+								created_at: new Date().toISOString(),
+								updated_at: new Date().toISOString(),
+								is_pinned: 1,
+								owner_id: 0,
+								fetched_at: new Date().toISOString(),
 								readmeSnippet: '',
-								stars: 0,
-								forks: 0,
-								watchers: 0,
-								author: '@brsc2909',
 								avatar: 'https://avatars.githubusercontent.com/u/1?v=4',
 								stargazersUrl: '',
 								forksUrl: '',
@@ -435,15 +230,15 @@
 							];
 						}
 
-						// Insert promoted repos at intervals
-						await insertPromotedRepos(index);
+						// Insert featured repos at intervals
+						insertFeaturedRepo(index);
 
 						// Fetch README when item comes into view
 						// Fetch current and next 3 READMEs when an item comes into view
 						if (projects[index] && !projects[index].readmeSnippet) {
 							// Fetch current README
 							const readme = await fetchReadme(
-								projects[index].author,
+								projects[index].full_name.split('/')[0],
 								projects[index].name,
 								projects[index].default_branch
 							);
@@ -457,7 +252,7 @@
 							const nextIndex = index + i;
 							if (projects[nextIndex] && !projects[nextIndex].readmeSnippet) {
 								const nextReadme = await fetchReadme(
-									projects[nextIndex].author,
+									projects[nextIndex].full_name.split('/')[0],
 									projects[nextIndex].name,
 									projects[nextIndex].default_branch
 								);
@@ -498,19 +293,24 @@
 			})
 		);
 
+		// Load featured repos from JSON file
+		featuredRepos = await loadFeaturedRepos();
+		
 		// Load initial projects
 		const url = new URL(window.location.href);
 		const project = url.searchParams.get('project');
 		const author = url.searchParams.get('author');
 		const initialProjects = [];
 		if (project && author) {
-			const initialProject = await fetchProject(project, author);
+			const initialProject = await fetchProject(author, project);
 			initialProjects.push(initialProject);
 		}
 
-		prefetchPromotedRepos(10);
-
-		initialProjects.push(...(await fetchProjects()));
+		const query = getRandomSearchQuery(
+			$topicsStore.size > 0 ? [...$topicsStore] : allTopics,
+			seenQueries
+		);
+		initialProjects.push(...(await searchRepositories(octokit, query.toString())));
 		
 		projects = initialProjects;
 	});
@@ -574,8 +374,8 @@
 	};
 
 	// Add share functionality
-	const shareProject = async (project: Project) => {
-		const shareUrl = `https://gittok.dev/feed?project=${project.name}&author=${project.author}`;
+	const shareProject = async (project: FeedProject) => {
+		const shareUrl = `https://gittok.dev/feed?project=${project.name}&author=${project.full_name.split('/')[0]}`;
 		const shareText = `Check out ${project.name} on gittok.dev`;
 
 		if (navigator.share) {
@@ -598,6 +398,12 @@
 			await navigator.clipboard.writeText(shareUrl);
 			alert('Link copied to clipboard!');
 		}
+	};
+
+	// Get language color for a project
+	const getLanguageColor = (language: string | null): string => {
+		if (!language) return '#808080'; // Default gray for undefined languages
+		return languageColors[language as keyof typeof languageColors] || '#808080';
 	};
 </script>
 
@@ -627,7 +433,7 @@
 		>
 			<!-- Main Content Container -->
 			<div class="mx-auto flex h-full w-full max-w-3xl flex-col p-6">
-				{#if project.id === -1}
+				{#if project.id === '-1'}
 					<!-- Special Follow Message Card -->
 					<div class="flex h-full flex-col items-center justify-center space-y-8 text-center">
 						<h1 class="font-serif text-4xl text-white">{project.name}</h1>
@@ -647,7 +453,7 @@
 					<!-- Regular Repository Card -->
 					<!-- Top: Repository Name and Description -->
 					<div class="flex-none space-y-2">
-						{#if project.id === -2}
+						{#if project.id === '-2'}
 							<!-- Promoted Repository Badge -->
 							<div class="mb-4 flex items-center justify-between">
 								<div class="flex items-center gap-2">
@@ -665,10 +471,10 @@
 								</a>
 							</div>
 						{/if}
-						<h1 class="flex items-center gap-2 font-serif text-2xl text-white md:text-3xl {project.id === -2 ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-purple-400 to-blue-400' : ''}">
+						<h1 class="flex items-center gap-2 font-serif text-2xl text-white md:text-3xl {project.id === '-2' ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-purple-400 to-blue-400' : ''}">
 							{project.name}
 							{#if project.language}
-								<span class="h-3 w-3 rounded-full" style="background-color: {project.languageColor}"
+								<span class="h-3 w-3 rounded-full" style="background-color: {getLanguageColor(project.language)}"
 								></span>
 								<span class="font-mono text-sm text-gray-400">{project.language}</span>
 							{/if}
@@ -679,7 +485,7 @@
 					<!-- Middle: README Content -->
 					<div class="my-4 flex min-h-0 flex-1">
 						<div
-							class="markdown-content readme-container w-full overflow-y-clip rounded-xl {project.id === -2 ? 'bg-gradient-to-br from-gray-800/30 via-gray-800/40 to-gray-800/30 shadow-lg shadow-purple-500/10' : 'bg-gray-800/30'} p-6 backdrop-blur-sm"
+							class="markdown-content readme-container w-full overflow-y-clip rounded-xl {project.id === '-2' ? 'bg-gradient-to-br from-gray-800/30 via-gray-800/40 to-gray-800/30 shadow-lg shadow-purple-500/10' : 'bg-gray-800/30'} p-6 backdrop-blur-sm"
 							use:scrollMarkdownToTop
 						>
 							{#if !project.readmeSnippet}
@@ -687,7 +493,7 @@
 							{:else}
 								{@html renderMarkdown(
 									project.readmeSnippet,
-									`https://github.com/${project.author}/${project.name}/${project.default_branch}/`
+									`https://github.com/${project.full_name.split('/')[0]}/${project.name}/${project.default_branch}/`
 								)}
 							{/if}
 						</div>
@@ -701,46 +507,36 @@
 								href={project.stargazersUrl}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="rounded-full {project.id === -2 ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
-								aria-label={`Star repository (${formatNumber(project.stars)} stars)`}
+								class="rounded-full {project.id === '-2' ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+								aria-label={`Star repository (${formatNumber(project.stargazers_count)} stars)`}
 							>
-								<Star class="h-8 w-8 {project.id === -2 ? 'text-yellow-300' : 'text-yellow-400'}" />
+								<Star class="h-8 w-8 {project.id === '-2' ? 'text-yellow-300' : 'text-yellow-400'}" />
 							</a>
-							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.stars)}</span>
+							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.stargazers_count)}</span>
 						</div>
 
-						<!-- Watchers -->
-						<div class="flex flex-col items-center">
-							<div
-								class="rounded-full {project.id === -2 ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm"
-								aria-label={`${formatNumber(project.watchers)} watchers`}
-							>
-								<Eye class="h-8 w-8 {project.id === -2 ? 'text-blue-300' : 'text-blue-400'}" />
-							</div>
-							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.watchers)}</span>
-						</div>
 						<!-- Forks -->
 						<div class="flex flex-col items-center">
 							<a
 								href={project.forksUrl}
 								target="_blank"
 								rel="noopener noreferrer"
-								class="rounded-full {project.id === -2 ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
-								aria-label={`Fork repository (${formatNumber(project.forks)} forks)`}
+								class="rounded-full {project.id === '-2' ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+								aria-label={`Fork repository (${formatNumber(project.fork)} forks)`}
 							>
-								<GitFork class="h-8 w-8 {project.id === -2 ? 'text-gray-300' : 'text-gray-400'}" />
+								<GitFork class="h-8 w-8 {project.id === '-2' ? 'text-gray-300' : 'text-gray-400'}" />
 							</a>
-							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.forks)}</span>
+							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.fork)}</span>
 						</div>
 
 						<!-- Share Button -->
 						<div class="flex flex-col items-center">
 							<button
 								on:click={() => shareProject(project)}
-								class="rounded-full {project.id === -2 ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+								class="rounded-full {project.id === '-2' ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
 								aria-label="Share repository"
 							>
-								<Share2 class="h-8 w-8 {project.id === -2 ? 'text-purple-300' : 'text-purple-400'}" />
+								<Share2 class="h-8 w-8 {project.id === '-2' ? 'text-purple-300' : 'text-purple-400'}" />
 							</button>
 							<span class="mt-1 font-mono text-sm text-white">Share</span>
 						</div>
@@ -750,17 +546,17 @@
 					<div class="mb-4 flex flex-none items-center gap-3">
 						<img
 							src={project.avatar}
-							alt={`${project.author}'s avatar`}
-							class="h-10 w-10 rounded-full {project.id === -2 ? 'ring-2 ring-purple-400/50 ring-offset-2 ring-offset-black' : ''}"
+							alt={`${project.full_name.split('/')[0]}'s avatar`}
+							class="h-10 w-10 rounded-full {project.id === '-2' ? 'ring-2 ring-purple-400/50 ring-offset-2 ring-offset-black' : ''}"
 						/>
 						<div>
-							<h2 class="font-mono text-lg text-white">{project.author}</h2>
+							<h2 class="font-mono text-lg text-white">{project.full_name.split('/')[0]}</h2>
 						</div>
 						<a
-							href={`https://github.com/${project.author}/${project.name}`}
+							href={`https://github.com/${project.full_name.split('/')[0]}/${project.name}`}
 							target="_blank"
 							rel="noopener noreferrer"
-							class="ml-auto rounded-lg {project.id === -2 ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30' : 'bg-white/10 hover:bg-white/20'} px-4 py-2 font-mono text-white transition-colors duration-200"
+							class="ml-auto rounded-lg {project.id === '-2' ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30' : 'bg-white/10 hover:bg-white/20'} px-4 py-2 font-mono text-white transition-colors duration-200"
 						>
 							View
 						</a>

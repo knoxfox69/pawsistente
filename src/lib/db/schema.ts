@@ -26,6 +26,7 @@ export const repositories = sqliteTable('repositories', {
   stargazers_count: integer('stargazers_count').notNull().default(0),
   fork: integer('fork').notNull().default(0), // SQLite doesn't have boolean, using 0/1
   is_pinned: integer('is_pinned').notNull().default(0),
+  default_branch: text('default_branch'),
   created_at: text('created_at').notNull(),
   updated_at: text('updated_at').notNull(),
   fetched_at: text('fetched_at').notNull().default(sql`CURRENT_TIMESTAMP`),

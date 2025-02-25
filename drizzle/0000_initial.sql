@@ -38,6 +38,8 @@ CREATE TABLE IF NOT EXISTS repositories (
   description TEXT,
   html_url TEXT NOT NULL,
   language TEXT,
+  default_branch TEXT,
+  featured TEXT,
   stargazers_count INTEGER NOT NULL DEFAULT 0,
   fork INTEGER NOT NULL DEFAULT 0,
   is_pinned INTEGER NOT NULL DEFAULT 0,

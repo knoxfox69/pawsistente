@@ -34,6 +34,9 @@ jobs:
       - name: Update topics
         run: bun run update-topics
 
+      - name: Update featured repos
+        run: bun run feature-repos
+
       - name: Check for changes
         id: check_changes
         run: |

@@ -22,6 +22,9 @@ export async function fetchPinnedRepositories(octokit: Octokit, username: string
                 }
                 stargazerCount
                 isFork
+                defaultBranchRef {
+                  name
+                }
                 createdAt
                 updatedAt
               }
@@ -35,7 +38,7 @@ export async function fetchPinnedRepositories(octokit: Octokit, username: string
     const pinnedRepos = response.user?.pinnedItems?.nodes ?? [];
 
     return pinnedRepos.map(repo => ({
-      id: repo.id,
+      id: repo.id.toString(),
       name: repo.name,
       full_name: repo.nameWithOwner,
       description: repo.description,
@@ -43,6 +46,7 @@ export async function fetchPinnedRepositories(octokit: Octokit, username: string
       language: repo.primaryLanguage?.name ?? null,
       stargazers_count: repo.stargazerCount,
       fork: repo.isFork ? 1 : 0,
+      default_branch: repo.defaultBranchRef?.name ?? null,
       created_at: repo.createdAt,
       updated_at: repo.updatedAt,
       is_pinned: 1,
@@ -77,7 +81,7 @@ export async function fetchUserRepositories(octokit: Octokit, username: string):
       });
 
       const filteredRepos = response.data.map(repo => ({
-        id: repo.id,
+        id: repo.id.toString(),
         name: repo.name,
         full_name: repo.full_name,
         description: repo.description,
@@ -85,6 +89,7 @@ export async function fetchUserRepositories(octokit: Octokit, username: string):
         language: repo.language ?? null,
         stargazers_count: repo.stargazers_count ?? 0,
         fork: repo.fork ? 1 : 0,
+        default_branch: repo.default_branch ?? null,
         created_at: repo.created_at ?? new Date().toISOString(),
         updated_at: repo.updated_at ?? new Date().toISOString(),
         is_pinned: pinnedRepoNames.has(repo.name) ? 1 : 0,
