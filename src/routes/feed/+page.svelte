@@ -485,7 +485,7 @@
 					<!-- Middle: README Content -->
 					<div class="my-4 flex min-h-0 flex-1">
 						<div
-							class="markdown-content readme-container w-full overflow-y-clip rounded-xl {project.id === '-2' ? 'bg-gradient-to-br from-gray-800/30 via-gray-800/40 to-gray-800/30 shadow-lg shadow-purple-500/10' : 'bg-gray-800/30'} p-6 backdrop-blur-sm"
+							class="markdown-content readme-container w-full overflow-y-clip overflow-x-hidden rounded-xl {project.id === '-2' ? 'bg-gradient-to-br from-gray-800/30 via-gray-800/40 to-gray-800/30 shadow-lg shadow-purple-500/10' : 'bg-gray-800/30'} p-6 backdrop-blur-sm"
 							use:scrollMarkdownToTop
 						>
 							{#if !project.readmeSnippet}
