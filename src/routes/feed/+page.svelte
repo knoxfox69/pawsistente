@@ -10,18 +10,23 @@
 	import { topicsStore } from '$lib/stores/topics';
 	import { topics as allTopics } from '$lib/all_topics';
 	import { Octokit } from '@octokit/rest';
-	import { Twitter } from 'lucide-svelte';
 	import { baseUrl } from 'marked-base-url';
 	import { markedEmoji } from 'marked-emoji';
-	import { Star, Eye, GitFork, Share2, Settings, Globe } from 'lucide-svelte';
+	import { Globe, Settings } from 'lucide-svelte';
 	import type { FeedProject } from '$lib/github/feed';
 	import { fetchProject, fetchReadme, getRandomSearchQuery, languageColors, searchRepositories } from '$lib/github/feed';
+	
+	// Import our new components
+	import RepoCard from '$lib/components/RepoCard.svelte';
+	import PromotedRepoCard from '$lib/components/PromotedRepoCard.svelte';
+	import SpecialMessageCard from '$lib/components/SpecialMessageCard.svelte';
 
 	let projects: FeedProject[] = [];
 	let viewedIndices = new Set<number>();
 	let isLoading = false;
 	let hasMore = true;
 	let hasShownFollowMessage = false;
+	let hasShownFeaturedMessage = false;
 	let featuredRepos: FeedProject[] = [];
 
 	let seenQueries: Record<string, { current_page: number; total_projects: number }> = {};
@@ -229,6 +234,38 @@
 								...projects.slice(index + 1)
 							];
 						}
+						
+						// Show "Get Featured" message after viewing 5 items
+						if (viewedIndices.size === 5 && !hasShownFeaturedMessage) {
+							hasShownFeaturedMessage = true;
+							// Insert the get featured message card after the current item
+							const getFeaturedMessageProject: FeedProject = {
+								id: '-4',
+								name: 'Get Your Project Featured',
+								full_name: 'BlackShoreTech/gittok.dev',
+								description:
+									"Want your open source project to be featured on GitTok? Here's how to get more visibility for your work!",
+								html_url: 'https://github.com/BlackShoreTech/gittok.dev',
+								language: null,
+								stargazers_count: 0,
+								fork: 0,
+								created_at: new Date().toISOString(),
+								updated_at: new Date().toISOString(),
+								is_pinned: 1,
+								owner_id: 0,
+								fetched_at: new Date().toISOString(),
+								readmeSnippet: '',
+								avatar: 'https://avatars.githubusercontent.com/u/583231?v=4',
+								stargazersUrl: 'https://github.com/BlackShoreTech/gittok.dev',
+								forksUrl: 'https://github.com/BlackShoreTech/gittok.dev/fork',
+								default_branch: 'main'
+							};
+							projects = [
+								...projects.slice(0, index + 1),
+								getFeaturedMessageProject,
+								...projects.slice(index + 1)
+							];
+						}
 
 						// Insert featured repos at intervals
 						insertFeaturedRepo(index);
@@ -363,16 +400,6 @@
 		});
 	};
 
-	// Function to scroll markdown content to top when loaded
-	const scrollMarkdownToTop = (node: HTMLElement) => {
-		node.scrollTop = 0;
-		return {
-			update() {
-				node.scrollTop = 0;
-			}
-		};
-	};
-
 	// Add share functionality
 	const shareProject = async (project: FeedProject) => {
 		const shareUrl = `https://gittok.dev/feed?project=${project.name}&author=${project.full_name.split('/')[0]}`;
@@ -398,12 +425,6 @@
 			await navigator.clipboard.writeText(shareUrl);
 			alert('Link copied to clipboard!');
 		}
-	};
-
-	// Get language color for a project
-	const getLanguageColor = (language: string | null): string => {
-		if (!language) return '#808080'; // Default gray for undefined languages
-		return languageColors[language as keyof typeof languageColors] || '#808080';
 	};
 </script>
 
@@ -435,132 +456,26 @@
 			<div class="mx-auto flex h-full w-full max-w-3xl flex-col p-6">
 				{#if project.id === '-1'}
 					<!-- Special Follow Message Card -->
-					<div class="flex h-full flex-col items-center justify-center space-y-8 text-center">
-						<h1 class="font-serif text-4xl text-white">{project.name}</h1>
-						<p class="max-w-lg font-serif text-xl text-gray-200">{project.description}</p>
-						<a
-							href="https://twitter.com/brsc2909"
-							target="_blank"
-							rel="noopener noreferrer"
-							class="flex items-center gap-3 rounded-full bg-blue-400 px-6 py-3 text-white transition-colors duration-200 hover:bg-blue-500"
-						>
-							<Twitter class="h-5 w-5" />
-							<span class="font-mono">Follow @brsc2909</span>
-						</a>
-						<p class="mt-4 text-sm text-gray-400">Keep scrolling for more awesome projects!</p>
-					</div>
+					<SpecialMessageCard {project} />
+				{:else if project.id === '-2'}
+					<!-- Promoted Repository Card -->
+					<PromotedRepoCard 
+						{project} 
+						{renderMarkdown} 
+						{formatNumber} 
+						{shareProject} 
+					/>
+				{:else if project.id === '-4'}
+					<!-- Get Featured Message Card -->
+					<SpecialMessageCard {project} />
 				{:else}
 					<!-- Regular Repository Card -->
-					<!-- Top: Repository Name and Description -->
-					<div class="flex-none space-y-2">
-						{#if project.id === '-2'}
-							<!-- Promoted Repository Badge -->
-							<div class="mb-4 flex items-center justify-between">
-								<div class="flex items-center gap-2">
-									<span class="rounded-full bg-gradient-to-r from-yellow-400 via-purple-400 to-blue-400 px-3 py-1 text-sm font-bold text-black">Featured Project</span>
-									<Star class="h-5 w-5 text-yellow-400" />
-								</div>
-								<a
-									href="https://github.com/BlackShoreTech/gittok.dev"
-									target="_blank"
-									rel="noopener noreferrer"
-									class="flex items-center gap-2 rounded-full bg-gray-800/50 px-4 py-2 text-sm text-gray-200 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
-								>
-									<Star class="h-4 w-4 text-yellow-400" />
-									<span>Star us to get featured!</span>
-								</a>
-							</div>
-						{/if}
-						<h1 class="flex items-center gap-2 font-serif text-2xl text-white md:text-3xl {project.id === '-2' ? 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-purple-400 to-blue-400' : ''}">
-							{project.name}
-							{#if project.language}
-								<span class="h-3 w-3 rounded-full" style="background-color: {getLanguageColor(project.language)}"
-								></span>
-								<span class="font-mono text-sm text-gray-400">{project.language}</span>
-							{/if}
-						</h1>
-						<p class="font-serif text-lg text-gray-200">{project.description}</p>
-					</div>
-
-					<!-- Middle: README Content -->
-					<div class="my-4 flex min-h-0 flex-1">
-						<div
-							class="markdown-content readme-container w-full overflow-y-clip overflow-x-hidden rounded-xl {project.id === '-2' ? 'bg-gradient-to-br from-gray-800/30 via-gray-800/40 to-gray-800/30 shadow-lg shadow-purple-500/10' : 'bg-gray-800/30'} p-6 backdrop-blur-sm"
-							use:scrollMarkdownToTop
-						>
-							{#if !project.readmeSnippet}
-								<div class="animate-pulse text-gray-400">Loading README...</div>
-							{:else}
-								{@html renderMarkdown(
-									project.readmeSnippet,
-									`https://github.com/${project.full_name.split('/')[0]}/${project.name}/${project.default_branch}/`
-								)}
-							{/if}
-						</div>
-					</div>
-
-					<!-- Right Side: Stats -->
-					<div class="absolute right-4 bottom-24 flex flex-col items-center gap-6">
-						<!-- Stars -->
-						<div class="flex flex-col items-center">
-							<a
-								href={project.stargazersUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="rounded-full {project.id === '-2' ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
-								aria-label={`Star repository (${formatNumber(project.stargazers_count)} stars)`}
-							>
-								<Star class="h-8 w-8 {project.id === '-2' ? 'text-yellow-300' : 'text-yellow-400'}" />
-							</a>
-							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.stargazers_count)}</span>
-						</div>
-
-						<!-- Forks -->
-						<div class="flex flex-col items-center">
-							<a
-								href={project.forksUrl}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="rounded-full {project.id === '-2' ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
-								aria-label={`Fork repository (${formatNumber(project.fork)} forks)`}
-							>
-								<GitFork class="h-8 w-8 {project.id === '-2' ? 'text-gray-300' : 'text-gray-400'}" />
-							</a>
-							<span class="mt-1 font-mono text-sm text-white">{formatNumber(project.fork)}</span>
-						</div>
-
-						<!-- Share Button -->
-						<div class="flex flex-col items-center">
-							<button
-								on:click={() => shareProject(project)}
-								class="rounded-full {project.id === '-2' ? 'bg-gradient-to-br from-gray-800/50 to-purple-800/50 shadow-lg shadow-purple-500/20' : 'bg-gray-800/50'} p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
-								aria-label="Share repository"
-							>
-								<Share2 class="h-8 w-8 {project.id === '-2' ? 'text-purple-300' : 'text-purple-400'}" />
-							</button>
-							<span class="mt-1 font-mono text-sm text-white">Share</span>
-						</div>
-					</div>
-
-					<!-- Bottom: Author Info -->
-					<div class="mb-4 flex flex-none items-center gap-3">
-						<img
-							src={project.avatar}
-							alt={`${project.full_name.split('/')[0]}'s avatar`}
-							class="h-10 w-10 rounded-full {project.id === '-2' ? 'ring-2 ring-purple-400/50 ring-offset-2 ring-offset-black' : ''}"
-						/>
-						<div>
-							<h2 class="font-mono text-lg text-white">{project.full_name.split('/')[0]}</h2>
-						</div>
-						<a
-							href={`https://github.com/${project.full_name.split('/')[0]}/${project.name}`}
-							target="_blank"
-							rel="noopener noreferrer"
-							class="ml-auto rounded-lg {project.id === '-2' ? 'bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30' : 'bg-white/10 hover:bg-white/20'} px-4 py-2 font-mono text-white transition-colors duration-200"
-						>
-							View
-						</a>
-					</div>
+					<RepoCard 
+						{project} 
+						{renderMarkdown} 
+						{formatNumber} 
+						{shareProject} 
+					/>
 				{/if}
 			</div>
 		</div>

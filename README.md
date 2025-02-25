@@ -16,6 +16,19 @@ This project is licensed under a proprietary license with open-source non-commer
 - 🎯 TikTok-inspired UI patterns
 - 🔒 Built-in security features
 
+## ⭐ Get Your Project Featured!
+
+Want your open-source project to be showcased on GitTok? Here's how:
+
+1. **Star this repository** - This is all you need to do! Your pinned repositories become eligible for featuring when you star GitTok
+
+We also appreciate if you:
+- Create a pull request - Add your project details for better promotion chances
+- Share GitTok - Help us grow the community by sharing on social media
+- Follow us on Twitter - Stay updated with the latest features
+
+Featured projects receive prominent placement in the feed, increased visibility, and special styling to help them stand out!
+
 ## Tech Stack
 
 - **Framework:** SvelteKit 5

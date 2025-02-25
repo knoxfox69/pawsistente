@@ -5,7 +5,6 @@
 
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { goto } from '$app/navigation';
   import { fade, fly, slide } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
   import { Twitter, MessageSquareQuote } from 'lucide-svelte';
@@ -39,7 +38,7 @@
   const features = [
     { icon: '🚀', text: '"No, I\'m not procrastinating, I\'m researching coding patterns!"' },
     { icon: '⚡', text: '"The only infinite scroll that makes you better at your job*"' },
-    { icon: '🎯', text: '"Where developers come for inspiration and stay for the algorithms"' },
+    { icon: '⭐', text: '"Just star this repo to get your pinned projects featured on GitTok!"' },
   ];
 </script>
 
