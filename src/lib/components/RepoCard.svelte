@@ -7,11 +7,16 @@
 	import { Star, GitFork, Share2 } from 'lucide-svelte';
 	import type { FeedProject } from '$lib/github/feed';
 	import { languageColors } from '$lib/github/feed';
+	import posthog from 'posthog-js';
 
-	export let project: FeedProject;
-	export let renderMarkdown: (content: string, repo: string) => string;
-	export let formatNumber: (num: number) => string;
-	export let shareProject: (project: FeedProject) => Promise<void>;
+	type Props = {
+		project: FeedProject;
+		renderMarkdown: (content: string, repo: string) => string;
+		formatNumber: (num: number) => string;
+		shareProject: (project: FeedProject) => Promise<void>;
+	};
+
+	const { project, renderMarkdown, formatNumber, shareProject }: Props = $props();
 
 	// Function to scroll markdown content to top when loaded
 	const scrollMarkdownToTop = (node: HTMLElement) => {
@@ -66,6 +71,7 @@
 	<div class="flex flex-col items-center">
 		<a
 			href={project.stargazersUrl}
+			onclick={() => posthog.capture('star_repository', { repository: project.full_name })}
 			target="_blank"
 			rel="noopener noreferrer"
 			class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
@@ -80,6 +86,7 @@
 	<div class="flex flex-col items-center">
 		<a
 			href={project.forksUrl}
+			onclick={() => posthog.capture('fork_repository', { repository: project.full_name })}
 			target="_blank"
 			rel="noopener noreferrer"
 			class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
@@ -93,7 +100,10 @@
 	<!-- Share Button -->
 	<div class="flex flex-col items-center">
 		<button
-			on:click={() => shareProject(project)}
+			onclick={() => {
+				posthog.capture('share_repository', { repository: project.full_name })
+				shareProject(project)
+			}}
 			class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
 			aria-label="Share repository"
 		>
@@ -117,6 +127,7 @@
 		href={`https://github.com/${project.full_name.split('/')[0]}/${project.name}`}
 		target="_blank"
 		rel="noopener noreferrer"
+		onclick={() => posthog.capture('view_repository', { repository: project.full_name })}
 		class="ml-auto rounded-lg bg-white/10 hover:bg-white/20 px-4 py-2 font-mono text-white transition-colors duration-200"
 	>
 		View
