@@ -4,42 +4,58 @@
 -->
 
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { fade, fly, slide } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
-  import { Twitter, MessageSquareQuote } from 'lucide-svelte';
+  import { Twitter, MessageSquareQuote, HelpCircle } from 'lucide-svelte';
+  import { languageStore } from '$lib/stores/language';
+  import LanguageSelector from '$lib/components/LanguageSelector.svelte';
 
-  let hasVisited = false;
-  let visible = false;
-  let currentQuoteIndex = 0;
-  let slideDirection = 1; // 1 for right, -1 for left
+  let hasVisited = $state(false);
+  let visible = $state(false);
+  let t = $state(languageStore.translations);
+  let currentLanguage = $state(languageStore.currentLanguage);
 
-  const quotes = [
-    { text: "I spent 2 hours scrolling again. But this time, it was neither mindlessly, nor a waste of time :)", author: "WittyWithoutWorry" },
-    { text: "Actually addicting lol", author: "AkhilSundaram" },
-    { text: "Very cool idea, was fun scrolling through it for a bit", author: "Previous-Tune-8896" },
-    { text: "Pretty cool. Would love to be able to filter by tags, keywords etc.", author: "AvidCoco" },
-    { text: "Does it also send all my data to the Chinese government?", author: "Maskdask" },
-  ];
+  // Language store subscription
+  let unsubscribe: (() => void) | undefined;
 
-  // Cycle through quotes every 5 seconds
   onMount(() => {
     hasVisited = localStorage.getItem('hasVisitedGitTok') === 'true';
     visible = true;
-
-    const interval = setInterval(() => {
-      slideDirection = 1;
-      currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
-    }, 5000);
-
-    return () => clearInterval(interval);
+    languageStore.loadFromStorage();
+    
+    unsubscribe = languageStore.subscribe(() => {
+      t = languageStore.translations;
+      currentLanguage = languageStore.currentLanguage;
+    });
   });
 
-  const features = [
-    { icon: '🚀', text: '"No, I\'m not procrastinating, I\'m researching coding patterns!"' },
-    { icon: '⚡', text: '"The only infinite scroll that makes you better at your job*"' },
-    { icon: '⭐', text: '"Just star this repo to get your pinned projects featured on GitTok!"' },
-  ];
+  onDestroy(() => {
+    if (unsubscribe) {
+      unsubscribe();
+    }
+  });
+
+  let features = $derived([
+    { 
+      icon: '📅', 
+      text: currentLanguage === 'es' 
+        ? '"Desliza por eventos como TikTok, pero para tu calendario!"' 
+        : '"Swipe through events like TikTok, but for your calendar!"' 
+    },
+    { 
+      icon: '⚡', 
+      text: currentLanguage === 'es' 
+        ? '"No te pierdas de tus paneles favoritos!"' 
+        : '"Don\'t miss your favorite panels!"' 
+    },
+    { 
+      icon: '🎉', 
+      text: currentLanguage === 'es' 
+        ? '"Exporta a Google Calendar o Apple Calendar en un clic"' 
+        : '"Export to Google Calendar or Apple Calendar in one click"' 
+    },
+  ]);
 </script>
 
 <div class="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900/20 to-black">
@@ -64,6 +80,11 @@
     {/each}
   </div>
 
+  <!-- Language Selector -->
+  <div class="fixed top-4 right-4 z-50">
+    <LanguageSelector />
+  </div>
+
   <!-- Main content -->
   <div class="relative min-h-screen flex flex-col items-center justify-center p-6">
     {#if visible}
@@ -72,41 +93,16 @@
         in:fly={{ y: 50, duration: 1000 }}
       >
         <div in:fade={{ delay: 200, duration: 800 }}>
-          <h1 class="text-5xl font-serif mb-2 text-white font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-            GitTok
+          <h1 class="text-5xl font-serif mb-2 text-white font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            🐾 Pawsistente
           </h1>
-          <div class="flex items-center justify-center gap-2 mb-8">
-            <p class="text-xl text-gray-300">Get addicted to code</p>
-            <span class="text-gray-500">•</span>
-            <a
-              href="https://twitter.com/brsc2909"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="flex items-center gap-1.5 text-gray-400 hover:text-blue-400 transition-colors duration-200 group"
-            >
-              <span class="text-sm">by</span>
-              <Twitter class="h-4 w-4 group-hover:text-blue-400 transition-colors duration-200" />
-              <span class="text-sm font-mono group-hover:text-blue-400 transition-colors duration-200">@brsc2909</span>
-            </a>
-          </div>
+          <p class="text-xl text-gray-300 mb-8">{t.appSubtitle}</p>
 
-          <!-- Community Quote Section -->
-          <div class="relative h-32 mb-8 overflow-hidden">
-            {#key currentQuoteIndex}
-              <div
-                class="absolute inset-0 p-4 rounded-lg bg-white/5 backdrop-blur-sm"
-                in:slide|local={{ duration: 400, delay: 0, axis: 'x', easing: quintOut }}
-                out:slide|local={{ duration: 400, delay: 0, axis: 'x', easing: quintOut }}
-              >
-                <div class="flex items-start gap-3">
-                  <MessageSquareQuote class="h-5 w-5 text-blue-400 flex-shrink-0 mt-1" />
-                  <div class="text-left">
-                    <p class="text-gray-200 font-serif italic">{quotes[currentQuoteIndex].text}</p>
-                    <p class="text-sm text-gray-400 mt-2 font-mono">- {quotes[currentQuoteIndex].author}</p>
-                  </div>
-                </div>
-              </div>
-            {/key}
+          <!-- Disclaimer -->
+          <div class="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-4 mb-6">
+            <p class="text-yellow-400 text-sm font-mono">
+              ⚠️ {currentLanguage === 'es' ? 'Esta no es una aplicación oficial de Confuror' : 'This is not an official Confuror application'}
+            </p>
           </div>
 
           <div class="space-y-6 text-gray-300 font-serif">
@@ -126,22 +122,54 @@
               class="text-sm text-gray-400 mt-6 italic"
               in:fade={{ delay: 800, duration: 800 }}
             >
-              *Results may vary. Side effects include improved git skills and random urges to refactor everything.
+              {currentLanguage === 'es' 
+                ? 'Perfecto para furros asistiendo a Confuror 2025. ¡Desliza, selecciona y genera tu calendario!'
+                : 'Perfect for furries attending Confuror 2025. Swipe, select and generate your calendar!'
+              }
             </p>
           </div>
 
           <div class="flex flex-col items-center gap-4 mt-8">
             <a
-              href="/feed"
-              class="px-8 py-4 bg-gradient-to-r from-blue-400 to-blue-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
+              href="/events"
+              class="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25"
               in:fade={{ delay: 1000, duration: 800 }}
             >
-              Start Scrolling
+              {t.browseEvents}
+            </a>
+            <a
+              href="/about"
+              class="px-6 py-3 bg-gray-400/20 text-gray-400 rounded-lg border border-gray-400/30 hover:bg-gray-400/30 transition-colors"
+              in:fade={{ delay: 1200, duration: 800 }}
+            >
+              {t.about}
             </a>
           </div>
         </div>
       </div>
     {/if}
+  </div>
+
+  <!-- Footer with contact and version -->
+  <div class="relative z-10 pb-6 px-6">
+    <div class="text-center text-gray-400 text-sm">
+      <div class="flex items-center justify-center gap-4 mb-2">
+        <a
+          href="https://t.me/knoxfox69"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-1.5 hover:text-purple-400 transition-colors duration-200 group"
+        >
+          <span class="text-lg">📱</span>
+          <span class="font-mono group-hover:text-purple-400 transition-colors duration-200">@knoxfox69</span>
+        </a>
+        <span class="text-gray-500">•</span>
+        <span class="font-mono">v1.0.0</span>
+      </div>
+      <p class="text-xs text-gray-500">
+        {t.madeFor}
+      </p>
+    </div>
   </div>
 </div>
 

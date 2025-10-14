@@ -71,7 +71,13 @@
 	<div class="flex flex-col items-center">
 		<a
 			href={project.stargazersUrl}
-			onclick={() => posthog.capture('star_repository', { repository: project.full_name })}
+			onclick={() => {
+			try {
+				posthog.capture('star_repository', { repository: project.full_name });
+			} catch (e) {
+				// PostHog not available, ignore
+			}
+		}}
 			target="_blank"
 			rel="noopener noreferrer"
 			class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
@@ -86,7 +92,13 @@
 	<div class="flex flex-col items-center">
 		<a
 			href={project.forksUrl}
-			onclick={() => posthog.capture('fork_repository', { repository: project.full_name })}
+			onclick={() => {
+			try {
+				posthog.capture('fork_repository', { repository: project.full_name });
+			} catch (e) {
+				// PostHog not available, ignore
+			}
+		}}
 			target="_blank"
 			rel="noopener noreferrer"
 			class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
@@ -101,7 +113,11 @@
 	<div class="flex flex-col items-center">
 		<button
 			onclick={() => {
-				posthog.capture('share_repository', { repository: project.full_name })
+				try {
+					posthog.capture('share_repository', { repository: project.full_name });
+				} catch (e) {
+					// PostHog not available, ignore
+				}
 				shareProject(project)
 			}}
 			class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
@@ -127,7 +143,13 @@
 		href={`https://github.com/${project.full_name.split('/')[0]}/${project.name}`}
 		target="_blank"
 		rel="noopener noreferrer"
-		onclick={() => posthog.capture('view_repository', { repository: project.full_name })}
+		onclick={() => {
+			try {
+				posthog.capture('view_repository', { repository: project.full_name });
+			} catch (e) {
+				// PostHog not available, ignore
+			}
+		}}
 		class="ml-auto rounded-lg bg-white/10 hover:bg-white/20 px-4 py-2 font-mono text-white transition-colors duration-200"
 	>
 		View

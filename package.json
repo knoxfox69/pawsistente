@@ -1,5 +1,5 @@
 {
-	"name": "gittok.dev",
+	"name": "Pawsistente",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
@@ -21,7 +21,13 @@
 		"update-topics": "bun run scripts/get_all_curated_topics.js",
 		"update-stars": "bun run scripts/get_all_stars.ts",
 		"feature-repos": "bun run scripts/feature_repos.ts",
-		"db:setup": "cat drizzle/0000_initial.sql | sqlite3 static/data/db.sqlite"
+		"db:setup": "cat drizzle/0000_initial.sql | sqlite3 static/data/db.sqlite",
+		"docker:build": "docker-compose build",
+		"docker:up": "docker-compose up -d",
+		"docker:down": "docker-compose down",
+		"docker:logs": "docker-compose logs -f",
+		"deploy": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh",
+		"seed": "tsx scripts/seed-events.ts"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
@@ -63,7 +69,9 @@
 		"marked": "^15.0.7",
 		"marked-base-url": "^1.1.6",
 		"marked-emoji": "^1.4.3",
+		"mongodb": "^6.3.0",
 		"sql.js-httpvfs": "^0.8.12",
+		"tsx": "^4.7.0",
 		"vite-plugin-mkcert": "^1.17.6"
 	},
 	"license": "Proprietary"

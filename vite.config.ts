@@ -6,7 +6,7 @@ import { dirname, resolve } from 'path';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import tailwindcss from '@tailwindcss/vite';
-import mkcert from 'vite-plugin-mkcert';
+// import mkcert from 'vite-plugin-mkcert';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -14,7 +14,7 @@ export default defineConfig({
 	plugins: [
 		sveltekit(),
 		tailwindcss(),
-		mkcert(),
+		// mkcert(), // Temporarily disabled for development
 		{
 			name: 'sql.js-httpvfs',
 			configureServer(server) {
