@@ -9,7 +9,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.simple
-    container_name: confuror-app
+    container_name: pawsistente-app
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -22,5 +22,5 @@ services:
       - ./static:/app/static:ro
 
 networks:
-  confuror-network:
+  pawsistente-network:
     driver: bridge
