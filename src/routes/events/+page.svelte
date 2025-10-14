@@ -7,7 +7,7 @@
   import { onMount, onDestroy } from 'svelte';
   import { fade, scale } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
-  import { HelpCircle, Calendar, ChevronUp, ChevronDown, RotateCcw, ArrowLeft, Check } from 'lucide-svelte';
+  import { HelpCircle, Calendar, RotateCcw, ArrowLeft, Check } from 'lucide-svelte';
   import { languageStore } from '$lib/stores/language';
   import { appState } from '$lib/stores/appState';
   import LanguageSelector from '$lib/components/LanguageSelector.svelte';
@@ -134,8 +134,6 @@
   // Get current event
   let currentEvent = $derived(eventGroups[currentGroupIndex]?.events[currentEventIndex] || null);
   let currentGroup = $derived(eventGroups[currentGroupIndex]);
-  let canNavigateUp = $derived(currentGroup && currentEventIndex > 0);
-  let canNavigateDown = $derived(currentGroup && currentEventIndex < currentGroup.events.length - 1);
 
   // Handle day selection
   const handleDaysChange = (days: Day[]) => {
@@ -170,7 +168,7 @@
 
   // Navigation functions
   const nextEvent = () => {
-    if (canNavigateDown) {
+    if (currentEventIndex < currentGroup.events.length - 1) {
       currentEventIndex++;
       appState.setCurrentEventIndex(currentEventIndex);
     } else {
@@ -185,20 +183,6 @@
         currentState = 'summary';
         appState.setCurrentState('summary');
       }
-    }
-  };
-
-  const navigateUp = () => {
-    if (canNavigateUp) {
-      currentEventIndex--;
-      appState.setCurrentEventIndex(currentEventIndex);
-    }
-  };
-
-  const navigateDown = () => {
-    if (canNavigateDown) {
-      currentEventIndex++;
-      appState.setCurrentEventIndex(currentEventIndex);
     }
   };
 
@@ -248,13 +232,6 @@
   };
 
 
-  // Reset current time slot
-  const resetCurrentSlot = () => {
-    if (currentGroup) {
-      currentGroup.currentIndex = 0;
-      currentEventIndex = 0;
-    }
-  };
 
   // Language store subscription
   let unsubscribe: (() => void) | undefined;
@@ -378,13 +355,9 @@
           <EventCard
             event={currentEvent}
             isSelected={selectedEvents.some(e => e.id === currentEvent.id)}
+            selectedEvents={selectedEvents}
             onSwipeLeft={handleSwipeLeft}
             onSwipeRight={handleSwipeRight}
-            onNavigateUp={navigateUp}
-            onNavigateDown={navigateDown}
-            {canNavigateUp}
-            {canNavigateDown}
-            showNavigation={currentGroup.events.length > 1}
           />
         </div>
       </div>

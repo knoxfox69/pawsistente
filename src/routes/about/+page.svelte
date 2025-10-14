@@ -7,10 +7,9 @@
   import { onMount } from 'svelte';
   import { fade, scale } from 'svelte/transition';
   import { ArrowLeft, Calendar, Heart, Code, Users, Download } from 'lucide-svelte';
-  import { languageStore } from '$lib/stores/language';
+  import { languageStore, APP_VERSION } from '$lib/stores/language';
 
   let t = $derived(languageStore.translations);
-  let version = '0.3.1-alpha';
 
   onMount(() => {
     languageStore.loadFromStorage();
@@ -53,7 +52,7 @@
       </a>
       <div>
         <h1 class="text-4xl font-serif text-white mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{t.about} 🐾 Pawsistente</h1>
-        <p class="text-gray-400 font-mono text-sm">{t.version} {version}</p>
+        <p class="text-gray-400 font-mono text-sm">{t.version} {APP_VERSION}</p>
       </div>
     </div>
 

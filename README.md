@@ -1,6 +1,10 @@
 # 🐾 Pawsistente - Confuror Calendar
 
-A TikTok-style event browsing app for Mexican furries attending Confuror 2024. Swipe through events, select your favorites, and export to your calendar.
+A TikTok-style event browsing app for Mexican furries attending Confuror 2025. Swipe through events, select your favorites, and export to your calendar.
+
+## 🚧 Alpha Release
+
+This is an **ALPHA VERSION** of Pawsistente. It may contain bugs and incomplete features. Use at your own risk.
 
 ## ⚠️ Disclaimer
 
@@ -14,14 +18,14 @@ This is **NOT** an official Confuror application. It's a community project built
 - **Bilingual Support**: Spanish and English language switching
 - **Calendar Export**: Export selected events to Google Calendar, Apple Calendar, or any iCal-compatible app
 - **Mobile Responsive**: Optimized for both desktop and mobile devices
-- **Real-time Data**: Connected to MongoDB for live event data
+- **CSV-based Data**: Reads event data from CSV files (no database required)
+- **Conflict Detection**: Shows time conflicts with previously selected events
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 - Node.js 18+ 
-- MongoDB (local or cloud)
 - npm or yarn
 
 ### Installation
@@ -37,84 +41,47 @@ This is **NOT** an official Confuror application. It's a community project built
    npm install
    ```
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   
-   Edit `.env` with your configuration:
-   ```env
-   MONGODB_URI=mongodb://localhost:27017
-   MONGODB_DB=confuror_calendar
-   PORT=3000
-   ```
-
-4. **Start MongoDB**
-   ```bash
-   # Using Docker
-   docker run -d -p 27017:27017 --name mongodb mongo:latest
-   
-   # Or using local MongoDB installation
-   mongod
-   ```
-
-5. **Seed the database**
-   ```bash
-   npm run seed
-   ```
-
-6. **Start the development server**
+3. **Start the development server**
    ```bash
    npm run dev
    ```
 
-7. **Open your browser**
+4. **Open your browser**
    Navigate to `http://localhost:5173`
 
-## 🗄️ Database Setup
+## 📊 Data Source
 
-### MongoDB Connection
+The app reads event data from CSV files located in the `static/` directory:
 
-The app uses MongoDB to store event data. Here's how to set it up:
+- `static/schedule_spanish.csv` - Spanish events (fallback)
+- `static/schedule_english.csv` - English events
 
-#### Option 1: Local MongoDB
-```bash
-# Install MongoDB locally
-# macOS
-brew install mongodb-community
+### CSV Format
 
-# Ubuntu/Debian
-sudo apt-get install mongodb
-
-# Start MongoDB
-mongod
+The CSV files should have these columns:
+```
+day,start_time,end_time,location,title,hosted_by,category,description
 ```
 
-#### Option 2: MongoDB Atlas (Cloud)
-1. Go to [MongoDB Atlas](https://www.mongodb.com/atlas)
-2. Create a free cluster
-3. Get your connection string
-4. Update `MONGODB_URI` in your `.env` file
-
-#### Option 3: Docker
-```bash
-docker run -d -p 27017:27017 --name mongodb mongo:latest
+Example:
+```
+thursday,14:00,15:00,Main Hall,Workshop,John Doe,Educational,Learn something new
 ```
 
-### Database Schema
+### Event Data Structure
 
-Events are stored in the `events` collection with this structure:
+Events are parsed from CSV and converted to this format:
 
 ```typescript
 interface ConfurorEvent {
-  _id: ObjectId;
+  id: string;
   title: string;
   description: string;
   startTime: string; // ISO 8601
   endTime: string;   // ISO 8601
   location: string;
   room?: string;
-  track?: 'Art' | 'Social' | 'Educational' | 'Fursuit';
+  track?: string;
   difficulty?: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
   capacity?: number;
   currentAttendees?: number;
@@ -123,6 +90,7 @@ interface ConfurorEvent {
   tags: string[];
   day: 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
   timeSlot: string; // e.g., "10:00-11:00"
+  isSelected?: boolean;
 }
 ```
 

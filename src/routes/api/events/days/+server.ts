@@ -3,14 +3,12 @@
 
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { getEventsCollection } from '$lib/db/mongodb';
+import { CSVEventReader } from '$lib/utils/csvReader';
 
 export const GET: RequestHandler = async () => {
   try {
-    const eventsCollection = await getEventsCollection();
-    
-    // Get distinct days from events
-    const days = await eventsCollection.distinct('day');
+    // Get available days from CSV
+    const days = await CSVEventReader.getAvailableDays();
     
     return json(days);
   } catch (error) {

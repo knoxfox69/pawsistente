@@ -223,7 +223,7 @@
                   <div class="flex items-start justify-between">
                     <div class="flex-1">
                       <h3 class="text-xl font-serif text-white mb-2">{event.title}</h3>
-                      <p class="text-gray-300 mb-3">{event.description}</p>
+                      <p class="text-gray-300 mb-3">{event.description || t.noDescriptionAvailable}</p>
                       
                       <div class="flex flex-wrap items-center gap-4 text-sm text-gray-400">
                         <div class="flex items-center gap-2">

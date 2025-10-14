@@ -8,7 +8,7 @@
   import { fade, fly, slide } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
   import { Twitter, MessageSquareQuote, HelpCircle } from 'lucide-svelte';
-  import { languageStore } from '$lib/stores/language';
+  import { languageStore, APP_VERSION } from '$lib/stores/language';
   import LanguageSelector from '$lib/components/LanguageSelector.svelte';
 
   let hasVisited = $state(false);
@@ -98,6 +98,22 @@
           </h1>
           <p class="text-xl text-gray-300 mb-8">{t.appSubtitle}</p>
 
+          <!-- Alpha Release Banner -->
+          <div class="bg-gradient-to-r from-orange-500/20 to-red-500/20 border border-orange-400/50 rounded-lg p-4 mb-4">
+            <div class="flex items-center justify-center gap-2 mb-2">
+              <span class="text-orange-400 text-lg font-bold">🚧</span>
+              <p class="text-orange-400 text-sm font-mono font-bold">
+                {currentLanguage === 'es' ? 'VERSIÓN ALPHA' : 'ALPHA VERSION'}
+              </p>
+              <span class="text-orange-400 text-lg font-bold">🚧</span>
+            </div>
+            <p class="text-orange-300 text-xs text-center">
+              {currentLanguage === 'es' 
+                ? 'Esta es una versión temprana. Puede contener errores y funcionalidades incompletas.' 
+                : 'This is an early version. It may contain bugs and incomplete features.'}
+            </p>
+          </div>
+
           <!-- Disclaimer -->
           <div class="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-4 mb-6">
             <p class="text-yellow-400 text-sm font-mono">
@@ -164,7 +180,7 @@
           <span class="font-mono group-hover:text-purple-400 transition-colors duration-200">@knoxfox69</span>
         </a>
         <span class="text-gray-500">•</span>
-        <span class="font-mono">v1.0.0</span>
+        <span class="font-mono">v{APP_VERSION}</span>
       </div>
       <p class="text-xs text-gray-500">
         {t.madeFor}

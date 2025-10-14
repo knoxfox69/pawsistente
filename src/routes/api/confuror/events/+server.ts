@@ -1,18 +1,17 @@
 // Purpose: API endpoint for fetching Confuror events
-// Context: Handles GET requests to retrieve events from MongoDB
+// Context: Handles GET requests to retrieve events from CSV files
 
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from '@sveltejs/kit';
-import type { ConfurorEvent } from '$lib/confuror/types';
-import { mockEvents } from '$lib/confuror/api';
+import { CSVEventReader } from '$lib/utils/csvReader';
 
 export const GET: RequestHandler = async ({ url }) => {
   try {
     // Get query parameters
     const days = url.searchParams.getAll('days');
     
-    // For now, return mock data. Replace with MongoDB query later
-    let events: ConfurorEvent[] = mockEvents;
+    // Load events from CSV
+    let events = await CSVEventReader.loadEvents();
     
     // Filter by days if specified
     if (days.length > 0) {

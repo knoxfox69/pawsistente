@@ -1,34 +1,19 @@
 // Purpose: API functions for fetching Confuror event data
-// Context: Handles data fetching from MongoDB via API endpoints
+// Context: Handles data fetching from CSV files instead of MongoDB
 
 import type { ConfurorEvent, DaySelection, EventFilters } from './types';
-
-const API_BASE_URL = '/api/confuror';
+import { CSVEventReader } from '$lib/utils/csvReader';
+import { languageStore } from '$lib/stores/language';
 
 export class ConfurorAPI {
-  private static async fetchFromAPI<T>(endpoint: string): Promise<T> {
-    try {
-      const response = await fetch(`${API_BASE_URL}${endpoint}`);
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
-      }
-      return await response.json();
-    } catch (error) {
-      console.error('API Error:', error);
-      throw error;
-    }
-  }
-
   // Fetch all events for selected days
   static async getEventsForDays(days: string[]): Promise<ConfurorEvent[]> {
-    const queryParams = new URLSearchParams();
-    days.forEach(day => queryParams.append('days', day));
-    
     try {
-      return await this.fetchFromAPI<ConfurorEvent[]>(`/events?${queryParams.toString()}`);
+      const currentLanguage = languageStore.currentLanguage;
+      return await CSVEventReader.getEventsForDays(days);
     } catch (error) {
-      console.warn('API not available, falling back to mock data:', error);
-      // Fallback to mock data if API is not available
+      console.warn('CSV loading failed, falling back to mock data:', error);
+      // Fallback to mock data if CSV loading fails
       return mockEvents.filter(event => days.includes(event.day));
     }
   }
@@ -36,26 +21,49 @@ export class ConfurorAPI {
   // Fetch events with filters
   static async getFilteredEvents(filters: EventFilters): Promise<ConfurorEvent[]> {
     try {
-      const response = await fetch(`${API_BASE_URL}/events/filtered`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(filters),
-      });
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      const allEvents = await CSVEventReader.loadEvents();
+      let filteredEvents = allEvents;
+
+      // Filter by days
+      if (filters.days && filters.days.length > 0) {
+        filteredEvents = filteredEvents.filter(event => filters.days!.includes(event.day as any));
       }
-      return await response.json();
+
+      // Filter by tracks
+      if (filters.tracks && filters.tracks.length > 0) {
+        filteredEvents = filteredEvents.filter(event => 
+          event.track && filters.tracks!.includes(event.track)
+        );
+      }
+
+      // Filter by difficulty
+      if (filters.difficulty && filters.difficulty.length > 0) {
+        filteredEvents = filteredEvents.filter(event => 
+          event.difficulty && filters.difficulty!.includes(event.difficulty)
+        );
+      }
+
+      // Filter by time range
+      if (filters.timeRange) {
+        const startTime = new Date(filters.timeRange.start);
+        const endTime = new Date(filters.timeRange.end);
+        
+        filteredEvents = filteredEvents.filter(event => {
+          const eventStart = new Date(event.startTime);
+          return eventStart >= startTime && eventStart <= endTime;
+        });
+      }
+
+      return filteredEvents;
     } catch (error) {
-      console.error('API Error:', error);
-      throw error;
+      console.error('Error filtering events:', error);
+      return [];
     }
   }
 
   // Group events by time slot for a specific day
   static async getEventsByTimeSlot(day: string): Promise<Record<string, ConfurorEvent[]>> {
-    const events = await this.fetchFromAPI<ConfurorEvent[]>(`/events/day/${day}`);
+    const events = await CSVEventReader.getEventsForDays([day]);
     
     // Group events by time slot
     const grouped: Record<string, ConfurorEvent[]> = {};
@@ -71,22 +79,23 @@ export class ConfurorAPI {
 
   // Get all available days
   static async getAvailableDays(): Promise<string[]> {
-    return this.fetchFromAPI<string[]>('/events/days');
+    return await CSVEventReader.getAvailableDays();
   }
 
   // Get event details by ID
-  static async getEventById(id: string): Promise<ConfurorEvent> {
-    return this.fetchFromAPI<ConfurorEvent>(`/events/${id}`);
+  static async getEventById(id: string): Promise<ConfurorEvent | null> {
+    try {
+      const allEvents = await CSVEventReader.loadEvents();
+      return allEvents.find(event => event.id === id) || null;
+    } catch (error) {
+      console.error('Error getting event by ID:', error);
+      return null;
+    }
   }
 
   // Search events by title or description
   static async searchEvents(query: string, days?: string[]): Promise<ConfurorEvent[]> {
-    const params = new URLSearchParams({ q: query });
-    if (days) {
-      days.forEach(day => params.append('days', day));
-    }
-    
-    return this.fetchFromAPI<ConfurorEvent[]>(`/events/search?${params.toString()}`);
+    return await CSVEventReader.searchEvents(query, days);
   }
 }
 

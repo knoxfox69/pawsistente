@@ -4,40 +4,39 @@
 -->
 
 <script lang="ts">
-  import { Clock, MapPin, Users, Star, X, Check, ChevronUp, ChevronDown } from 'lucide-svelte';
+  import { Clock, MapPin, Users, Star, X, Check, AlertTriangle } from 'lucide-svelte';
   import { fade, scale } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
   import type { ConfurorEvent } from '$lib/confuror/types';
   import { languageStore } from '$lib/stores/language';
+  import { ConflictDetector, type EventConflict } from '$lib/utils/conflictDetector';
 
   interface Props {
     event: ConfurorEvent;
     isSelected: boolean;
+    selectedEvents?: ConfurorEvent[];
     onSwipeLeft: (event: ConfurorEvent) => void;
     onSwipeRight: (event: ConfurorEvent) => void;
-    onNavigateUp?: () => void;
-    onNavigateDown?: () => void;
-    canNavigateUp?: boolean;
-    canNavigateDown?: boolean;
-    showNavigation?: boolean;
   }
 
   const { 
     event, 
     isSelected, 
+    selectedEvents = [],
     onSwipeLeft, 
-    onSwipeRight, 
-    onNavigateUp, 
-    onNavigateDown,
-    canNavigateUp = false,
-    canNavigateDown = false,
-    showNavigation = false
+    onSwipeRight
   }: Props = $props();
 
   let startX = $state(0);
   let currentX = $state(0);
   let isDragging = $state(false);
   let cardElement: HTMLElement;
+  let showConflictOverlay = $state(false);
+
+  // Conflict detection
+  const conflicts = $derived(ConflictDetector.getConflictingEvents(event, selectedEvents));
+  const hasConflicts = $derived(conflicts.length > 0);
+  const t = $derived(languageStore.translations);
 
   const handleTouchStart = (e: TouchEvent) => {
     startX = e.touches[0].clientX;
@@ -147,29 +146,6 @@
     class="relative w-full h-full bg-gradient-to-b from-gray-900 to-black flex flex-col border-2 border-gray-700 rounded-2xl overflow-hidden"
     style="transform: translateX({currentX}px) rotate({currentX * 0.1}deg); opacity: {Math.max(0.3, 1 - Math.abs(currentX) / 200)};"
   >
-  <!-- Navigation arrows for same time slot events -->
-  {#if showNavigation}
-    <div class="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 flex flex-col gap-2">
-      {#if canNavigateUp}
-        <button
-          onclick={onNavigateUp}
-          class="p-2 bg-gray-800/50 backdrop-blur-sm rounded-full hover:bg-gray-700/50 transition-colors"
-          aria-label="Previous event at this time"
-        >
-          <ChevronUp class="w-6 h-6 text-white" />
-        </button>
-      {/if}
-      {#if canNavigateDown}
-        <button
-          onclick={onNavigateDown}
-          class="p-2 bg-gray-800/50 backdrop-blur-sm rounded-full hover:bg-gray-700/50 transition-colors"
-          aria-label="Next event at this time"
-        >
-          <ChevronDown class="w-6 h-6 text-white" />
-        </button>
-      {/if}
-    </div>
-  {/if}
 
   <!-- Swipe indicators with circular progress -->
   <div class="absolute inset-0 pointer-events-none">
@@ -249,9 +225,22 @@
     </div>
   {/if}
 
+  <!-- Conflict indicator -->
+  {#if hasConflicts}
+    <div class="absolute top-4 right-4 z-20">
+      <button
+        onclick={() => showConflictOverlay = true}
+        class="p-2 bg-orange-500/20 backdrop-blur-sm rounded-full border border-orange-400/50 hover:bg-orange-500/30 transition-colors"
+        aria-label="Show conflicts"
+      >
+        <AlertTriangle class="w-5 h-5 text-orange-400" />
+      </button>
+    </div>
+  {/if}
+
   <!-- Main content -->
   <div class="flex-1 p-6 flex flex-col relative z-10">
-    <!-- Header with time and track -->
+    <!-- Header with time -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-3">
         <Clock class="w-5 h-5 text-blue-400" />
@@ -259,11 +248,6 @@
           {formatTime(event.startTime)} - {formatTime(event.endTime)}
         </span>
       </div>
-      {#if event.track}
-        <span class="px-3 py-1 rounded-full text-sm font-mono {getTrackColor(event.track)}">
-          {event.track}
-        </span>
-      {/if}
     </div>
 
     <!-- Event title and description -->
@@ -271,9 +255,6 @@
       <h1 class="text-3xl font-serif text-white mb-4 leading-tight">
         {event.title}
       </h1>
-      <p class="text-lg text-gray-300 font-serif leading-relaxed">
-        {event.description}
-      </p>
     </div>
 
     <!-- Event details -->
@@ -291,19 +272,17 @@
         <div class="flex items-center gap-3">
           <Star class="w-5 h-5 text-yellow-400" />
           <span class="text-gray-300 font-mono">
-            Hosted by {event.panelist}
+            {t.hostedBy} {event.panelist}
           </span>
         </div>
       {/if}
 
-      <!-- Tags -->
-      {#if event.tags && event.tags.length > 0}
+      <!-- Category/Track -->
+      {#if event.track}
         <div class="flex flex-wrap gap-2 mt-4">
-          {#each event.tags as tag}
-            <span class="px-2 py-1 bg-gray-800/50 text-gray-400 text-xs font-mono rounded">
-              #{tag}
-            </span>
-          {/each}
+          <span class="px-3 py-1 rounded-full text-sm font-mono {getTrackColor(event.track)}">
+            {t.category}: {event.track}
+          </span>
         </div>
       {/if}
     </div>
@@ -326,6 +305,68 @@
       {languageStore.currentLanguage === 'es' ? 'Agregar al Calendario' : 'Add to Calendar'}
     </button>
   </div>
+
+  <!-- Conflict Overlay Modal -->
+  {#if showConflictOverlay}
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center" in:fade={{ duration: 300 }}>
+      <div class="bg-gray-800/95 backdrop-blur-sm rounded-2xl p-6 max-w-lg mx-4 w-full" in:scale={{ duration: 400, easing: quintOut }}>
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <AlertTriangle class="w-6 h-6 text-orange-400" />
+            <h3 class="text-xl font-serif text-white">{t.conflictingEvents}</h3>
+          </div>
+          <button
+            onclick={() => showConflictOverlay = false}
+            class="p-2 hover:bg-gray-700/50 rounded-full transition-colors"
+            aria-label="Close conflicts"
+          >
+            <X class="w-5 h-5 text-gray-400" />
+          </button>
+        </div>
+
+        <!-- Conflict details -->
+        <div class="space-y-4">
+          <p class="text-gray-300 text-sm">
+            {t.youHaveSelected} <strong>{conflicts.length}</strong> {t.atSameTime}:
+          </p>
+          
+          {#each conflicts as conflict}
+            <div class="bg-gray-700/50 rounded-lg p-4 border border-orange-400/30">
+              <div class="flex items-start justify-between">
+                <div class="flex-1">
+                  <h4 class="text-white font-serif text-lg mb-2">{conflict.event.title}</h4>
+                  <div class="flex items-center gap-2 text-sm text-gray-400 mb-2">
+                    <Clock class="w-4 h-4" />
+                    <span>{formatTime(conflict.event.startTime)} - {formatTime(conflict.event.endTime)}</span>
+                  </div>
+                  <div class="flex items-center gap-2 text-sm text-gray-400">
+                    <MapPin class="w-4 h-4" />
+                    <span>{conflict.event.location}</span>
+                  </div>
+                </div>
+                <div class="ml-4">
+                  <span class="px-2 py-1 rounded text-xs font-mono {conflict.conflictType === 'exact' ? 'bg-red-400/20 text-red-400' : 'bg-orange-400/20 text-orange-400'}">
+                    {conflict.conflictType === 'exact' ? 'Exact' : 'Overlap'}
+                  </span>
+                </div>
+              </div>
+            </div>
+          {/each}
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-3 mt-6">
+          <button
+            onclick={() => showConflictOverlay = false}
+            class="px-4 py-2 bg-gray-600/50 text-gray-300 rounded-lg hover:bg-gray-600/70 transition-colors font-mono text-sm flex-1"
+          >
+            {t.closeConflicts}
+          </button>
+        </div>
+      </div>
+    </div>
+  {/if}
 </div>
 
 <style>

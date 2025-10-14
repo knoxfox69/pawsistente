@@ -3,6 +3,9 @@
 
 export type Language = 'es' | 'en';
 
+// Unified version constant
+export const APP_VERSION = '0.3.8-alpha';
+
 export interface Translations {
   // Landing page
   appTitle: string;
@@ -32,8 +35,8 @@ export interface Translations {
   addToCalendar: string;
   skipEvent: string;
   swipeInstructions: string;
-  level: string;
   hostedBy: string;
+  category: string;
   
   // Summary
   yourSchedule: string;
@@ -44,6 +47,7 @@ export interface Translations {
   noEventsSelected: string;
   startBrowsing: string;
   calendarExported: string;
+  noDescriptionAvailable: string;
   
   // Settings
   settings: string;
@@ -58,6 +62,13 @@ export interface Translations {
   friday: string;
   saturday: string;
   sunday: string;
+  
+  // Conflict overlay
+  conflictingEvents: string;
+  closeConflicts: string;
+  timeConflict: string;
+  youHaveSelected: string;
+  atSameTime: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -86,8 +97,8 @@ const translations: Record<Language, Translations> = {
     addToCalendar: 'Agregar al Calendario',
     skipEvent: 'Omitir Evento',
     swipeInstructions: 'Desliza izquierda para omitir • Desliza derecha para agregar',
-    level: 'Nivel',
     hostedBy: 'Presentado por',
+    category: 'Categoría',
     
     yourSchedule: 'Tu Horario de Confuror 2025',
     eventsSelected: 'eventos seleccionados',
@@ -97,6 +108,7 @@ const translations: Record<Language, Translations> = {
     noEventsSelected: 'No hay eventos seleccionados',
     startBrowsing: 'Explorar Eventos',
     calendarExported: '¡Calendario exportado exitosamente!',
+    noDescriptionAvailable: 'No hay descripción disponible',
     
     settings: 'Configuración',
     language: 'Idioma',
@@ -108,7 +120,14 @@ const translations: Record<Language, Translations> = {
     thursday: 'Jueves',
     friday: 'Viernes',
     saturday: 'Sábado',
-    sunday: 'Domingo'
+    sunday: 'Domingo',
+    
+    // Conflict overlay
+    conflictingEvents: 'Eventos en Conflicto',
+    closeConflicts: 'Cerrar',
+    timeConflict: 'Conflicto de Horario',
+    youHaveSelected: 'Has seleccionado',
+    atSameTime: 'al mismo tiempo'
   },
   en: {
     appTitle: '🐾 Pawsistente',
@@ -135,8 +154,8 @@ const translations: Record<Language, Translations> = {
     addToCalendar: 'Add to Calendar',
     skipEvent: 'Skip Event',
     swipeInstructions: 'Swipe left to skip • Swipe right to add',
-    level: 'Level',
     hostedBy: 'Hosted by',
+    category: 'Category',
     
     yourSchedule: 'Your Confuror Schedule',
     eventsSelected: 'events selected',
@@ -146,6 +165,7 @@ const translations: Record<Language, Translations> = {
     noEventsSelected: 'No Events Selected',
     startBrowsing: 'Browse Events',
     calendarExported: 'Calendar exported successfully!',
+    noDescriptionAvailable: 'No description available',
     
     settings: 'Settings',
     language: 'Language',
@@ -157,7 +177,14 @@ const translations: Record<Language, Translations> = {
     thursday: 'Thursday',
     friday: 'Friday',
     saturday: 'Saturday',
-    sunday: 'Sunday'
+    sunday: 'Sunday',
+    
+    // Conflict overlay
+    conflictingEvents: 'Conflicting Events',
+    closeConflicts: 'Close',
+    timeConflict: 'Time Conflict',
+    youHaveSelected: 'You have selected',
+    atSameTime: 'at the same time'
   }
 };
 
