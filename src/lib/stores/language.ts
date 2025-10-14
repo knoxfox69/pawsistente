@@ -8,7 +8,6 @@ export interface Translations {
   appTitle: string;
   appSubtitle: string;
   browseEvents: string;
-  viewGitHubProjects: string;
   
   // Day selection
   chooseDays: string;
@@ -34,7 +33,6 @@ export interface Translations {
   skipEvent: string;
   swipeInstructions: string;
   level: string;
-  attendees: string;
   hostedBy: string;
   
   // Summary
@@ -65,12 +63,11 @@ export interface Translations {
 const translations: Record<Language, Translations> = {
   es: {
     appTitle: '🐾 Pawsistente',
-    appSubtitle: 'Confuror Calendar - Planifica tu horario perfecto',
+    appSubtitle: '¡Planifica tu horario perfecto para Confuror 2025!',
     browseEvents: 'Explorar Eventos',
-    viewGitHubProjects: 'Ver Proyectos GitHub',
     
     chooseDays: 'Elige Tus Días',
-    selectConventionDays: 'Selecciona qué días de Confuror 2024 asistirás',
+    selectConventionDays: 'Selecciona qué días de Confuror 2025 asistirás',
     continueToEvents: 'Continuar a Eventos',
     selectOneDay: 'Porfavor selecciona al menos un día para continuar',
     selectAll: 'Seleccionar Todo',
@@ -90,10 +87,9 @@ const translations: Record<Language, Translations> = {
     skipEvent: 'Omitir Evento',
     swipeInstructions: 'Desliza izquierda para omitir • Desliza derecha para agregar',
     level: 'Nivel',
-    attendees: 'asistentes',
     hostedBy: 'Presentado por',
     
-    yourSchedule: 'Tu Horario de Confuror',
+    yourSchedule: 'Tu Horario de Confuror 2025',
     eventsSelected: 'eventos seleccionados',
     exportToCalendar: 'Exportar al Calendario',
     addMoreDays: 'Agregar Más Días',
@@ -106,8 +102,8 @@ const translations: Record<Language, Translations> = {
     language: 'Idioma',
     about: 'Acerca de',
     version: 'Versión',
-    projectDescription: 'Una aplicación estilo TikTok para que los furries mexicanos planifiquen su horario de Confuror 2025. Desliza, selecciona y sincroniza con tu calendario favorito.',
-    madeFor: 'Hecho con ❤️ para la comunidad furry mexicana • Contacto: @knoxfox69',
+    projectDescription: 'Una aplicación estilo TikTok para que los furros planifiquen su horario de Confuror 2025. Desliza, selecciona y sincroniza con tu calendario favorito.',
+    madeFor: 'Hecho con ❤️ para la comunidad furry',
     
     thursday: 'Jueves',
     friday: 'Viernes',
@@ -116,12 +112,11 @@ const translations: Record<Language, Translations> = {
   },
   en: {
     appTitle: '🐾 Pawsistente',
-    appSubtitle: 'Confuror Calendar - Plan your perfect schedule',
+    appSubtitle: 'Plan your perfect schedule for Confuror 2025!',
     browseEvents: 'Browse Events',
-    viewGitHubProjects: 'View GitHub Projects',
     
     chooseDays: 'Choose Your Days',
-    selectConventionDays: 'Select which days of Confuror 2024 you\'ll be attending',
+    selectConventionDays: 'Select which days of Confuror 2025 you\'ll be attending',
     continueToEvents: 'Continue to Events',
     selectOneDay: 'Please select at least one day to continue',
     selectAll: 'Select All',
@@ -141,7 +136,6 @@ const translations: Record<Language, Translations> = {
     skipEvent: 'Skip Event',
     swipeInstructions: 'Swipe left to skip • Swipe right to add',
     level: 'Level',
-    attendees: 'attendees',
     hostedBy: 'Hosted by',
     
     yourSchedule: 'Your Confuror Schedule',
@@ -157,8 +151,8 @@ const translations: Record<Language, Translations> = {
     language: 'Language',
     about: 'About',
     version: 'Version',
-    projectDescription: 'A TikTok-style app for Mexican furries to plan their Confuror 2025 schedule. Swipe, select, and sync with your favorite calendar app.',
-    madeFor: 'Built with ❤️ for the Mexican furry community :3',
+    projectDescription: 'A TikTok-style app for furries to plan their Confuror 2025 schedule. Swipe, select, and sync with your favorite calendar app.',
+    madeFor: 'Built with ❤️ for the furry community :3',
     
     thursday: 'Thursday',
     friday: 'Friday',

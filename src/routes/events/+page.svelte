@@ -9,6 +9,7 @@
   import { quintOut } from 'svelte/easing';
   import { HelpCircle, Calendar, ChevronUp, ChevronDown, RotateCcw, ArrowLeft, Check } from 'lucide-svelte';
   import { languageStore } from '$lib/stores/language';
+  import { appState } from '$lib/stores/appState';
   import LanguageSelector from '$lib/components/LanguageSelector.svelte';
   import type { ConfurorEvent, DaySelection, EventGroup } from '$lib/confuror/types';
   import { ConfurorAPI, mockEvents } from '$lib/confuror/api';
@@ -19,19 +20,20 @@
   type AppState = 'day-selection' | 'event-browsing' | 'summary';
   type Day = 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
 
-  let currentState: AppState = $state('day-selection');
-  let selectedDays: Day[] = $state([]);
+  let currentState: AppState = $state(appState.currentState as AppState);
+  let selectedDays: Day[] = $state(appState.selectedDays as Day[]);
   let allEvents: ConfurorEvent[] = $state([]);
-  let selectedEvents: ConfurorEvent[] = $state([]);
-  let rejectedEvents: Set<string> = $state(new Set());
+  let allEventsCache: ConfurorEvent[] = $state([]);
+  let selectedEvents: ConfurorEvent[] = $state(appState.selectedEvents);
+  let rejectedEvents: Set<string> = $state(new Set(appState.rejectedEvents));
   let eventGroups: EventGroup[] = $state([]);
-  let currentGroupIndex = $state(0);
-  let currentEventIndex = $state(0);
+  let currentGroupIndex = $state(appState.currentGroupIndex);
+  let currentEventIndex = $state(appState.currentEventIndex);
   let isLoading = $state(false);
   let error: string | null = $state(null);
   let showSwipeOverlay = $state(false);
-  let showDayDropdown = $state(false);
   let currentDay = $state<Day | null>(null);
+  let showResumeDialog = $state(false);
 
   let t = $state(languageStore.translations);
 
@@ -43,6 +45,7 @@
     try {
       // Use real API with fallback to mock data
       const events = await ConfurorAPI.getEventsForDays(selectedDays);
+      allEventsCache = events;
       allEvents = events;
       
       // Load manually added events from localStorage
@@ -56,12 +59,6 @@
         } catch (e) {
           console.warn('Failed to parse manually added events:', e);
         }
-      }
-      
-      // Filter out already seen events if switching days
-      if (dayToLoad && currentDay) {
-        const seenEventIds = new Set([...selectedEvents.map(e => e.id), ...rejectedEvents]);
-        allEvents = allEvents.filter(event => !seenEventIds.has(event.id));
       }
       
       // Set current day
@@ -87,8 +84,29 @@
     }
   };
 
+  // Check if we should load events on mount
+  onMount(() => {
+    // Check if user has existing progress
+    if (appState.hasProgress()) {
+      const progress = appState.getProgressSummary();
+      if (progress.selected > 0 || progress.days > 0) {
+        showResumeDialog = true;
+      }
+    }
+    
+    // If we have selected days and no events loaded, load them
+    if (selectedDays.length > 0 && allEvents.length === 0 && !showResumeDialog) {
+      loadEvents();
+    }
+    
+    unsubscribe = languageStore.subscribe(() => {
+      t = languageStore.translations;
+    });
+  });
+
   // Group events by time slot for navigation
   const groupEventsByTimeSlot = () => {
+    // Simple grouping by time slot with chronological sorting
     const grouped: Record<string, ConfurorEvent[]> = {};
     
     allEvents.forEach(event => {
@@ -100,7 +118,7 @@
 
     eventGroups = Object.entries(grouped).map(([timeSlot, events]) => ({
       timeSlot,
-      events,
+      events: events.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()),
       currentIndex: 0
     }));
 
@@ -112,6 +130,7 @@
     });
   };
 
+
   // Get current event
   let currentEvent = $derived(eventGroups[currentGroupIndex]?.events[currentEventIndex] || null);
   let currentGroup = $derived(eventGroups[currentGroupIndex]);
@@ -121,12 +140,14 @@
   // Handle day selection
   const handleDaysChange = (days: Day[]) => {
     selectedDays = days;
+    appState.setSelectedDays(days);
   };
 
   const handleContinueFromDays = () => {
     if (selectedDays.length > 0) {
       // Add a nice transition animation before loading events
       currentState = 'event-browsing';
+      appState.setCurrentState('event-browsing');
       setTimeout(() => {
         loadEvents();
       }, 500);
@@ -136,11 +157,14 @@
   // Handle event swipes
   const handleSwipeLeft = (event: ConfurorEvent) => {
     rejectedEvents.add(event.id);
+    appState.addRejectedEvent(event.id);
     nextEvent();
   };
 
   const handleSwipeRight = (event: ConfurorEvent) => {
-    selectedEvents = [...selectedEvents, { ...event, isSelected: true }];
+    const newEvent = { ...event, isSelected: true };
+    selectedEvents = [...selectedEvents, newEvent];
+    appState.addSelectedEvent(newEvent);
     nextEvent();
   };
 
@@ -148,14 +172,18 @@
   const nextEvent = () => {
     if (canNavigateDown) {
       currentEventIndex++;
+      appState.setCurrentEventIndex(currentEventIndex);
     } else {
       // Move to next time slot
       if (currentGroupIndex < eventGroups.length - 1) {
         currentGroupIndex++;
         currentEventIndex = 0;
+        appState.setCurrentGroupIndex(currentGroupIndex);
+        appState.setCurrentEventIndex(currentEventIndex);
       } else {
         // All events viewed, go to summary
         currentState = 'summary';
+        appState.setCurrentState('summary');
       }
     }
   };
@@ -163,25 +191,49 @@
   const navigateUp = () => {
     if (canNavigateUp) {
       currentEventIndex--;
+      appState.setCurrentEventIndex(currentEventIndex);
     }
   };
 
   const navigateDown = () => {
     if (canNavigateDown) {
       currentEventIndex++;
+      appState.setCurrentEventIndex(currentEventIndex);
     }
   };
 
   // Summary actions
   const handleRemoveEvent = (eventId: string) => {
     selectedEvents = selectedEvents.filter(event => event.id !== eventId);
+    appState.removeSelectedEvent(eventId);
   };
 
   const handleAddMoreDays = () => {
     currentState = 'day-selection';
+    appState.setCurrentState('day-selection');
   };
 
   const handleStartOver = () => {
+    selectedDays = [];
+    selectedEvents = [];
+    rejectedEvents.clear();
+    currentGroupIndex = 0;
+    currentEventIndex = 0;
+    currentState = 'day-selection';
+    appState.clearState();
+  };
+
+  // Resume functionality
+  const resumeProgress = () => {
+    showResumeDialog = false;
+    if (selectedDays.length > 0) {
+      loadEvents();
+    }
+  };
+
+  const startFresh = () => {
+    showResumeDialog = false;
+    appState.clearState();
     selectedDays = [];
     selectedEvents = [];
     rejectedEvents.clear();
@@ -195,28 +247,6 @@
     console.log('Exporting calendar with events:', events);
   };
 
-  // Manual day selection
-  const showDaySelector = () => {
-    currentState = 'day-selection';
-  };
-
-  // Switch to a different day
-  const switchToDay = async (day: Day) => {
-    showDayDropdown = false;
-    await loadEvents(day);
-  };
-
-  // Get current day display name
-  const getCurrentDayDisplay = () => {
-    if (!currentDay) return '';
-    const dayNames = {
-      'Thursday': t.thursday,
-      'Friday': t.friday,
-      'Saturday': t.saturday,
-      'Sunday': t.sunday
-    };
-    return dayNames[currentDay];
-  };
 
   // Reset current time slot
   const resetCurrentSlot = () => {
@@ -226,21 +256,8 @@
     }
   };
 
-  // Close dropdown when clicking outside
-  const handleClickOutside = (event: MouseEvent) => {
-    if (showDayDropdown) {
-      showDayDropdown = false;
-    }
-  };
-
   // Language store subscription
   let unsubscribe: (() => void) | undefined;
-
-  onMount(() => {
-    unsubscribe = languageStore.subscribe(() => {
-      t = languageStore.translations;
-    });
-  });
 
   onDestroy(() => {
     if (unsubscribe) {
@@ -249,45 +266,15 @@
   });
 </script>
 
-<div class="h-screen w-full overflow-hidden bg-gradient-to-b from-gray-900 to-black" onclick={handleClickOutside}>
+<div 
+  class="h-screen w-full overflow-hidden bg-gradient-to-b from-gray-900 to-black" 
+  role="main"
+>
   <!-- Header with controls -->
   <div class="fixed top-4 left-4 right-4 z-50 flex justify-between items-center">
-    <!-- Day indicator and event counter on the left -->
+    <!-- Event counter on the left -->
     {#if currentState === 'event-browsing'}
       <div class="flex items-center gap-4">
-        <!-- Day indicator with dropdown -->
-        <div class="relative">
-          <button
-            onclick={() => showDayDropdown = !showDayDropdown}
-            class="bg-gray-800/50 backdrop-blur-sm rounded-lg px-4 py-2 text-white flex items-center gap-2 hover:bg-gray-700/50 transition-colors"
-            aria-label="Switch day"
-          >
-            <span class="font-serif text-lg">{getCurrentDayDisplay()}</span>
-            <ChevronDown class="h-4 w-4 text-gray-400" />
-          </button>
-          
-          <!-- Day dropdown -->
-          {#if showDayDropdown}
-            <div class="absolute top-12 left-0 bg-gray-800/90 backdrop-blur-sm rounded-lg border border-gray-700 shadow-lg z-50 min-w-48">
-              <div class="p-2">
-                {#each selectedDays as day}
-                  <button
-                    onclick={() => switchToDay(day)}
-                    class="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-gray-700/50 rounded transition-colors {currentDay === day ? 'bg-blue-400/20 text-blue-400' : 'text-white'}"
-                  >
-                    <span class="font-serif">
-                      {day === 'Thursday' ? t.thursday : day === 'Friday' ? t.friday : day === 'Saturday' ? t.saturday : t.sunday}
-                    </span>
-                    {#if currentDay === day}
-                      <Check class="w-4 h-4" />
-                    {/if}
-                  </button>
-                {/each}
-              </div>
-            </div>
-          {/if}
-        </div>
-        
         <!-- Event counter -->
         <div class="bg-gray-800/50 backdrop-blur-sm rounded-lg px-4 py-2 text-white">
           <div class="font-mono text-sm text-gray-300">
@@ -301,19 +288,9 @@
     
     <!-- Controls on the right -->
     <div class="flex gap-2">
-      {#if currentState === 'event-browsing'}
-        <button
-          onclick={showDaySelector}
-          class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
-          aria-label="Change days"
-        >
-          <Calendar class="h-5 w-5 text-gray-400" />
-        </button>
-      {/if}
-      
       <a
         href="/about"
-        class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
+        class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50 flex items-center justify-center"
         aria-label="About"
       >
         <HelpCircle class="h-5 w-5 text-gray-400" />
@@ -321,6 +298,42 @@
       <LanguageSelector />
     </div>
   </div>
+
+  <!-- Resume Dialog -->
+  {#if showResumeDialog}
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center" in:fade={{ duration: 500 }}>
+      <div class="bg-gray-800/95 backdrop-blur-sm rounded-2xl p-8 text-center max-w-lg mx-4" in:scale={{ duration: 600, easing: quintOut }}>
+        <div class="text-6xl mb-6">📅</div>
+        <h3 class="text-2xl font-serif text-white mb-6">
+          {languageStore.currentLanguage === 'es' ? '¿Continuar donde lo dejaste?' : 'Continue where you left off?'}
+        </h3>
+        <div class="text-gray-300 mb-8">
+          <p class="mb-2">
+            {languageStore.currentLanguage === 'es' ? 'Tienes progreso guardado:' : 'You have saved progress:'}
+          </p>
+          <div class="text-sm space-y-1">
+            <p>• {appState.getProgressSummary().days} {languageStore.currentLanguage === 'es' ? 'días seleccionados' : 'days selected'}</p>
+            <p>• {appState.getProgressSummary().selected} {languageStore.currentLanguage === 'es' ? 'eventos seleccionados' : 'events selected'}</p>
+            <p>• {appState.getProgressSummary().rejected} {languageStore.currentLanguage === 'es' ? 'eventos rechazados' : 'events rejected'}</p>
+          </div>
+        </div>
+        <div class="flex gap-4 justify-center">
+          <button
+            onclick={resumeProgress}
+            class="px-6 py-3 bg-gradient-to-r from-green-400 to-green-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+          >
+            {languageStore.currentLanguage === 'es' ? 'Continuar' : 'Continue'}
+          </button>
+          <button
+            onclick={startFresh}
+            class="px-6 py-3 bg-gray-400/20 text-gray-400 rounded-lg border border-gray-400/30 hover:bg-gray-400/30 transition-colors"
+          >
+            {languageStore.currentLanguage === 'es' ? 'Empezar de nuevo' : 'Start Fresh'}
+          </button>
+        </div>
+      </div>
+    </div>
+  {/if}
 
   <!-- Day Selection State -->
   {#if currentState === 'day-selection'}
@@ -347,6 +360,12 @@
           <div class="font-mono text-white text-lg mb-4">{error}</div>
           <button
             onclick={loadEvents}
+            onkeydown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                loadEvents();
+              }
+            }}
             class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:scale-105 transition-transform"
           >
             Intentar de Nuevo
@@ -415,6 +434,12 @@
             </div>
             <button
               onclick={() => showSwipeOverlay = false}
+              onkeydown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  showSwipeOverlay = false;
+                }
+              }}
               class="px-8 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:scale-105 transition-transform font-medium"
             >
               {languageStore.currentLanguage === 'es' ? 'Entendido' : 'Got it'}
@@ -431,6 +456,12 @@
           <p class="text-gray-400 mb-8">You've viewed all events for the selected days.</p>
           <button
             onclick={() => currentState = 'summary'}
+            onkeydown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                currentState = 'summary';
+              }
+            }}
             class="px-8 py-4 bg-gradient-to-r from-green-400 to-green-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
           >
             {t.viewSelectedEvents}

@@ -35,13 +35,22 @@ export class ConfurorAPI {
 
   // Fetch events with filters
   static async getFilteredEvents(filters: EventFilters): Promise<ConfurorEvent[]> {
-    return this.fetchFromAPI<ConfurorEvent[]>('/events/filtered', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(filters),
-    });
+    try {
+      const response = await fetch(`${API_BASE_URL}/events/filtered`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(filters),
+      });
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status} ${response.statusText}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
+    }
   }
 
   // Group events by time slot for a specific day

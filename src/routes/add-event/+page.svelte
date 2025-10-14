@@ -9,6 +9,7 @@
   import { quintOut } from 'svelte/easing';
   import { ArrowLeft, Clock, MapPin, Star, Plus, Check } from 'lucide-svelte';
   import { languageStore } from '$lib/stores/language';
+  import { goto } from '$app/navigation';
   import type { ConfurorEvent } from '$lib/confuror/types';
   import { ConfurorAPI } from '$lib/confuror/api';
 
@@ -39,14 +40,20 @@
   };
 
   // Filter events based on search query
-  let filteredEvents = $derived(() => {
-    if (!searchQuery.trim()) return allEvents;
-    return allEvents.filter(event => 
-      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (event.panelist && event.panelist.toLowerCase().includes(searchQuery.toLowerCase()))
-    );
+  let filteredEvents: ConfurorEvent[] = $state([]);
+  
+  // Update filtered events when allEvents or searchQuery changes
+  $effect(() => {
+    if (!searchQuery.trim()) {
+      filteredEvents = allEvents;
+    } else {
+      filteredEvents = allEvents.filter(event => 
+        event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        event.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (event.panelist && event.panelist.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
+    }
   });
 
   // Toggle event selection
@@ -65,10 +72,16 @@
 
   // Add selected events to calendar
   const addSelectedEvents = () => {
+    if (selectedEvents.length === 0) {
+      // If no events selected, just go back
+      goto('/events');
+      return;
+    }
+    
     // Store selected events in localStorage for the main app to pick up
     localStorage.setItem('manually-added-events', JSON.stringify(selectedEvents));
     // Navigate back to events page
-    window.history.back();
+    goto('/events');
   };
 
   // Format time
@@ -116,8 +129,15 @@
   <div class="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-sm border-b border-gray-700">
     <div class="flex items-center justify-between p-4">
       <button
-        onclick={() => window.history.back()}
+        onclick={() => goto('/events')}
+        onkeydown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            goto('/events');
+          }
+        }}
         class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+        aria-label="Go back"
       >
         <ArrowLeft class="w-5 h-5" />
         <span class="font-mono text-sm">{currentLanguage === 'es' ? 'Volver' : 'Back'}</span>
@@ -130,7 +150,14 @@
       {#if selectedEvents.length > 0}
         <button
           onclick={addSelectedEvents}
+          onkeydown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              addSelectedEvents();
+            }
+          }}
           class="flex items-center gap-2 px-4 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 transition-colors"
+          aria-label="Add selected events to calendar"
         >
           <Plus class="w-4 h-4" />
           <span class="font-mono text-sm">
@@ -165,6 +192,12 @@
         <div class="text-white text-lg mb-4">{error}</div>
         <button
           onclick={loadAllEvents}
+          onkeydown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              loadAllEvents();
+            }
+          }}
           class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:scale-105 transition-transform"
         >
           {currentLanguage === 'es' ? 'Intentar de Nuevo' : 'Try Again'}
@@ -174,10 +207,18 @@
       <!-- Events List -->
       <div class="space-y-3">
         {#each filteredEvents as event, index}
-          <div
+          <button
             onclick={() => toggleEventSelection(event)}
-            class="bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700 hover:border-gray-600 transition-all duration-200 cursor-pointer hover:scale-[1.02] {isEventSelected(event) ? 'border-blue-400 bg-blue-400/10' : ''}"
+            onkeydown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleEventSelection(event);
+              }
+            }}
+            class="w-full text-left bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 border border-gray-700 hover:border-gray-600 transition-all duration-200 cursor-pointer hover:scale-[1.02] {isEventSelected(event) ? 'border-blue-400 bg-blue-400/10' : ''}"
             in:scale={{ duration: 300, delay: index * 50 }}
+            aria-pressed={isEventSelected(event)}
+            aria-label={`${isEventSelected(event) ? 'Deselect' : 'Select'} event: ${event.title}`}
           >
             <div class="flex items-start justify-between">
               <div class="flex-1">
@@ -222,7 +263,7 @@
                 {/if}
               </div>
             </div>
-          </div>
+          </button>
         {/each}
       </div>
       

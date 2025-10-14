@@ -40,8 +40,8 @@
     { 
       icon: '📅', 
       text: currentLanguage === 'es' 
-        ? '"Desliza por eventos como TikTok, pero para tu calendario!"' 
-        : '"Swipe through events like TikTok, but for your calendar!"' 
+        ? '"Desliza por eventos como si fuera Tindr, ¡pero para seleccionar que eventos quieres atender!"' 
+        : '"Swipe through events as if it was Tindr, to select which events you want to attend!"' 
     },
     { 
       icon: '⚡', 

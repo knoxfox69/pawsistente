@@ -5,9 +5,21 @@ import type { ConfurorEvent, CalendarExport } from './types';
 
 export class CalendarExporter {
   // Generate iCal content from selected events
-  static generateICalContent(events: ConfurorEvent[]): string {
+  static generateICalContent(events: ConfurorEvent[], language: string = 'en'): string {
     const now = new Date();
     const timestamp = now.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+    
+    // Get the current year from the first event's date
+    const currentYear = events.length > 0 ? new Date(events[0].startTime).getFullYear() : new Date().getFullYear();
+    
+    // Language-specific calendar names
+    const calendarName = language === 'es' 
+      ? `Confuror ${currentYear} - Eventos Seleccionados`
+      : `Confuror ${currentYear} - Selected Events`;
+    
+    const calendarDesc = language === 'es'
+      ? `Eventos seleccionados para Confuror ${currentYear}`
+      : `Events selected for Confuror ${currentYear}`;
     
     let ical = [
       'BEGIN:VCALENDAR',
@@ -15,8 +27,8 @@ export class CalendarExporter {
       'PRODID:-//Confuror//Event Calendar//EN',
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
-      'X-WR-CALNAME:Confuror 2024 - Selected Events',
-      'X-WR-CALDESC:Events selected for Confuror 2024',
+      `X-WR-CALNAME:${calendarName}`,
+      `X-WR-CALDESC:${calendarDesc}`,
       'X-WR-TIMEZONE:America/Mexico_City'
     ].join('\r\n') + '\r\n';
 
@@ -66,9 +78,10 @@ export class CalendarExporter {
   }
 
   // Create and download iCal file
-  static downloadCalendar(events: ConfurorEvent[], filename?: string): void {
-    const icalContent = this.generateICalContent(events);
-    const defaultFilename = `confuror-2024-events-${new Date().toISOString().split('T')[0]}.ics`;
+  static downloadCalendar(events: ConfurorEvent[], filename?: string, language: string = 'en'): void {
+    const icalContent = this.generateICalContent(events, language);
+    const currentYear = events.length > 0 ? new Date(events[0].startTime).getFullYear() : new Date().getFullYear();
+    const defaultFilename = `confuror-${currentYear}-events-${new Date().toISOString().split('T')[0]}.ics`;
     const finalFilename = filename || defaultFilename;
 
     const blob = new Blob([icalContent], { type: 'text/calendar;charset=utf-8' });
@@ -84,15 +97,58 @@ export class CalendarExporter {
   }
 
   // Generate calendar export object
-  static createCalendarExport(events: ConfurorEvent[]): CalendarExport {
-    const filename = `confuror-2024-events-${new Date().toISOString().split('T')[0]}.ics`;
-    const icalContent = this.generateICalContent(events);
+  static createCalendarExport(events: ConfurorEvent[], language: string = 'en'): CalendarExport {
+    const currentYear = events.length > 0 ? new Date(events[0].startTime).getFullYear() : new Date().getFullYear();
+    const filename = `confuror-${currentYear}-events-${new Date().toISOString().split('T')[0]}.ics`;
+    const icalContent = this.generateICalContent(events, language);
     
     return {
       events,
       filename,
       icalContent
     };
+  }
+
+  // Generate Google Calendar URL - shows instructions overlay
+  static generateGoogleCalendarUrl(events: ConfurorEvent[]): ConfurorEvent[] {
+    // This will be handled by the UI component to show instructions
+    // We'll return the events data for the overlay
+    return events;
+  }
+
+  // Generate Apple Calendar URL - shows instructions overlay  
+  static generateAppleCalendarUrl(events: ConfurorEvent[]): ConfurorEvent[] {
+    // This will be handled by the UI component to show instructions
+    // We'll return the events data for the overlay
+    return events;
+  }
+
+  // Generate individual Google Calendar URL for a single event
+  static generateSingleGoogleCalendarUrl(event: ConfurorEvent): string {
+    const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
+    const params = new URLSearchParams();
+    params.set('text', event.title);
+    params.set('dates', `${this.formatDateForGoogle(event.startTime)}/${this.formatDateForGoogle(event.endTime)}`);
+    params.set('details', event.description);
+    params.set('location', `${event.location}${event.room ? ` - ${event.room}` : ''}`);
+    return `${baseUrl}&${params.toString()}`;
+  }
+
+  // Generate individual Apple Calendar URL for a single event
+  static generateSingleAppleCalendarUrl(event: ConfurorEvent): string {
+    const baseUrl = 'webcal://calendar.google.com/calendar/render?action=TEMPLATE';
+    const params = new URLSearchParams();
+    params.set('text', event.title);
+    params.set('dates', `${this.formatDateForGoogle(event.startTime)}/${this.formatDateForGoogle(event.endTime)}`);
+    params.set('details', event.description);
+    params.set('location', `${event.location}${event.room ? ` - ${event.room}` : ''}`);
+    return `${baseUrl}&${params.toString()}`;
+  }
+
+  // Format date for Google Calendar (YYYYMMDDTHHMMSSZ)
+  private static formatDateForGoogle(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
   }
 
   // Validate events before export

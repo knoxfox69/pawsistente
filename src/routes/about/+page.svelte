@@ -10,7 +10,7 @@
   import { languageStore } from '$lib/stores/language';
 
   let t = $derived(languageStore.translations);
-  let version = '0.1.0-alpha';
+  let version = '0.3.1-alpha';
 
   onMount(() => {
     languageStore.loadFromStorage();
