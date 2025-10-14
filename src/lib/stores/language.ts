@@ -4,7 +4,7 @@
 export type Language = 'es' | 'en';
 
 // Unified version constant
-export const APP_VERSION = '0.3.8-alpha';
+export const APP_VERSION = '0.3.9-alpha';
 
 export interface Translations {
   // Landing page

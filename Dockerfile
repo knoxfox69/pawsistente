@@ -1,4 +1,4 @@
-# Purpose: Dockerfile for Confuror Calendar application
+# Purpose: Dockerfile for Pawsistente Confuror Calendar application
 # Context: Multi-stage build for production deployment
 
 # Build stage

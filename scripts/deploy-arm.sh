@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Purpose: Deploy Docker image to registry with version from language store
-# Context: Pushes the built image to windowsagent/pawsistente:v{version}
+# Purpose: Deploy ARM Docker image to registry
+# Context: Pushes the ARM-built image to windowsagent/pawsistente:v{version}
 
 set -e
 
@@ -12,8 +12,8 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🚀 Pawsistente Deploy Script${NC}"
-echo -e "${BLUE}============================${NC}"
+echo -e "${BLUE}🚀 Pawsistente ARM Deploy Script${NC}"
+echo -e "${BLUE}=================================${NC}"
 
 # Extract version from language store
 echo -e "${YELLOW}📖 Extracting version from language store...${NC}"
@@ -45,11 +45,15 @@ echo -e "${GREEN}✅ Docker login verified${NC}"
 echo -e "${YELLOW}🔍 Checking if image exists locally...${NC}"
 if ! docker image inspect "${VERSION_TAG}" > /dev/null 2>&1; then
     echo -e "${YELLOW}⚠️  Image ${VERSION_TAG} not found locally${NC}"
-    echo -e "${BLUE}💡 Run ./scripts/build.sh first to build the image${NC}"
+    echo -e "${BLUE}💡 Run ./scripts/build-arm.sh first to build the image${NC}"
     exit 1
 fi
 
 echo -e "${GREEN}✅ Image found locally: ${VERSION_TAG}${NC}"
+
+# Show image architecture info
+echo -e "${YELLOW}🏗️  Image architecture info:${NC}"
+docker image inspect "${VERSION_TAG}" | grep -E '"Architecture"|"Os"' || echo "Architecture info not available"
 
 # Tag for latest if this is not a pre-release
 if [[ ! "$VERSION" =~ (alpha|beta|rc) ]]; then
@@ -75,11 +79,11 @@ if [ "$LATEST_EXISTS" = true ]; then
 fi
 
 # Show deployment summary
-echo -e "${GREEN}🎉 Deployment completed successfully!${NC}"
+echo -e "${GREEN}🎉 ARM deployment completed successfully!${NC}"
 echo -e "${BLUE}📦 Deployed images:${NC}"
-echo -e "${BLUE}   ${VERSION_TAG}${NC}"
+echo -e "${BLUE}   ${VERSION_TAG} (ARM64)${NC}"
 if [ "$LATEST_EXISTS" = true ]; then
-    echo -e "${BLUE}   ${LATEST_TAG}${NC}"
+    echo -e "${BLUE}   ${LATEST_TAG} (ARM64)${NC}"
 fi
 
 # Show pull commands
@@ -96,4 +100,4 @@ if [ "$LATEST_EXISTS" = true ]; then
     echo -e "${BLUE}   docker run -d -p 3000:3000 --name pawsistente ${LATEST_TAG}${NC}"
 fi
 
-echo -e "${GREEN}✨ Happy deploying! 🐾${NC}"
+echo -e "${GREEN}✨ Happy deploying on ARM! 🐾${NC}"

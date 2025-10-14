@@ -6,9 +6,7 @@ version: '3.8'
 services:
   # Confuror Calendar App
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile.simple
+    image: windowsagent/pawsistente:v0.3.9-alpha
     container_name: pawsistente-app
     restart: unless-stopped
     ports:
@@ -17,7 +15,7 @@ services:
       NODE_ENV: production
       PORT: 3000
     networks:
-      - confuror-network
+      - pawsistente-network
     volumes:
       - ./static:/app/static:ro
 
