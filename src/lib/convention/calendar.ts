@@ -1,11 +1,11 @@
 // Purpose: Calendar export functionality for iCal format
 // Context: Generates iCalendar (.ics) files for Google Calendar and Apple Calendar integration
 
-import type { ConfurorEvent, CalendarExport } from './types';
+import type { ConventionEvent, CalendarExport } from './types';
 
 export class CalendarExporter {
   // Generate iCal content from selected events
-  static generateICalContent(events: ConfurorEvent[], language: string = 'en'): string {
+  static generateICalContent(events: ConventionEvent[], language: string = 'en'): string {
     const now = new Date();
     const timestamp = now.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
     
@@ -78,7 +78,7 @@ export class CalendarExporter {
   }
 
   // Create and download iCal file
-  static downloadCalendar(events: ConfurorEvent[], filename?: string, language: string = 'en'): void {
+  static downloadCalendar(events: ConventionEvent[], filename?: string, language: string = 'en'): void {
     const icalContent = this.generateICalContent(events, language);
     const currentYear = events.length > 0 ? new Date(events[0].startTime).getFullYear() : new Date().getFullYear();
     const defaultFilename = `confuror-${currentYear}-events-${new Date().toISOString().split('T')[0]}.ics`;
@@ -97,7 +97,7 @@ export class CalendarExporter {
   }
 
   // Generate calendar export object
-  static createCalendarExport(events: ConfurorEvent[], language: string = 'en'): CalendarExport {
+  static createCalendarExport(events: ConventionEvent[], language: string = 'en'): CalendarExport {
     const currentYear = events.length > 0 ? new Date(events[0].startTime).getFullYear() : new Date().getFullYear();
     const filename = `confuror-${currentYear}-events-${new Date().toISOString().split('T')[0]}.ics`;
     const icalContent = this.generateICalContent(events, language);
@@ -110,21 +110,21 @@ export class CalendarExporter {
   }
 
   // Generate Google Calendar URL - shows instructions overlay
-  static generateGoogleCalendarUrl(events: ConfurorEvent[]): ConfurorEvent[] {
+  static generateGoogleCalendarUrl(events: ConventionEvent[]): ConventionEvent[] {
     // This will be handled by the UI component to show instructions
     // We'll return the events data for the overlay
     return events;
   }
 
   // Generate Apple Calendar URL - shows instructions overlay  
-  static generateAppleCalendarUrl(events: ConfurorEvent[]): ConfurorEvent[] {
+  static generateAppleCalendarUrl(events: ConventionEvent[]): ConventionEvent[] {
     // This will be handled by the UI component to show instructions
     // We'll return the events data for the overlay
     return events;
   }
 
   // Generate individual Google Calendar URL for a single event
-  static generateSingleGoogleCalendarUrl(event: ConfurorEvent): string {
+  static generateSingleGoogleCalendarUrl(event: ConventionEvent): string {
     const baseUrl = 'https://calendar.google.com/calendar/render?action=TEMPLATE';
     const params = new URLSearchParams();
     params.set('text', event.title);
@@ -135,7 +135,7 @@ export class CalendarExporter {
   }
 
   // Generate individual Apple Calendar URL for a single event
-  static generateSingleAppleCalendarUrl(event: ConfurorEvent): string {
+  static generateSingleAppleCalendarUrl(event: ConventionEvent): string {
     const baseUrl = 'webcal://calendar.google.com/calendar/render?action=TEMPLATE';
     const params = new URLSearchParams();
     params.set('text', event.title);
@@ -152,7 +152,7 @@ export class CalendarExporter {
   }
 
   // Validate events before export
-  static validateEvents(events: ConfurorEvent[]): { valid: boolean; errors: string[] } {
+  static validateEvents(events: ConventionEvent[]): { valid: boolean; errors: string[] } {
     const errors: string[] = [];
     
     if (events.length === 0) {

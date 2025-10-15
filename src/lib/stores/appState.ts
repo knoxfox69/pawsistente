@@ -1,11 +1,11 @@
 // Purpose: Application state management with persistence
 // Context: Manages user progress and selected events with localStorage persistence
 
-import type { ConfurorEvent } from '$lib/confuror/types';
+import type { ConventionEvent } from '$lib/convention/types';
 
 export interface AppState {
   selectedDays: string[];
-  selectedEvents: ConfurorEvent[];
+  selectedEvents: ConventionEvent[];
   rejectedEvents: string[];
   currentGroupIndex: number;
   currentEventIndex: number;
@@ -85,7 +85,7 @@ class AppStateManager {
     return this.state.selectedDays;
   }
 
-  get selectedEvents(): ConfurorEvent[] {
+  get selectedEvents(): ConventionEvent[] {
     return this.state.selectedEvents;
   }
 
@@ -111,12 +111,12 @@ class AppStateManager {
     this.saveState();
   }
 
-  setSelectedEvents(events: ConfurorEvent[]): void {
+  setSelectedEvents(events: ConventionEvent[]): void {
     this.state.selectedEvents = events;
     this.saveState();
   }
 
-  addSelectedEvent(event: ConfurorEvent): void {
+  addSelectedEvent(event: ConventionEvent): void {
     if (!this.state.selectedEvents.some(e => e.id === event.id)) {
       this.state.selectedEvents = [...this.state.selectedEvents, event];
       this.saveState();

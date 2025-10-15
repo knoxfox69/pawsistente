@@ -1,15 +1,13 @@
 // Purpose: API functions for fetching Confuror event data
 // Context: Handles data fetching from CSV files instead of MongoDB
 
-import type { ConfurorEvent, DaySelection, EventFilters } from './types';
+import type { ConventionEvent, DaySelection, EventFilters } from './types';
 import { CSVEventReader } from '$lib/utils/csvReader';
-import { languageStore } from '$lib/stores/language';
 
 export class ConfurorAPI {
   // Fetch all events for selected days
-  static async getEventsForDays(days: string[]): Promise<ConfurorEvent[]> {
+  static async getEventsForDays(days: string[]): Promise<ConventionEvent[]> {
     try {
-      const currentLanguage = languageStore.currentLanguage;
       return await CSVEventReader.getEventsForDays(days);
     } catch (error) {
       console.warn('CSV loading failed, falling back to mock data:', error);
@@ -19,7 +17,7 @@ export class ConfurorAPI {
   }
 
   // Fetch events with filters
-  static async getFilteredEvents(filters: EventFilters): Promise<ConfurorEvent[]> {
+  static async getFilteredEvents(filters: EventFilters): Promise<ConventionEvent[]> {
     try {
       const allEvents = await CSVEventReader.loadEvents();
       let filteredEvents = allEvents;
@@ -62,11 +60,11 @@ export class ConfurorAPI {
   }
 
   // Group events by time slot for a specific day
-  static async getEventsByTimeSlot(day: string): Promise<Record<string, ConfurorEvent[]>> {
+  static async getEventsByTimeSlot(day: string): Promise<Record<string, ConventionEvent[]>> {
     const events = await CSVEventReader.getEventsForDays([day]);
     
     // Group events by time slot
-    const grouped: Record<string, ConfurorEvent[]> = {};
+    const grouped: Record<string, ConventionEvent[]> = {};
     events.forEach(event => {
       if (!grouped[event.timeSlot]) {
         grouped[event.timeSlot] = [];
@@ -83,7 +81,7 @@ export class ConfurorAPI {
   }
 
   // Get event details by ID
-  static async getEventById(id: string): Promise<ConfurorEvent | null> {
+  static async getEventById(id: string): Promise<ConventionEvent | null> {
     try {
       const allEvents = await CSVEventReader.loadEvents();
       return allEvents.find(event => event.id === id) || null;
@@ -94,13 +92,13 @@ export class ConfurorAPI {
   }
 
   // Search events by title or description
-  static async searchEvents(query: string, days?: string[]): Promise<ConfurorEvent[]> {
+  static async searchEvents(query: string, days?: string[]): Promise<ConventionEvent[]> {
     return await CSVEventReader.searchEvents(query, days);
   }
 }
 
 // Mock data for development/testing
-export const mockEvents: ConfurorEvent[] = [
+export const mockEvents: ConventionEvent[] = [
   // Thursday Events
   {
     id: '1',

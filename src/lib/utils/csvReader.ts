@@ -1,7 +1,7 @@
 // Purpose: CSV file reader for event data
 // Context: Replaces MongoDB with CSV file reading for event data
 
-import type { ConfurorEvent } from '$lib/confuror/types';
+import type { ConventionEvent } from '$lib/convention/types';
 
 export interface CSVEvent {
   day: string;
@@ -15,11 +15,11 @@ export interface CSVEvent {
 }
 
 export class CSVEventReader {
-  private static events: ConfurorEvent[] = [];
+  private static events: ConventionEvent[] = [];
   private static loaded = false;
 
   // Load events from CSV file
-  static async loadEvents(language: 'es' | 'en' = 'es'): Promise<ConfurorEvent[]> {
+  static async loadEvents(language: 'es' | 'en' = 'es'): Promise<ConventionEvent[]> {
     if (this.loaded && this.events.length > 0) {
       return this.events;
     }
@@ -52,10 +52,10 @@ export class CSVEventReader {
   }
 
   // Parse CSV text into ConfurorEvent objects
-  private static parseCSV(csvText: string): ConfurorEvent[] {
+  private static parseCSV(csvText: string): ConventionEvent[] {
     const lines = csvText.trim().split('\n');
     const headers = lines[0].split(',').map(h => h.trim());
-    const events: ConfurorEvent[] = [];
+    const events: ConventionEvent[] = [];
 
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i];
@@ -111,7 +111,7 @@ export class CSVEventReader {
   }
 
   // Convert CSV event to ConfurorEvent format
-  private static convertToConfurorEvent(csvEvent: CSVEvent, index: number): ConfurorEvent | null {
+  private static convertToConfurorEvent(csvEvent: CSVEvent, index: number): ConventionEvent | null {
     try {
       // Parse day
       const dayMap: Record<string, 'Thursday' | 'Friday' | 'Saturday' | 'Sunday'> = {
@@ -219,7 +219,7 @@ export class CSVEventReader {
   }
 
   // Get events for specific days
-  static async getEventsForDays(days: string[]): Promise<ConfurorEvent[]> {
+  static async getEventsForDays(days: string[]): Promise<ConventionEvent[]> {
     const allEvents = await this.loadEvents();
     return allEvents.filter(event => days.includes(event.day));
   }
@@ -232,7 +232,7 @@ export class CSVEventReader {
   }
 
   // Search events
-  static async searchEvents(query: string, days?: string[]): Promise<ConfurorEvent[]> {
+  static async searchEvents(query: string, days?: string[]): Promise<ConventionEvent[]> {
     const allEvents = await this.loadEvents();
     let filteredEvents = allEvents;
 

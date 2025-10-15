@@ -11,8 +11,8 @@
   import { languageStore } from '$lib/stores/language';
   import { appState } from '$lib/stores/appState';
   import LanguageSelector from '$lib/components/LanguageSelector.svelte';
-  import type { ConfurorEvent, DaySelection, EventGroup } from '$lib/confuror/types';
-  import { ConfurorAPI, mockEvents } from '$lib/confuror/api';
+  import type { ConventionEvent, DaySelection, EventGroup } from '$lib/convention/types';
+  import { ConfurorAPI, mockEvents } from '$lib/convention/api';
   import DaySelector from '$lib/components/DaySelector.svelte';
   import EventCard from '$lib/components/EventCard.svelte';
   import EventSummary from '$lib/components/EventSummary.svelte';
@@ -22,9 +22,9 @@
 
   let currentState: AppState = $state(appState.currentState as AppState);
   let selectedDays: Day[] = $state(appState.selectedDays as Day[]);
-  let allEvents: ConfurorEvent[] = $state([]);
-  let allEventsCache: ConfurorEvent[] = $state([]);
-  let selectedEvents: ConfurorEvent[] = $state(appState.selectedEvents);
+  let allEvents: ConventionEvent[] = $state([]);
+  let allEventsCache: ConventionEvent[] = $state([]);
+  let selectedEvents: ConventionEvent[] = $state(appState.selectedEvents);
   let rejectedEvents: Set<string> = $state(new Set(appState.rejectedEvents));
   let eventGroups: EventGroup[] = $state([]);
   let currentGroupIndex = $state(appState.currentGroupIndex);
@@ -107,7 +107,7 @@
   // Group events by time slot for navigation
   const groupEventsByTimeSlot = () => {
     // Simple grouping by time slot with chronological sorting
-    const grouped: Record<string, ConfurorEvent[]> = {};
+    const grouped: Record<string, ConventionEvent[]> = {};
     
     allEvents.forEach(event => {
       if (!grouped[event.timeSlot]) {
@@ -153,13 +153,13 @@
   };
 
   // Handle event swipes
-  const handleSwipeLeft = (event: ConfurorEvent) => {
+  const handleSwipeLeft = (event: ConventionEvent) => {
     rejectedEvents.add(event.id);
     appState.addRejectedEvent(event.id);
     nextEvent();
   };
 
-  const handleSwipeRight = (event: ConfurorEvent) => {
+  const handleSwipeRight = (event: ConventionEvent) => {
     const newEvent = { ...event, isSelected: true };
     selectedEvents = [...selectedEvents, newEvent];
     appState.addSelectedEvent(newEvent);
@@ -226,7 +226,7 @@
     currentState = 'day-selection';
   };
 
-  const handleExportCalendar = (events: ConfurorEvent[]) => {
+  const handleExportCalendar = (events: ConventionEvent[]) => {
     // Calendar export is handled in EventSummary component
     console.log('Exporting calendar with events:', events);
   };
@@ -334,9 +334,13 @@
       <div class="flex h-screen w-full items-center justify-center">
         <div class="text-center">
           <div class="text-red-400 text-xl mb-4">⚠️</div>
+          <!--
+            Purpose: Display error message and provide a retry button to reload events in case of error.
+            Context: Error UI within the event browsing state; ensures accessibility and proper Svelte/TikTok-like styling.
+          -->
           <div class="font-mono text-white text-lg mb-4">{error}</div>
           <button
-            onclick={loadEvents}
+            onclick={() => loadEvents()}
             onkeydown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -344,6 +348,7 @@
               }
             }}
             class="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:scale-105 transition-transform"
+            aria-label="Retry loading events"
           >
             Intentar de Nuevo
           </button>

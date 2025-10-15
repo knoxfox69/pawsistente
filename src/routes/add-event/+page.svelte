@@ -6,15 +6,14 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { fade, scale } from 'svelte/transition';
-  import { quintOut } from 'svelte/easing';
   import { ArrowLeft, Clock, MapPin, Star, Plus, Check } from 'lucide-svelte';
   import { languageStore } from '$lib/stores/language';
   import { goto } from '$app/navigation';
-  import type { ConfurorEvent } from '$lib/confuror/types';
-  import { ConfurorAPI } from '$lib/confuror/api';
+  import type { ConventionEvent } from '$lib/convention/types';
+  import { ConfurorAPI } from '$lib/convention/api';
 
-  let allEvents: ConfurorEvent[] = $state([]);
-  let selectedEvents: ConfurorEvent[] = $state([]);
+  let allEvents: ConventionEvent[] = $state([]);
+  let selectedEvents: ConventionEvent[] = $state([]);
   let isLoading = $state(false);
   let error: string | null = $state(null);
   let searchQuery = $state('');
@@ -40,7 +39,7 @@
   };
 
   // Filter events based on search query
-  let filteredEvents: ConfurorEvent[] = $state([]);
+  let filteredEvents: ConventionEvent[] = $state([]);
   
   // Update filtered events when allEvents or searchQuery changes
   $effect(() => {
@@ -57,7 +56,7 @@
   });
 
   // Toggle event selection
-  const toggleEventSelection = (event: ConfurorEvent) => {
+  const toggleEventSelection = (event: ConventionEvent) => {
     if (selectedEvents.some(e => e.id === event.id)) {
       selectedEvents = selectedEvents.filter(e => e.id !== event.id);
     } else {
@@ -66,7 +65,7 @@
   };
 
   // Check if event is selected
-  const isEventSelected = (event: ConfurorEvent) => {
+  const isEventSelected = (event: ConventionEvent) => {
     return selectedEvents.some(e => e.id === event.id);
   };
 

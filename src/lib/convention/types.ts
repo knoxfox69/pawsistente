@@ -1,7 +1,7 @@
 // Purpose: Type definitions for Confuror event data structure
 // Context: Defines the data model for convention events, panels, and calendar integration
 
-export interface ConfurorEvent {
+export interface ConventionEvent {
   id: string;
   title: string;
   description: string;
@@ -24,11 +24,11 @@ export interface ConfurorEvent {
 export interface DaySelection {
   day: 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
   selected: boolean;
-  events: ConfurorEvent[];
+  events: ConventionEvent[];
 }
 
 export interface CalendarExport {
-  events: ConfurorEvent[];
+  events: ConventionEvent[];
   filename: string;
   icalContent: string;
 }
@@ -51,6 +51,6 @@ export interface SwipeAction {
 
 export interface EventGroup {
   timeSlot: string;
-  events: ConfurorEvent[];
+  events: ConventionEvent[];
   currentIndex: number;
 }

@@ -5,21 +5,21 @@
 
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { Calendar, Download, Plus, ArrowLeft, Clock, MapPin, Star, Trash2, ExternalLink } from 'lucide-svelte';
+  import { Calendar, Download, Plus, ArrowLeft, Clock, MapPin, Star, Trash2, ExternalLink, Check } from 'lucide-svelte';
   import { fade, scale } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
   import { goto } from '$app/navigation';
-  import type { ConfurorEvent } from '$lib/confuror/types';
-  import { CalendarExporter } from '$lib/confuror/calendar';
+  import type { ConventionEvent } from '$lib/convention/types';
+  import { CalendarExporter } from '$lib/convention/calendar';
   import { languageStore } from '$lib/stores/language';
   import { formatDayWithDate, getDayAbbreviation } from '$lib/utils/dateUtils';
 
   interface Props {
-    selectedEvents: ConfurorEvent[];
+    selectedEvents: ConventionEvent[];
     onRemoveEvent: (eventId: string) => void;
     onAddMoreDays: () => void;
     onStartOver: () => void;
-    onExportCalendar: (events: ConfurorEvent[]) => void;
+    onExportCalendar: (events: ConventionEvent[]) => void;
   }
 
   const { selectedEvents, onRemoveEvent, onAddMoreDays, onStartOver, onExportCalendar }: Props = $props();
@@ -50,9 +50,9 @@
     });
   };
 
-  const groupEventsByDay = (events: ConfurorEvent[]) => {
+  const groupEventsByDay = (events: ConventionEvent[]) => {
     // Simple grouping by day with chronological sorting
-    const grouped: Record<string, ConfurorEvent[]> = {};
+    const grouped: Record<string, ConventionEvent[]> = {};
     
     events.forEach(event => {
       if (!grouped[event.day]) {
@@ -68,7 +68,7 @@
     
     // Return days in correct order
     const dayOrder = ['Thursday', 'Friday', 'Saturday', 'Sunday'];
-    const orderedGrouped: Record<string, ConfurorEvent[]> = {};
+    const orderedGrouped: Record<string, ConventionEvent[]> = {};
     dayOrder.forEach(day => {
       if (grouped[day]) {
         orderedGrouped[day] = grouped[day];
@@ -148,7 +148,7 @@
     showICSInstructions = false;
   };
 
-  const openSingleEvent = (event: ConfurorEvent) => {
+  const openSingleEvent = (event: ConventionEvent) => {
     if (calendarInstructionsType === 'google') {
       const url = CalendarExporter.generateSingleGoogleCalendarUrl(event);
       window.open(url, '_blank');

@@ -7,16 +7,16 @@
   import { Clock, MapPin, Users, Star, X, Check, AlertTriangle } from 'lucide-svelte';
   import { fade, scale } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
-  import type { ConfurorEvent } from '$lib/confuror/types';
+  import type { ConventionEvent } from '$lib/convention/types';
   import { languageStore } from '$lib/stores/language';
   import { ConflictDetector, type EventConflict } from '$lib/utils/conflictDetector';
 
   interface Props {
-    event: ConfurorEvent;
+    event: ConventionEvent;
     isSelected: boolean;
-    selectedEvents?: ConfurorEvent[];
-    onSwipeLeft: (event: ConfurorEvent) => void;
-    onSwipeRight: (event: ConfurorEvent) => void;
+    selectedEvents?: ConventionEvent[];
+    onSwipeLeft: (event: ConventionEvent) => void;
+    onSwipeRight: (event: ConventionEvent) => void;
   }
 
   const { 
@@ -109,15 +109,6 @@
       minute: '2-digit',
       hour12: true 
     });
-  };
-
-  const getDifficultyColor = (difficulty?: string) => {
-    switch (difficulty) {
-      case 'Beginner': return 'text-green-400';
-      case 'Intermediate': return 'text-yellow-400';
-      case 'Advanced': return 'text-red-400';
-      default: return 'text-gray-400';
-    }
   };
 
   const getTrackColor = (track?: string) => {

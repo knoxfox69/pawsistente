@@ -1,17 +1,17 @@
 // Purpose: Conflict detection utility for event scheduling
 // Context: Detects time conflicts between selected events and current event
 
-import type { ConfurorEvent } from '$lib/confuror/types';
+import type { ConventionEvent } from '$lib/convention/types';
 
 export interface EventConflict {
-  event: ConfurorEvent;
+  event: ConventionEvent;
   conflictType: 'overlap' | 'exact';
   overlapMinutes?: number;
 }
 
 export class ConflictDetector {
   // Check if two events have time conflicts
-  static hasTimeConflict(event1: ConfurorEvent, event2: ConfurorEvent): boolean {
+  static hasTimeConflict(event1: ConventionEvent, event2: ConventionEvent): boolean {
     const start1 = new Date(event1.startTime);
     const end1 = new Date(event1.endTime);
     const start2 = new Date(event2.startTime);
@@ -23,8 +23,8 @@ export class ConflictDetector {
 
   // Get conflicting events from a list of selected events
   static getConflictingEvents(
-    currentEvent: ConfurorEvent, 
-    selectedEvents: ConfurorEvent[]
+    currentEvent: ConventionEvent, 
+    selectedEvents: ConventionEvent[]
   ): EventConflict[] {
     const conflicts: EventConflict[] = [];
 
@@ -47,7 +47,7 @@ export class ConflictDetector {
   }
 
   // Determine the type of conflict
-  private static getConflictType(event1: ConfurorEvent, event2: ConfurorEvent): 'overlap' | 'exact' {
+  private static getConflictType(event1: ConventionEvent, event2: ConventionEvent): 'overlap' | 'exact' {
     const start1 = new Date(event1.startTime);
     const end1 = new Date(event1.endTime);
     const start2 = new Date(event2.startTime);
@@ -62,7 +62,7 @@ export class ConflictDetector {
   }
 
   // Calculate overlap in minutes
-  private static calculateOverlapMinutes(event1: ConfurorEvent, event2: ConfurorEvent): number {
+  private static calculateOverlapMinutes(event1: ConventionEvent, event2: ConventionEvent): number {
     const start1 = new Date(event1.startTime);
     const end1 = new Date(event1.endTime);
     const start2 = new Date(event2.startTime);
@@ -77,7 +77,7 @@ export class ConflictDetector {
   }
 
   // Check if an event conflicts with any selected events
-  static hasAnyConflicts(currentEvent: ConfurorEvent, selectedEvents: ConfurorEvent[]): boolean {
+  static hasAnyConflicts(currentEvent: ConventionEvent, selectedEvents: ConventionEvent[]): boolean {
     return selectedEvents.some(selectedEvent => 
       selectedEvent.id !== currentEvent.id && 
       this.hasTimeConflict(currentEvent, selectedEvent)
