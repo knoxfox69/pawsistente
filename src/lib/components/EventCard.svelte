@@ -299,10 +299,10 @@
 
   <!-- Conflict Overlay Modal -->
   {#if showConflictOverlay}
-    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center" in:fade={{ duration: 300 }}>
-      <div class="bg-gray-800/95 backdrop-blur-sm rounded-2xl p-6 max-w-lg mx-4 w-full" in:scale={{ duration: 400, easing: quintOut }}>
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" in:fade={{ duration: 300 }}>
+      <div class="bg-gray-800/95 backdrop-blur-sm rounded-2xl p-6 max-w-lg mx-4 w-full max-h-[80vh] overflow-y-auto" in:scale={{ duration: 400, easing: quintOut }}>
         <!-- Header -->
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center justify-between mb-4 sticky top-0 bg-gray-800/95 pb-2 z-10">
           <div class="flex items-center gap-3">
             <AlertTriangle class="w-6 h-6 text-orange-400" />
             <h3 class="text-xl font-serif text-white">{t.conflictingEvents}</h3>
@@ -331,10 +331,6 @@
                     <Clock class="w-4 h-4" />
                     <span>{formatTime(conflict.event.startTime)} - {formatTime(conflict.event.endTime)}</span>
                   </div>
-                  <div class="flex items-center gap-2 text-sm text-gray-400">
-                    <MapPin class="w-4 h-4" />
-                    <span>{conflict.event.location}</span>
-                  </div>
                 </div>
                 <div class="ml-4">
                   <span class="px-2 py-1 rounded text-xs font-mono {conflict.conflictType === 'exact' ? 'bg-red-400/20 text-red-400' : 'bg-orange-400/20 text-orange-400'}">
@@ -347,7 +343,7 @@
         </div>
 
         <!-- Actions -->
-        <div class="flex gap-3 mt-6">
+        <div class="flex gap-3 mt-6 sticky bottom-0 bg-gray-800/95 pt-2">
           <button
             onclick={() => showConflictOverlay = false}
             class="px-4 py-2 bg-gray-600/50 text-gray-300 rounded-lg hover:bg-gray-600/70 transition-colors font-mono text-sm flex-1"

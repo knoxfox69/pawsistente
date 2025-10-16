@@ -125,8 +125,8 @@ export class CSVEventReader {
       if (!day) return null;
 
       // Parse times and create ISO strings
-      const startTime = this.parseTime(csvEvent.start_time);
-      const endTime = this.parseTime(csvEvent.end_time);
+      const startTime = this.parseTime(csvEvent.start_time, day);
+      const endTime = this.parseTime(csvEvent.end_time, day);
       
       if (!startTime || !endTime) return null;
 
@@ -175,43 +175,21 @@ export class CSVEventReader {
   }
 
   // Parse time string to DateTime
-  private static parseTime(timeStr: string): any | null {
+  private static parseTime(timeStr: string, day: 'Thursday' | 'Friday' | 'Saturday' | 'Sunday'): any | null {
     try {
-      // Handle different time formats
-      let cleanTime = timeStr.trim();
-      
-      // Remove AM/PM and convert to 24-hour format
-      const isPM = cleanTime.includes('PM') || cleanTime.includes('pm');
-      const isAM = cleanTime.includes('AM') || cleanTime.includes('am');
-      
-      cleanTime = cleanTime.replace(/[AP]M/gi, '').trim();
-      
-      // Handle different formats
-      if (cleanTime.includes(':')) {
-        const [hours, minutes] = cleanTime.split(':');
-        let hour = parseInt(hours);
-        const minute = parseInt(minutes || '0');
-        
-        if (isPM && hour !== 12) {
-          hour += 12;
-        } else if (isAM && hour === 12) {
-          hour = 0;
-        }
-        
-        // Create a date for March 2025 (Confuror dates)
-        const date = new Date(2025, 2, 20, hour, minute); // March 20, 2025
-        return {
-          toISO: () => date.toISOString(),
-          format: (format: string) => {
-            if (format === 'HH:mm') {
-              return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-            }
-            return date.toISOString();
+      const [hours, minutes] = timeStr.trim().split(':');
+      const hour = parseInt(hours);
+      const minute = parseInt(minutes || '0');
+      const date = new Date(2025, 9, day === 'Thursday' ? 23 : day === 'Friday' ? 24 : day === 'Saturday' ? 25 : 26, hour, minute);
+      return {
+        toISO: () => date.toISOString(),
+        format: (format: string) => {
+          if (format === 'HH:mm') {
+            return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
           }
-        };
-      }
-      
-      return null;
+          return date.toISOString();
+        }
+      };
     } catch (error) {
       console.error('Error parsing time:', timeStr, error);
       return null;

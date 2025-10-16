@@ -69,6 +69,15 @@ export interface Translations {
   timeConflict: string;
   youHaveSelected: string;
   atSameTime: string;
+  
+  // Search functionality
+  searchEvents: string;
+  searchResults: string;
+  eventsFound: string;
+  addToSchedule: string;
+  alreadyInSchedule: string;
+  noEventsFound: string;
+  searching: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -127,7 +136,16 @@ const translations: Record<Language, Translations> = {
     closeConflicts: 'Cerrar',
     timeConflict: 'Conflicto de Horario',
     youHaveSelected: 'Has seleccionado',
-    atSameTime: 'al mismo tiempo'
+    atSameTime: 'al mismo tiempo',
+    
+    // Search functionality
+    searchEvents: 'Buscar eventos...',
+    searchResults: 'Resultados de búsqueda',
+    eventsFound: 'eventos encontrados',
+    addToSchedule: '+ Agregar al horario',
+    alreadyInSchedule: '✓ Ya en horario',
+    noEventsFound: 'No se encontraron eventos para tu búsqueda',
+    searching: 'Buscando...'
   },
   en: {
     appTitle: '🐾 Pawsistente',
@@ -184,7 +202,16 @@ const translations: Record<Language, Translations> = {
     closeConflicts: 'Close',
     timeConflict: 'Time Conflict',
     youHaveSelected: 'You have selected',
-    atSameTime: 'at the same time'
+    atSameTime: 'at the same time',
+    
+    // Search functionality
+    searchEvents: 'Search events...',
+    searchResults: 'Search Results',
+    eventsFound: 'events found',
+    addToSchedule: '+ Add to schedule',
+    alreadyInSchedule: '✓ Already in schedule',
+    noEventsFound: 'No events found for your search',
+    searching: 'Searching...'
   }
 };
 

@@ -7,17 +7,18 @@
   import { onMount, onDestroy } from 'svelte';
   import { fade, scale } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
-  import { HelpCircle, Calendar, RotateCcw, ArrowLeft, Check } from 'lucide-svelte';
+  import { goto } from '$app/navigation';
+  import { HelpCircle, Calendar, RotateCcw, ArrowLeft, Check, Plus } from 'lucide-svelte';
   import { languageStore } from '$lib/stores/language';
   import { appState } from '$lib/stores/appState';
-  import LanguageSelector from '$lib/components/LanguageSelector.svelte';
+  import Header from '$lib/components/Header.svelte';
+  import AddEventOverlay from '$lib/components/AddEventOverlay.svelte';
   import type { ConventionEvent, DaySelection, EventGroup } from '$lib/convention/types';
   import { ConfurorAPI, mockEvents } from '$lib/convention/api';
   import DaySelector from '$lib/components/DaySelector.svelte';
   import EventCard from '$lib/components/EventCard.svelte';
-  import EventSummary from '$lib/components/EventSummary.svelte';
 
-  type AppState = 'day-selection' | 'event-browsing' | 'summary';
+  type AppState = 'day-selection' | 'event-browsing';
   type Day = 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
 
   let currentState: AppState = $state(appState.currentState as AppState);
@@ -33,7 +34,8 @@
   let error: string | null = $state(null);
   let showSwipeOverlay = $state(false);
   let currentDay = $state<Day | null>(null);
-  let showResumeDialog = $state(false);
+  let showAddEventOverlay = $state(false);
+  let currentLanguage = $state(languageStore.currentLanguage);
 
   let t = $state(languageStore.translations);
 
@@ -72,10 +74,12 @@
       groupEventsByTimeSlot();
       
       currentState = 'event-browsing';
-      // Show swipe overlay with delay and don't auto-close
-      setTimeout(() => {
-        showSwipeOverlay = true;
-      }, 1000);
+      // Show swipe overlay with delay only if user has no selected events
+      if (selectedEvents.length === 0) {
+        setTimeout(() => {
+          showSwipeOverlay = true;
+        }, 500); // Reduced from 1000ms to 500ms
+      }
     } catch (err) {
       error = 'Failed to load events. Please try again.';
       console.error('Error loading events:', err);
@@ -86,21 +90,14 @@
 
   // Check if we should load events on mount
   onMount(() => {
-    // Check if user has existing progress
-    if (appState.hasProgress()) {
-      const progress = appState.getProgressSummary();
-      if (progress.selected > 0 || progress.days > 0) {
-        showResumeDialog = true;
-      }
-    }
-    
     // If we have selected days and no events loaded, load them
-    if (selectedDays.length > 0 && allEvents.length === 0 && !showResumeDialog) {
+    if (selectedDays.length > 0 && allEvents.length === 0) {
       loadEvents();
     }
     
     unsubscribe = languageStore.subscribe(() => {
       t = languageStore.translations;
+      currentLanguage = languageStore.currentLanguage;
     });
   });
 
@@ -179,19 +176,13 @@
         appState.setCurrentGroupIndex(currentGroupIndex);
         appState.setCurrentEventIndex(currentEventIndex);
       } else {
-        // All events viewed, go to summary
-        currentState = 'summary';
-        appState.setCurrentState('summary');
+        // All events viewed, go to feed page
+        goto('/feed');
       }
     }
   };
 
-  // Summary actions
-  const handleRemoveEvent = (eventId: string) => {
-    selectedEvents = selectedEvents.filter(event => event.id !== eventId);
-    appState.removeSelectedEvent(eventId);
-  };
-
+  // Navigation actions
   const handleAddMoreDays = () => {
     currentState = 'day-selection';
     appState.setCurrentState('day-selection');
@@ -207,29 +198,7 @@
     appState.clearState();
   };
 
-  // Resume functionality
-  const resumeProgress = () => {
-    showResumeDialog = false;
-    if (selectedDays.length > 0) {
-      loadEvents();
-    }
-  };
 
-  const startFresh = () => {
-    showResumeDialog = false;
-    appState.clearState();
-    selectedDays = [];
-    selectedEvents = [];
-    rejectedEvents.clear();
-    currentGroupIndex = 0;
-    currentEventIndex = 0;
-    currentState = 'day-selection';
-  };
-
-  const handleExportCalendar = (events: ConventionEvent[]) => {
-    // Calendar export is handled in EventSummary component
-    console.log('Exporting calendar with events:', events);
-  };
 
 
 
@@ -248,23 +217,52 @@
   role="main"
 >
   <!-- Header with controls -->
-  <div class="fixed top-4 left-4 right-4 z-50 flex justify-between items-center">
-    <!-- Event counter on the left -->
-    {#if currentState === 'event-browsing'}
-      <div class="flex items-center gap-4">
+  <Header 
+    showBackButton={false}
+    anchored={false}
+    overlay={true}
+    className="top-4 left-4 right-4"
+  >
+    {#snippet left()}
+      {#if currentState === 'event-browsing'}
         <!-- Event counter -->
         <div class="bg-gray-800/50 backdrop-blur-sm rounded-lg px-4 py-2 text-white">
           <div class="font-mono text-sm text-gray-300">
             {t.eventOf} {currentGroupIndex + 1} {t.of} {eventGroups.length}
           </div>
         </div>
-      </div>
-    {:else}
-      <div></div>
-    {/if}
-    
-    <!-- Controls on the right -->
-    <div class="flex gap-2">
+        
+        <!-- View Selected Events Buttons -->
+        {#if selectedEvents.length > 0}
+          <a
+            href="/schedule"
+            class="bg-green-500/20 backdrop-blur-sm rounded-lg px-4 py-2 text-green-400 hover:bg-green-500/30 transition-colors flex items-center gap-2"
+            title={languageStore.currentLanguage === 'es' ? 'Ver horario' : 'View schedule'}
+          >
+            <Calendar class="w-4 h-4" />
+            <span class="font-mono text-sm">{selectedEvents.length}</span>
+          </a>
+          <a
+            href="/feed"
+            class="bg-blue-500/20 backdrop-blur-sm rounded-lg px-4 py-2 text-blue-400 hover:bg-blue-500/30 transition-colors flex items-center gap-2"
+            title={languageStore.currentLanguage === 'es' ? 'Ver todos los eventos' : 'View all events'}
+          >
+            <Calendar class="w-4 h-4" />
+          </a>
+        {/if}
+      {/if}
+    {/snippet}
+
+    {#snippet right()}
+      {#if currentState === 'event-browsing'}
+        <button
+          onclick={() => showAddEventOverlay = true}
+          class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50 flex items-center justify-center"
+          aria-label="Add events manually"
+        >
+          <Plus class="h-5 w-5 text-gray-400" />
+        </button>
+      {/if}
       <a
         href="/about"
         class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50 flex items-center justify-center"
@@ -272,45 +270,9 @@
       >
         <HelpCircle class="h-5 w-5 text-gray-400" />
       </a>
-      <LanguageSelector />
-    </div>
-  </div>
+    {/snippet}
+  </Header>
 
-  <!-- Resume Dialog -->
-  {#if showResumeDialog}
-    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center" in:fade={{ duration: 500 }}>
-      <div class="bg-gray-800/95 backdrop-blur-sm rounded-2xl p-8 text-center max-w-lg mx-4" in:scale={{ duration: 600, easing: quintOut }}>
-        <div class="text-6xl mb-6">📅</div>
-        <h3 class="text-2xl font-serif text-white mb-6">
-          {languageStore.currentLanguage === 'es' ? '¿Continuar donde lo dejaste?' : 'Continue where you left off?'}
-        </h3>
-        <div class="text-gray-300 mb-8">
-          <p class="mb-2">
-            {languageStore.currentLanguage === 'es' ? 'Tienes progreso guardado:' : 'You have saved progress:'}
-          </p>
-          <div class="text-sm space-y-1">
-            <p>• {appState.getProgressSummary().days} {languageStore.currentLanguage === 'es' ? 'días seleccionados' : 'days selected'}</p>
-            <p>• {appState.getProgressSummary().selected} {languageStore.currentLanguage === 'es' ? 'eventos seleccionados' : 'events selected'}</p>
-            <p>• {appState.getProgressSummary().rejected} {languageStore.currentLanguage === 'es' ? 'eventos rechazados' : 'events rejected'}</p>
-          </div>
-        </div>
-        <div class="flex gap-4 justify-center">
-          <button
-            onclick={resumeProgress}
-            class="px-6 py-3 bg-gradient-to-r from-green-400 to-green-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
-          >
-            {languageStore.currentLanguage === 'es' ? 'Continuar' : 'Continue'}
-          </button>
-          <button
-            onclick={startFresh}
-            class="px-6 py-3 bg-gray-400/20 text-gray-400 rounded-lg border border-gray-400/30 hover:bg-gray-400/30 transition-colors"
-          >
-            {languageStore.currentLanguage === 'es' ? 'Empezar de nuevo' : 'Start Fresh'}
-          </button>
-        </div>
-      </div>
-    </div>
-  {/if}
 
   <!-- Day Selection State -->
   {#if currentState === 'day-selection'}
@@ -371,7 +333,9 @@
       {#if showSwipeOverlay}
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center" in:fade={{ duration: 500 }}>
           <div class="bg-gray-800/95 backdrop-blur-sm rounded-2xl p-8 text-center max-w-lg mx-4" in:scale={{ duration: 600, easing: quintOut }}>
-            <div class="text-6xl mb-6 animate-bounce">👆</div>
+            <div class="text-6xl mb-6">
+              <span class="inline-block animate-swipe-horizontal">👉</span>
+            </div>
             <h3 class="text-2xl font-serif text-white mb-6">
               {languageStore.currentLanguage === 'es' ? 'Desliza para seleccionar' : 'Swipe to select'}
             </h3>
@@ -427,37 +391,38 @@
       {/if}
     {:else}
       <!-- No more events -->
-      <div class="flex h-screen w-full items-center justify-center">
-        <div class="text-center">
+      <div class="flex h-screen w-full items-center justify-center px-6">
+        <div class="text-center max-w-md w-full">
           <div class="text-6xl mb-6">🎉</div>
           <h2 class="text-3xl font-serif text-white mb-4">{t.noMoreEvents}</h2>
-          <p class="text-gray-400 mb-8">You've viewed all events for the selected days.</p>
-          <button
-            onclick={() => currentState = 'summary'}
-            onkeydown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                currentState = 'summary';
-              }
-            }}
-            class="px-8 py-4 bg-gradient-to-r from-green-400 to-green-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
-          >
-            {t.viewSelectedEvents}
-          </button>
+          <p class="text-gray-400 mb-8">{currentLanguage === 'es' ? 'Has visto todos los eventos para los días seleccionados.' : 'You\'ve viewed all events for the selected days.'}</p>
+          
+          <div class="flex flex-col sm:flex-row gap-4 justify-center px-4">
+            <a
+              href="/schedule"
+              class="px-8 py-4 bg-gradient-to-r from-green-400 to-green-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-green-500/25 flex items-center gap-3 justify-center"
+            >
+              <Calendar class="w-5 h-5" />
+              {currentLanguage === 'es' ? 'Ver Horario' : 'View Schedule'}
+            </a>
+            
+            <a
+              href="/feed"
+              class="px-8 py-4 bg-gradient-to-r from-blue-400 to-blue-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center gap-3 justify-center"
+            >
+              <Calendar class="w-5 h-5" />
+              {currentLanguage === 'es' ? 'Ver Todos los Eventos' : 'View All Events'}
+            </a>
+          </div>
         </div>
       </div>
     {/if}
   {/if}
 
-  <!-- Summary State -->
-  {#if currentState === 'summary'}
-    <EventSummary
-      {selectedEvents}
-      onRemoveEvent={handleRemoveEvent}
-      onAddMoreDays={handleAddMoreDays}
-      onStartOver={handleStartOver}
-      onExportCalendar={handleExportCalendar}
-    />
+
+  <!-- Add Event Overlay -->
+  {#if showAddEventOverlay}
+    <AddEventOverlay onClose={() => showAddEventOverlay = false} />
   {/if}
 </div>
 
@@ -470,5 +435,19 @@
   .snap-y {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+  }
+
+  /* Horizontal swipe animation for hand emoji */
+  @keyframes swipe-horizontal {
+    0%, 100% {
+      transform: translateX(-20px);
+    }
+    50% {
+      transform: translateX(20px);
+    }
+  }
+
+  .animate-swipe-horizontal {
+    animation: swipe-horizontal 2s ease-in-out infinite;
   }
 </style>

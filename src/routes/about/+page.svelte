@@ -1,71 +1,54 @@
 <!--
   Purpose: About page with project information and version details
-  Context: Provides information about the Confuror Calendar application
+  Context: Provides information about Pawsistente
 -->
 
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fade, scale } from 'svelte/transition';
-  import { ArrowLeft, Calendar, Heart, Code, Users, Download } from 'lucide-svelte';
+  import { RotateCcw } from 'lucide-svelte';
   import { languageStore, APP_VERSION } from '$lib/stores/language';
+  import { appState } from '$lib/stores/appState';
+  import { goto } from '$app/navigation';
+  import { MessageCircle } from 'lucide-svelte';
+  import Header from '$lib/components/Header.svelte';
 
   let t = $derived(languageStore.translations);
+  let showResetConfirm = $state(false);
 
   onMount(() => {
     languageStore.loadFromStorage();
   });
 
-  let features = $derived([
-    {
-      icon: Calendar,
-      title: t.appTitle,
-      description: t.projectDescription
-    },
-    {
-      icon: Code,
-      title: 'Tecnología',
-      description: 'Construido con SvelteKit 5, TypeScript, y Tailwind CSS para una experiencia moderna y rápida.'
-    },
-    {
-      icon: Users,
-      title: 'Comunidad',
-      description: 'Diseñado específicamente para la comunidad furry mexicana asistiendo a Confuror 2024.'
-    },
-    {
-      icon: Download,
-      title: 'Integración',
-      description: 'Exporta tu horario a Google Calendar, Apple Calendar o cualquier aplicación compatible con iCal.'
-    }
-  ]);
+  const handleReset = () => {
+    showResetConfirm = true;
+  };
+
+  const confirmReset = () => {
+    appState.clearState();
+    localStorage.removeItem('manually-added-events');
+    showResetConfirm = false;
+    goto('/');
+  };
+
+  const cancelReset = () => {
+    showResetConfirm = false;
+  };
 </script>
 
-<div class="min-h-screen bg-gradient-to-b from-gray-900 to-black p-6">
-  <div class="max-w-4xl mx-auto">
-    <!-- Header -->
-    <div class="flex items-center gap-4 mb-8" in:fade={{ duration: 800 }}>
-      <a
-        href="/events"
-        class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50"
-        aria-label="Back to events"
-      >
-        <ArrowLeft class="h-6 w-6 text-gray-400" />
-      </a>
-      <div>
-        <h1 class="text-4xl font-serif text-white mb-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{t.about} 🐾 Pawsistente</h1>
-        <p class="text-gray-400 font-mono text-sm">{t.version} {APP_VERSION}</p>
-      </div>
-    </div>
+<div class="min-h-screen bg-gradient-to-b from-gray-900 to-black">
+  <Header 
+    title="{t.about} 🐾 Pawsistente"
+    showVersion={true}
+    padding="sm"
+  />
+  
+  <div class="max-w-4xl mx-auto p-6">
 
     <!-- Main Content -->
     <div class="space-y-8">
       <!-- Project Description -->
       <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-8" in:scale={{ duration: 600, delay: 200 }}>
-        <div class="flex items-center gap-4 mb-6">
-          <div class="w-12 h-12 bg-blue-400/20 rounded-full flex items-center justify-center">
-            <Calendar class="w-6 h-6 text-blue-400" />
-          </div>
-          <h2 class="text-2xl font-serif text-white">🐾 Pawsistente - Confuror Calendar</h2>
-        </div>
         <p class="text-lg text-gray-300 font-serif leading-relaxed mb-4">
           {t.projectDescription}
         </p>
@@ -84,79 +67,60 @@
 
         <!-- Contact Section -->
         <div class="mt-6 pt-6 border-t border-gray-700">
-          <h3 class="text-lg font-serif text-white mb-4 text-center">Contacto / Contact</h3>
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-5">
             <a
               href="https://t.me/knoxfox69"
               target="_blank"
               rel="noopener noreferrer"
               class="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:scale-105 transition-transform"
             >
-              <span class="text-xl">📱</span>
+              <MessageCircle class="w-5 h-5" />
               <span>@knoxfox69</span>
             </a>
+            
           </div>
         </div>
-      </div>
-
-      <!-- Features -->
-      <div class="grid md:grid-cols-2 gap-6">
-        {#each features as feature, index}
-          <div 
-            class="bg-gray-800/30 backdrop-blur-sm rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-colors"
-            in:scale={{ duration: 400, delay: 300 + index * 100 }}
-          >
-            <div class="flex items-start gap-4">
-              <div class="w-10 h-10 bg-blue-400/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                <feature.icon class="w-5 h-5 text-blue-400" />
-              </div>
-              <div>
-                <h3 class="text-xl font-serif text-white mb-2">{feature.title}</h3>
-                <p class="text-gray-300 text-sm leading-relaxed">{feature.description}</p>
-              </div>
-            </div>
+          <div class="flex flex-col sm:flex-row items-center justify-center gap-5 mt-4">
+            <button
+              onclick={handleReset}
+              class="flex items-center gap-2 px-6 py-3 bg-red-500/20 text-red-400 rounded-lg border border-red-400/30 hover:bg-red-500/30 transition-colors"
+            >
+              <RotateCcw class="w-4 h-4" />
+              <span>{languageStore.currentLanguage === 'es' ? 'Resetear Progreso' : 'Reset Progress'}</span>
+            </button>
           </div>
-        {/each}
-      </div>
-
-      <!-- Technical Details -->
-      <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-8" in:scale={{ duration: 600, delay: 800 }}>
-        <h3 class="text-xl font-serif text-white mb-6 flex items-center gap-3">
-          <Code class="w-6 h-6 text-blue-400" />
-          Detalles Técnicos
-        </h3>
-        <div class="grid md:grid-cols-2 gap-6">
-          <div>
-            <h4 class="font-mono text-blue-400 mb-2">Frontend</h4>
-            <ul class="text-gray-300 text-sm space-y-1">
-              <li>• SvelteKit 5 con Runes</li>
-              <li>• TypeScript para type safety</li>
-              <li>• Tailwind CSS para estilos</li>
-              <li>• Lucide Svelte para iconos</li>
-            </ul>
-          </div>
-          <div>
-            <h4 class="font-mono text-blue-400 mb-2">Backend & Deploy</h4>
-            <ul class="text-gray-300 text-sm space-y-1">
-              <li>• Docker Compose</li>
-              <li>• MongoDB para datos</li>
-              <li>• iCal export estándar</li>
-              <li>• Responsive design</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <!-- Call to Action -->
-      <div class="text-center" in:fade={{ duration: 600, delay: 1000 }}>
-        <a
-          href="/events"
-          class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-400 to-blue-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25"
-        >
-          <Calendar class="w-5 h-5" />
-          {t.browseEvents}
-        </a>
       </div>
     </div>
   </div>
+
+  <!-- Reset Confirmation Dialog -->
+  {#if showResetConfirm}
+    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" in:fade={{ duration: 500 }}>
+      <div class="bg-gray-800/95 backdrop-blur-sm rounded-2xl p-8 text-center max-w-lg mx-4" in:scale={{ duration: 600 }}>
+        <div class="text-6xl mb-6">⚠️</div>
+        <h3 class="text-2xl font-serif text-white mb-6">
+          {languageStore.currentLanguage === 'es' ? '¿Resetear Progreso?' : 'Reset Progress?'}
+        </h3>
+        <p class="text-gray-300 mb-8">
+          {languageStore.currentLanguage === 'es' 
+            ? 'Esto eliminará todos tus eventos seleccionados y progreso guardado. Esta acción no se puede deshacer.'
+            : 'This will remove all your selected events and saved progress. This action cannot be undone.'}
+        </p>
+        <div class="flex gap-4 justify-center">
+          <button
+            onclick={cancelReset}
+            class="px-6 py-3 bg-gray-400/20 text-gray-400 rounded-lg border border-gray-400/30 hover:bg-gray-400/30 transition-colors"
+          >
+            {languageStore.currentLanguage === 'es' ? 'Cancelar' : 'Cancel'}
+          </button>
+          <button
+            onclick={confirmReset}
+            class="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-red-500/25"
+          >
+            {languageStore.currentLanguage === 'es' ? 'Resetear' : 'Reset'}
+          </button>
+        </div>
+      </div>
+    </div>
+  {/if}
 </div>

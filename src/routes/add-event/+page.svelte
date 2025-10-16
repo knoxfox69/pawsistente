@@ -9,6 +9,7 @@
   import { ArrowLeft, Clock, MapPin, Star, Plus, Check } from 'lucide-svelte';
   import { languageStore } from '$lib/stores/language';
   import { goto } from '$app/navigation';
+  import Header from '$lib/components/Header.svelte';
   import type { ConventionEvent } from '$lib/convention/types';
   import { ConfurorAPI } from '$lib/convention/api';
 
@@ -125,27 +126,15 @@
 
 <div class="min-h-screen bg-gradient-to-b from-gray-900 to-black">
   <!-- Header -->
-  <div class="sticky top-0 z-50 bg-gray-900/80 backdrop-blur-sm border-b border-gray-700">
-    <div class="flex items-center justify-between p-4">
-      <button
-        onclick={() => goto('/events')}
-        onkeydown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            goto('/events');
-          }
-        }}
-        class="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
-        aria-label="Go back"
-      >
-        <ArrowLeft class="w-5 h-5" />
-        <span class="font-mono text-sm">{currentLanguage === 'es' ? 'Volver' : 'Back'}</span>
-      </button>
-      
-      <h1 class="text-xl font-serif text-white">
-        {currentLanguage === 'es' ? 'Agregar Eventos' : 'Add Events'}
-      </h1>
-      
+  <Header 
+    backHref="/events"
+    backLabel={currentLanguage === 'es' ? 'Volver' : 'Back'}
+    sticky={true}
+    anchored={true}
+    overlay={false}
+    title={currentLanguage === 'es' ? 'Agregar Eventos' : 'Add Events'}
+  >
+    {#snippet right()}
       {#if selectedEvents.length > 0}
         <button
           onclick={addSelectedEvents}
@@ -163,11 +152,9 @@
             {selectedEvents.length} {currentLanguage === 'es' ? 'eventos' : 'events'}
           </span>
         </button>
-      {:else}
-        <div class="w-20"></div>
       {/if}
-    </div>
-  </div>
+    {/snippet}
+  </Header>
 
   <!-- Search -->
   <div class="p-4">

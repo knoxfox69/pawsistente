@@ -1,15 +1,8 @@
-<!--
-  Purpose: Landing page that automatically redirects based on topic selection status
-  Context: Entry point of the application that manages initial user flow
--->
-
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { fade, fly, slide } from 'svelte/transition';
-  import { quintOut } from 'svelte/easing';
-  import { Twitter, MessageSquareQuote, HelpCircle } from 'lucide-svelte';
+  import { fade, fly } from 'svelte/transition';
   import { languageStore, APP_VERSION } from '$lib/stores/language';
-  import LanguageSelector from '$lib/components/LanguageSelector.svelte';
+  import Header from '$lib/components/Header.svelte';
 
   let hasVisited = $state(false);
   let visible = $state(false);
@@ -20,7 +13,7 @@
   let unsubscribe: (() => void) | undefined;
 
   onMount(() => {
-    hasVisited = localStorage.getItem('hasVisitedGitTok') === 'true';
+    hasVisited = localStorage.getItem('hasVisitedPawsistente') === 'true';
     visible = true;
     languageStore.loadFromStorage();
     
@@ -35,30 +28,10 @@
       unsubscribe();
     }
   });
-
-  let features = $derived([
-    { 
-      icon: '📅', 
-      text: currentLanguage === 'es' 
-        ? '"Desliza por eventos como si fuera Tindr, ¡pero para seleccionar que eventos quieres atender!"' 
-        : '"Swipe through events as if it was Tindr, to select which events you want to attend!"' 
-    },
-    { 
-      icon: '⚡', 
-      text: currentLanguage === 'es' 
-        ? '"No te pierdas de tus paneles favoritos!"' 
-        : '"Don\'t miss your favorite panels!"' 
-    },
-    { 
-      icon: '🎉', 
-      text: currentLanguage === 'es' 
-        ? '"Exporta a Google Calendar o Apple Calendar en un clic"' 
-        : '"Export to Google Calendar or Apple Calendar in one click"' 
-    },
-  ]);
 </script>
 
 <div class="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900/20 to-black">
+
   <!-- Animated background elements -->
   <div class="absolute inset-0 overflow-hidden">
     {#each Array(20) as _, i}
@@ -80,18 +53,34 @@
     {/each}
   </div>
 
-  <!-- Language Selector -->
-  <div class="fixed top-4 right-4 z-50">
-    <LanguageSelector />
-  </div>
 
-  <!-- Main content -->
-  <div class="relative min-h-screen flex flex-col items-center justify-center p-6">
+  <div class="relative min-h-screen flex flex-col items-center justify-start p-6">
+
     {#if visible}
+      <!-- Decorative elements -->
+      <div class="absolute top-32 left-8 w-32 h-32 bg-purple-500/10 rounded-full blur-xl animate-pulse"></div>
+      <div class="absolute top-40 right-12 w-24 h-24 bg-blue-500/10 rounded-full blur-lg animate-pulse" style="animation-delay: 1s;"></div>
+      <div class="absolute bottom-32 left-16 w-40 h-40 bg-pink-500/10 rounded-full blur-2xl animate-pulse" style="animation-delay: 2s;"></div>
+      
       <div
-        class="glass-card text-center p-8 max-w-md w-full"
+        class="glass-card text-center p-8 max-w-md w-full relative z-10"
         in:fly={{ y: 50, duration: 1000 }}
       >
+
+        <!-- Header without back button -->
+        <Header 
+          showBackButton={false} 
+          padding="sm"
+          anchored={true}
+          sticky={true}
+          overlay={true}
+          glassmorphic={false}
+          showSeparator={false}
+          showBackground={false}
+          showOutline={false}
+          bottomPadding=""
+          className="mb-2"
+        />
         <div in:fade={{ delay: 200, duration: 800 }}>
           <h1 class="text-5xl font-serif mb-2 text-white font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             🐾 Pawsistente
@@ -122,18 +111,6 @@
           </div>
 
           <div class="space-y-6 text-gray-300 font-serif">
-            {#each features as feature, i}
-              <div
-                class="text-left transform hover:scale-105 transition-transform duration-200"
-                in:fly={{ y: 20, delay: 300 + i * 100, duration: 800 }}
-              >
-                <p class="flex items-center space-x-3 p-3 rounded-lg hover:bg-white/5">
-                  <span class="text-2xl">{feature.icon}</span>
-                  <span>{feature.text}</span>
-                </p>
-              </div>
-            {/each}
-
             <p
               class="text-sm text-gray-400 mt-6 italic"
               in:fade={{ delay: 800, duration: 800 }}
@@ -143,16 +120,29 @@
                 : 'Perfect for furries attending Confuror 2025. Swipe, select and generate your calendar!'
               }
             </p>
+            
+            <!-- Feature highlights -->
           </div>
 
-          <div class="flex flex-col items-center gap-4 mt-8">
+          <div class="flex flex-col items-center gap-4 mt-6">
             <a
               href="/events"
-              class="px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25"
+              class="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25"
               in:fade={{ delay: 1000, duration: 800 }}
             >
-              {t.browseEvents}
+              {currentLanguage === 'es' ? 'Añadir eventos' : 'Add events'}
             </a>
+            
+            <a
+              href="/schedule"
+              class="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-green-500/25"
+              in:fade={{ delay: 1100, duration: 800 }}
+            >
+              {currentLanguage === 'es' ? 'Ver mi horario' : 'View my schedule'}
+            </a>
+
+            <div class="h-2"></div>
+            
             <a
               href="/about"
               class="px-6 py-3 bg-gray-400/20 text-gray-400 rounded-lg border border-gray-400/30 hover:bg-gray-400/30 transition-colors"
@@ -166,27 +156,6 @@
     {/if}
   </div>
 
-  <!-- Footer with contact and version -->
-  <div class="relative z-10 pb-6 px-6">
-    <div class="text-center text-gray-400 text-sm">
-      <div class="flex items-center justify-center gap-4 mb-2">
-        <a
-          href="https://t.me/knoxfox69"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="flex items-center gap-1.5 hover:text-purple-400 transition-colors duration-200 group"
-        >
-          <span class="text-lg">📱</span>
-          <span class="font-mono group-hover:text-purple-400 transition-colors duration-200">@knoxfox69</span>
-        </a>
-        <span class="text-gray-500">•</span>
-        <span class="font-mono">v{APP_VERSION}</span>
-      </div>
-      <p class="text-xs text-gray-500">
-        {t.madeFor}
-      </p>
-    </div>
-  </div>
 </div>
 
 <style>
