@@ -124,19 +124,19 @@
 </script>
 
 <div 
-  bind:this={cardElement}
   class="relative w-full h-full flex flex-col"
-  ontouchstart={handleTouchStart}
-  ontouchmove={handleTouchMove}
-  ontouchend={handleTouchEnd}
-  role="button"
-  tabindex="0"
-  aria-label="Event card for {event.title}"
 >
   <!-- Event Card Content -->
   <div 
+    bind:this={cardElement}
     class="relative w-full h-full bg-gradient-to-b from-gray-900 to-black flex flex-col border-2 border-gray-700 rounded-2xl overflow-hidden"
     style="transform: translateX({currentX}px) rotate({currentX * 0.1}deg); opacity: {Math.max(0.3, 1 - Math.abs(currentX) / 200)};"
+    ontouchstart={handleTouchStart}
+    ontouchmove={handleTouchMove}
+    ontouchend={handleTouchEnd}
+    role="button"
+    tabindex="0"
+    aria-label="Event card for {event.title}"
   >
 
   <!-- Swipe indicators with circular progress -->
@@ -287,7 +287,6 @@
       {/if}
     </div>
   </div>
-
   </div>
 
   <!-- Action buttons (desktop fallback) -->
