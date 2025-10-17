@@ -7,7 +7,7 @@ export interface AppState {
   selectedDays: string[];
   selectedEvents: ConventionEvent[];
   rejectedEvents: string[];
-  currentEventIndex: number;
+  unseenEvents: string[];
   currentState: 'day-selection' | 'event-browsing' | 'summary';
   lastUpdated: number;
 }
@@ -20,7 +20,7 @@ class AppStateManager {
     selectedDays: [],
     selectedEvents: [],
     rejectedEvents: [],
-    currentEventIndex: 0,
+    unseenEvents: [],
     currentState: 'day-selection',
     lastUpdated: Date.now()
   };
@@ -83,7 +83,7 @@ class AppStateManager {
       selectedDays: [],
       selectedEvents: [],
       rejectedEvents: [],
-      currentEventIndex: 0,
+      unseenEvents: [],
       currentState: 'day-selection',
       lastUpdated: Date.now()
     };
@@ -104,8 +104,8 @@ class AppStateManager {
     return this.state.rejectedEvents;
   }
 
-  get currentEventIndex(): number {
-    return this.state.currentEventIndex;
+  get unseenEvents(): string[] {
+    return this.state.unseenEvents;
   }
 
   get currentState(): string {
@@ -128,6 +128,8 @@ class AppStateManager {
   addSelectedEvent(event: ConventionEvent): void {
     if (!this.state.selectedEvents.some(e => e.id === event.id)) {
       this.state.selectedEvents = [...this.state.selectedEvents, event];
+      // Remove from unseen events when selected
+      this.removeUnseenEvent(event.id);
       this.saveState();
       this._notifySubscribers();
     }
@@ -135,6 +137,8 @@ class AppStateManager {
 
   removeSelectedEvent(eventId: string): void {
     this.state.selectedEvents = this.state.selectedEvents.filter(e => e.id !== eventId);
+    // Move to rejected events when removed from selected
+    this.addRejectedEvent(eventId);
     this.saveState();
     this._notifySubscribers();
   }
@@ -147,8 +151,30 @@ class AppStateManager {
     }
   }
 
-  setCurrentEventIndex(index: number): void {
-    this.state.currentEventIndex = index;
+  // Unseen events management
+  setUnseenEvents(eventIds: string[]): void {
+    this.state.unseenEvents = eventIds;
+    this.saveState();
+    this._notifySubscribers();
+  }
+
+  addUnseenEvent(eventId: string): void {
+    if (!this.state.unseenEvents.includes(eventId)) {
+      this.state.unseenEvents = [...this.state.unseenEvents, eventId];
+      this.saveState();
+      this._notifySubscribers();
+    }
+  }
+
+  removeUnseenEvent(eventId: string): void {
+    this.state.unseenEvents = this.state.unseenEvents.filter(id => id !== eventId);
+    this.saveState();
+    this._notifySubscribers();
+  }
+
+  // Move all rejected events to unseen (for "see all events again" functionality)
+  moveRejectedToUnseen(): void {
+    this.state.unseenEvents = [...this.state.rejectedEvents];
     this.saveState();
     this._notifySubscribers();
   }
@@ -161,7 +187,6 @@ class AppStateManager {
 
   // Reset navigation state but keep selections
   resetNavigation(): void {
-    this.state.currentEventIndex = 0;
     this.state.currentState = 'day-selection';
     this.saveState();
     this._notifySubscribers();

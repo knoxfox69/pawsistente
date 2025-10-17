@@ -26,7 +26,7 @@
   let allEventsCache: ConventionEvent[] = $state([]);
   let selectedEvents: ConventionEvent[] = $state(appState.selectedEvents);
   let rejectedEvents: Set<string> = $state(new Set(appState.rejectedEvents));
-  let currentEventIndex = $state(appState.currentEventIndex);
+  let unseenEvents: Set<string> = $state(new Set(appState.unseenEvents));
   let isLoading = $state(false);
   let error: string | null = $state(null);
   let showSwipeOverlay = $state(false);
@@ -54,17 +54,19 @@
       const events = await ConventionAPI.getEventsForDays(selectedDays);
       allEventsCache = events;
       
-      // Load manually added events from localStorage
-      const manuallyAddedEvents = localStorage.getItem('manually-added-events');
-      if (manuallyAddedEvents) {
-        try {
-          const parsedEvents = JSON.parse(manuallyAddedEvents);
-          selectedEvents = [...selectedEvents, ...parsedEvents];
-          // Clear the localStorage after loading
-          localStorage.removeItem('manually-added-events');
-        } catch (e) {
-          console.warn('Failed to parse manually added events:', e);
-        }
+      // Sync with app state
+      selectedEvents = appState.selectedEvents;
+      rejectedEvents = new Set(appState.rejectedEvents);
+      unseenEvents = new Set(appState.unseenEvents);
+      
+      // Initialize unseen events if empty (first time loading)
+      if (unseenEvents.size === 0) {
+        const allEventIds = events.map(e => e.id);
+        const selectedIds = new Set(selectedEvents.map(e => e.id));
+        const rejectedIds = new Set(rejectedEvents);
+        const initialUnseen = allEventIds.filter(id => !selectedIds.has(id) && !rejectedIds.has(id));
+        appState.setUnseenEvents(initialUnseen);
+        unseenEvents = new Set(initialUnseen);
       }
       
       // Set current day
@@ -74,7 +76,7 @@
         currentDay = selectedDays[0];
       }
       
-      // Apply filters after selectedEvents potentially updated
+      // Apply filters after syncing with app state
       applyFiltersIfNeeded();
       
       currentState = 'event-browsing';
@@ -95,27 +97,14 @@
   // Apply filters to events based on user progress
   const applyEventFilters = () => {
     // Purpose: Produce the working list of events considering selections and skips
-    // Context: Hide seen events by default; optionally re-include rejected (skipped) ones
+    // Context: Show only unseen events by default; optionally re-include rejected (skipped) ones
     const selectedIds = new Set(selectedEvents.map(e => e.id));
-    const previousLength = allEvents.length;
     
     allEvents = allEventsCache.filter((e) => {
       if (selectedIds.has(e.id)) return false; // never show chosen events again
-      if (!includeRejectedAgain && rejectedEvents.has(e.id)) return false; // hide skipped unless revisiting
+      if (!includeRejectedAgain && !unseenEvents.has(e.id)) return false; // only show unseen events unless revisiting
       return true;
     });
-    
-    // Ensure currentEventIndex is within bounds after filtering
-    if (currentEventIndex >= allEvents.length) {
-      currentEventIndex = Math.max(0, allEvents.length - 1);
-      appState.setCurrentEventIndex(currentEventIndex);
-    }
-    
-    // If we're revisiting skipped events and the list changed, reset to beginning
-    if (includeRejectedAgain && allEvents.length !== previousLength) {
-      currentEventIndex = 0;
-      appState.setCurrentEventIndex(0);
-    }
   };
 
   // Check if we should load events on mount
@@ -123,15 +112,23 @@
     // Sync with app state
     selectedEvents = appState.selectedEvents;
     rejectedEvents = new Set(appState.rejectedEvents);
-    currentEventIndex = appState.currentEventIndex;
+    unseenEvents = new Set(appState.unseenEvents);
     currentState = appState.currentState as AppState;
+    
+    // Subscribe to app state changes to keep everything in sync
+    unsubscribeAppState = appState.subscribe(() => {
+      selectedEvents = appState.selectedEvents;
+      rejectedEvents = new Set(appState.rejectedEvents);
+      unseenEvents = new Set(appState.unseenEvents);
+      currentState = appState.currentState as AppState;
+    });
     
     // If we have selected days and no events loaded, load them
     if (selectedDays.length > 0 && allEvents.length === 0) {
       loadEvents();
     }
     
-    unsubscribe = languageStore.subscribe(() => {
+    unsubscribeLanguage = languageStore.subscribe(() => {
       t = languageStore.translations;
       currentLanguage = languageStore.currentLanguage;
     });
@@ -139,13 +136,15 @@
 
 
   // Remaining unseen events counter
-  const remainingUnseen = $derived(
-    allEvents.length === 0 ? 0 : allEvents.length - currentEventIndex
-  );
+  const remainingUnseen = $derived(unseenEvents.size);
 
-
-  // Get current event from flat list
-  let currentEvent = $derived(allEvents[currentEventIndex] || null);
+  // Get current event from filtered events (first one)
+  let currentEvent: ConventionEvent | null = $state(null);
+  
+  // Update current event when allEvents changes
+  $effect(() => {
+    currentEvent = allEvents.length > 0 ? allEvents[0] : null;
+  });
 
   // Handle day selection
   const handleDaysChange = (days: Day[]) => {
@@ -166,46 +165,48 @@
 
   // Handle event swipes
   const handleSwipeLeft = (event: ConventionEvent) => {
+    // Remove from unseen and add to rejected
+    unseenEvents.delete(event.id);
     rejectedEvents.add(event.id);
+    appState.removeUnseenEvent(event.id);
     appState.addRejectedEvent(event.id);
-    nextEvent();
+    
+    // Remove from filtered events array
+    allEvents = allEvents.filter(e => e.id !== event.id);
   };
 
   const handleSwipeRight = (event: ConventionEvent) => {
     const newEvent = { ...event, isSelected: true };
     selectedEvents = [...selectedEvents, newEvent];
+    // addSelectedEvent will automatically remove from unseen events
     appState.addSelectedEvent(newEvent);
-    nextEvent();
-  };
-
-  // Navigation functions
-  const nextEvent = () => {
-    if (currentEventIndex < allEvents.length - 1) {
-      currentEventIndex++;
-      appState.setCurrentEventIndex(currentEventIndex);
-    } else {
-      // We're at the last event, advance past it to trigger "no more events" state
-      currentEventIndex = allEvents.length; // This will make currentEvent null
-      appState.setCurrentEventIndex(currentEventIndex);
-    }
+    
+    // Remove from filtered events array
+    allEvents = allEvents.filter(e => e.id !== event.id);
   };
 
   // Revisit skipped events: show all non-chosen events again
   const revisitSkippedEvents = () => {
     includeRejectedAgain = true;
-    applyFiltersIfNeeded();
-    currentEventIndex = 0;
-    appState.setCurrentEventIndex(0);
+    // Move all rejected events back to unseen
+    appState.moveRejectedToUnseen();
+    unseenEvents = new Set(appState.unseenEvents);
+    // Re-apply filters to show all non-selected events
+    applyEventFilters();
     currentState = 'event-browsing';
     appState.setCurrentState('event-browsing');
   };
 
-  // Language store subscription
-  let unsubscribe: (() => void) | undefined;
+  // Store subscriptions
+  let unsubscribeAppState: (() => void) | undefined;
+  let unsubscribeLanguage: (() => void) | undefined;
 
   onDestroy(() => {
-    if (unsubscribe) {
-      unsubscribe();
+    if (unsubscribeAppState) {
+      unsubscribeAppState();
+    }
+    if (unsubscribeLanguage) {
+      unsubscribeLanguage();
     }
   });
 </script>
@@ -308,7 +309,7 @@
         <div class="relative flex h-screen w-full snap-start items-center justify-center pt-25 pb-10 px-5">
           <EventCard
             event={currentEvent}
-            isSelected={selectedEvents.some(e => e.id === currentEvent.id)}
+            isSelected={selectedEvents.some(e => e.id === currentEvent?.id)}
             selectedEvents={selectedEvents}
             onSwipeLeft={handleSwipeLeft}
             onSwipeRight={handleSwipeRight}
