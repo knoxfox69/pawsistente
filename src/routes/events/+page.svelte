@@ -7,7 +7,6 @@
   import { onMount, onDestroy } from 'svelte';
   import { fade, scale } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
-  import { goto } from '$app/navigation';
   import { HelpCircle, Calendar, Plus } from 'lucide-svelte';
   import { languageStore } from '$lib/stores/language';
   import { appState } from '$lib/stores/appState';
