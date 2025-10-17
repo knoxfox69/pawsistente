@@ -18,8 +18,8 @@ export interface DeviceSession {
 
 // Purpose: In-memory storage for access codes and device sessions
 // Context: Simulates database storage for access control
-const accessCodes = new Map<string, AccessCode>();
-const deviceSessions = new Map<string, DeviceSession[]>();
+export const accessCodes = new Map<string, AccessCode>();
+export const deviceSessions = new Map<string, DeviceSession[]>();
 
 // Purpose: Load access codes from CSV file
 // Context: Reads CSV file and populates access codes map
@@ -98,13 +98,7 @@ export function validateAccessCode(code: string, deviceId: string): {
 		};
 	}
 	
-	// Check if launch date has been reached
-	if (!isLaunchDateReached()) {
-		return {
-			success: false,
-			error: 'El acceso beta aún no está disponible'
-		};
-	}
+	// Beta access is always available - no need to check launch date for beta codes
 	
 	// Get existing sessions for this code
 	const existingSessions = deviceSessions.get(normalizedCode) || [];
@@ -180,13 +174,7 @@ export function validateDeviceSession(code: string, deviceId: string, expiresAt:
 			};
 		}
 		
-		// Check if launch date has been reached
-		if (!isLaunchDateReached()) {
-			return {
-				success: true,
-				isValid: false
-			};
-		}
+		// Beta sessions are always valid regardless of launch date
 		
 		// Find and validate session
 		const sessions = deviceSessions.get(normalizedCode) || [];
