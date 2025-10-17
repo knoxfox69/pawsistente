@@ -33,8 +33,8 @@
     error = null;
     
     try {
-      const allDays: ('Thursday' | 'Friday' | 'Saturday' | 'Sunday')[] = ['Thursday', 'Friday', 'Saturday', 'Sunday'];
-      allEvents = await ConfurorAPI.getEventsForDays(allDays);
+      const selectedDays = appState.selectedDays;
+      allEvents = await ConfurorAPI.getEventsForDays(selectedDays);
     } catch (err) {
       error = 'Failed to load events. Please try again.';
       console.error('Error loading events:', err);
