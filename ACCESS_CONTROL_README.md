@@ -72,6 +72,35 @@ The system includes these default codes for testing:
 
 ## API Endpoints
 
+### GET `/api/access/admin` (Localhost Only)
+Returns usage statistics for all access codes. Only accessible from localhost/127.0.0.1.
+
+**Response:**
+```json
+{
+  "success": true,
+  "totalCodes": 4,
+  "codes": [
+    {
+      "code": "test123",
+      "maxDevices": 5,
+      "description": "Test access code",
+      "currentDevices": 2,
+      "availableSlots": 3,
+      "usagePercentage": 40,
+      "activeDevices": [
+        {
+          "deviceId": "abc123...",
+          "lastAccess": "2025-01-15T15:00:00.000Z",
+          "expiresAt": "2025-01-15T17:00:00.000Z"
+        }
+      ]
+    }
+  ],
+  "timestamp": "2025-01-15T15:30:00.000Z"
+}
+```
+
 ### POST `/api/access/validate`
 Validates a beta access code and creates a device session.
 
@@ -139,7 +168,10 @@ Returns server time information for client validation.
 
 1. **Adding Access Codes**: Edit `static/access_codes.csv` and restart the server
 2. **Testing**: Use the default `test123` code for development
-3. **Monitoring**: Check server logs for access code usage and validation
+3. **Monitoring Usage**: 
+   - Command line: `npm run admin:stats`
+   - API: `curl http://localhost:5173/api/access/admin` (localhost only)
+4. **Server Logs**: Check console for access code usage and validation
 
 ## Security Considerations
 

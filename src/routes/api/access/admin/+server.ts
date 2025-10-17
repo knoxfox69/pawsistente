@@ -1,11 +1,22 @@
 // Purpose: Admin endpoint for viewing access code usage statistics
-// Context: Provides real-time information about device usage per access code
+// Context: Provides real-time information about device usage per access code (localhost only)
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { accessCodes, deviceSessions } from '$lib/utils/accessCodes';
 
-export const GET: RequestHandler = async () => {
+export const GET: RequestHandler = async ({ request }) => {
 	try {
+		// Purpose: Restrict access to localhost only
+		// Context: Prevents unauthorized access to admin statistics
+		const url = new URL(request.url);
+		const hostname = url.hostname;
+		
+		if (!['localhost', '127.0.0.1', '::1'].includes(hostname)) {
+			return json({
+				success: false,
+				error: 'Access denied - admin endpoint only available on localhost'
+			}, { status: 403 });
+		}
 		const usageStats = [];
 		
 		// Get all access codes and their usage

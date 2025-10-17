@@ -22,7 +22,8 @@
 		"docker:up": "docker-compose up -d",
 		"docker:down": "docker-compose down",
 		"docker:logs": "docker-compose logs -f",
-		"deploy": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh"
+		"deploy": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh",
+		"admin:stats": "node scripts/check-usage.js"
 	},
 	"devDependencies": {
 		"@eslint/compat": "^1.2.5",
@@ -60,13 +61,13 @@
 		"@sveltejs/adapter-static": "^3.0.8",
 		"@types/bcryptjs": "^2.4.6",
 		"@types/uuid": "^10.0.0",
-		"bcryptjs": "^3.0.2",
 		"drizzle-orm": "^0.38.4",
 		"isomorphic-dompurify": "^2.21.0",
 		"lucide-svelte": "^0.475.0",
 		"marked": "^15.0.7",
 		"marked-base-url": "^1.1.6",
 		"marked-emoji": "^1.4.3",
+		"node-fetch": "^3.3.2",
 		"sql.js-httpvfs": "^0.8.12",
 		"svelte-bootstrap-icons": "^1.2.1",
 		"tsx": "^4.7.0",
