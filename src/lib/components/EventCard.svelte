@@ -252,6 +252,9 @@
       <h1 class="text-3xl font-serif text-white mb-4 leading-tight">
         {event.title}
       </h1>
+      <p class="text-gray-300 font-mono">
+        {event.description}
+      </p>
     </div>
 
     <!-- Event details -->
