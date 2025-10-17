@@ -7,7 +7,6 @@ export interface AppState {
   selectedDays: string[];
   selectedEvents: ConventionEvent[];
   rejectedEvents: string[];
-  currentGroupIndex: number;
   currentEventIndex: number;
   currentState: 'day-selection' | 'event-browsing' | 'summary';
   lastUpdated: number;
@@ -21,11 +20,12 @@ class AppStateManager {
     selectedDays: [],
     selectedEvents: [],
     rejectedEvents: [],
-    currentGroupIndex: 0,
     currentEventIndex: 0,
     currentState: 'day-selection',
     lastUpdated: Date.now()
   };
+
+  private _subscribers: Set<() => void> = new Set();
 
   constructor() {
     this.loadState();
@@ -66,18 +66,29 @@ class AppStateManager {
     }
   }
 
+  // Subscribe to state changes
+  subscribe(callback: () => void): () => void {
+    this._subscribers.add(callback);
+    return () => this._subscribers.delete(callback);
+  }
+
+  // Notify all subscribers of state changes
+  private _notifySubscribers(): void {
+    this._subscribers.forEach(callback => callback());
+  }
+
   // Clear all state
   clearState(): void {
     this.state = {
       selectedDays: [],
       selectedEvents: [],
       rejectedEvents: [],
-      currentGroupIndex: 0,
       currentEventIndex: 0,
       currentState: 'day-selection',
       lastUpdated: Date.now()
     };
     this.saveState();
+    this._notifySubscribers();
   }
 
   // Getters
@@ -93,10 +104,6 @@ class AppStateManager {
     return this.state.rejectedEvents;
   }
 
-  get currentGroupIndex(): number {
-    return this.state.currentGroupIndex;
-  }
-
   get currentEventIndex(): number {
     return this.state.currentEventIndex;
   }
@@ -109,53 +116,55 @@ class AppStateManager {
   setSelectedDays(days: string[]): void {
     this.state.selectedDays = days;
     this.saveState();
+    this._notifySubscribers();
   }
 
   setSelectedEvents(events: ConventionEvent[]): void {
     this.state.selectedEvents = events;
     this.saveState();
+    this._notifySubscribers();
   }
 
   addSelectedEvent(event: ConventionEvent): void {
     if (!this.state.selectedEvents.some(e => e.id === event.id)) {
       this.state.selectedEvents = [...this.state.selectedEvents, event];
       this.saveState();
+      this._notifySubscribers();
     }
   }
 
   removeSelectedEvent(eventId: string): void {
     this.state.selectedEvents = this.state.selectedEvents.filter(e => e.id !== eventId);
     this.saveState();
+    this._notifySubscribers();
   }
 
   addRejectedEvent(eventId: string): void {
     if (!this.state.rejectedEvents.includes(eventId)) {
       this.state.rejectedEvents = [...this.state.rejectedEvents, eventId];
       this.saveState();
+      this._notifySubscribers();
     }
-  }
-
-  setCurrentGroupIndex(index: number): void {
-    this.state.currentGroupIndex = index;
-    this.saveState();
   }
 
   setCurrentEventIndex(index: number): void {
     this.state.currentEventIndex = index;
     this.saveState();
+    this._notifySubscribers();
   }
 
   setCurrentState(state: 'day-selection' | 'event-browsing' | 'summary'): void {
     this.state.currentState = state;
     this.saveState();
+    this._notifySubscribers();
   }
 
   // Reset navigation state but keep selections
   resetNavigation(): void {
-    this.state.currentGroupIndex = 0;
     this.state.currentEventIndex = 0;
     this.state.currentState = 'day-selection';
     this.saveState();
+    this._notifySubscribers();
   }
 
   // Check if user has any progress

@@ -52,6 +52,9 @@
     showBackground?: boolean;
     showOutline?: boolean;
     
+    // State-based styling
+    currentState?: 'day-selection' | 'event-browsing' | 'summary';
+    
     // Children slots
     left?: any;
     center?: any;
@@ -76,6 +79,7 @@
     glassmorphic = false,
     showBackground = true,
     showOutline = true,
+    currentState,
     left,
     center,
     right
@@ -130,11 +134,11 @@
     
     let classes = '';
     
-    if (showBackground) {
+    if (effectiveShowBackground) {
       classes += 'bg-gray-800/30 backdrop-blur-sm ';
     }
     
-    if (showOutline) {
+    if (effectiveShowOutline) {
       classes += 'border border-gray-700/50 ';
     }
     
@@ -151,6 +155,17 @@
     const paddingHeight = paddingMap[padding] || 48;
     return overlay ? '0px' : `${baseHeight + paddingHeight}px`;
   });
+
+  // Override styling for day-selection state
+  let effectiveShowBackground = $derived(
+    currentState === 'day-selection' ? false : showBackground
+  );
+  let effectiveShowOutline = $derived(
+    currentState === 'day-selection' ? false : showOutline
+  );
+  let effectiveShowSeparator = $derived(
+    currentState === 'day-selection' ? false : showSeparator
+  );
 </script>
 
 <header 
@@ -163,9 +178,9 @@
   } {
     glassmorphic 
       ? getGlassmorphicClass()
-      : (sticky || !anchored) && showBackground ? 'bg-gray-900/80 backdrop-blur-sm' : ''
+      : (sticky || !anchored) && effectiveShowBackground ? 'bg-gray-900/80 backdrop-blur-sm' : ''
   } {
-    showSeparator && (sticky || !anchored) ? 'border-b border-gray-800' : ''
+    effectiveShowSeparator && (sticky || !anchored) ? 'border-b border-gray-800' : ''
   } {bottomPadding} {className}"
   in:fade={{ duration: 800 }}
 >

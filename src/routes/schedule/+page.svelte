@@ -4,9 +4,9 @@
 -->
 
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { fade, fly, scale } from 'svelte/transition';
-  import { Calendar, Clock, MapPin, Star, ArrowLeft, Download, ExternalLink, Trash2, Plus, Search, X } from 'lucide-svelte';
+  import { Calendar, Clock, MapPin, Star, Download, ExternalLink, Trash2, Plus } from 'lucide-svelte';
   import { goto } from '$app/navigation';
   import { appState } from '$lib/stores/appState';
   import { languageStore } from '$lib/stores/language';
@@ -31,10 +31,23 @@
   let showICSInstructions = $state(false);
   let calendarInstructionsType = $state<'google' | 'apple' | null>(null);
 
-  // Get selected events reactively
-  let selectedEvents = $derived(appState.selectedEvents);
+  // Get selected events reactively using subscription
+  let selectedEvents = $state(appState.selectedEvents);
+
+  let unsubscribeAppState: (() => void) | undefined;
+  let unsubscribeLanguage: (() => void) | undefined;
 
   onMount(() => {
+    // Subscribe to app state changes
+    unsubscribeAppState = appState.subscribe(() => {
+      selectedEvents = appState.selectedEvents;
+    });
+
+    // Subscribe to language changes
+    unsubscribeLanguage = languageStore.subscribe(() => {
+      t = languageStore.translations;
+      currentLanguage = languageStore.currentLanguage;
+    });
 
     // Set initial day to today or first day with events
     const now = new Date();
@@ -50,6 +63,15 @@
       if (daysWithEvents.length > 0) {
         selectedDay = daysWithEvents[0];
       }
+    }
+  });
+
+  onDestroy(() => {
+    if (unsubscribeAppState) {
+      unsubscribeAppState();
+    }
+    if (unsubscribeLanguage) {
+      unsubscribeLanguage();
     }
   });
 

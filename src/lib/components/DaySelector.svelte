@@ -5,9 +5,8 @@
 
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { Calendar, Check, ArrowLeft } from 'lucide-svelte';
+  import { Calendar, Check } from 'lucide-svelte';
   import { fade, scale } from 'svelte/transition';
-  import { quintOut } from 'svelte/easing';
   import { languageStore } from '$lib/stores/language';
   import { formatDayWithDate, getDayAbbreviation } from '$lib/utils/dateUtils';
 

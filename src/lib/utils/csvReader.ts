@@ -51,7 +51,7 @@ export class CSVEventReader {
     }
   }
 
-  // Parse CSV text into ConfurorEvent objects
+  // Parse CSV text into ConventionEvent objects
   private static parseCSV(csvText: string): ConventionEvent[] {
     const lines = csvText.trim().split('\n');
     const headers = lines[0].split(',').map(h => h.trim());
@@ -78,7 +78,7 @@ export class CSVEventReader {
       // Skip events with empty titles
       if (!csvEvent.title) continue;
 
-      const event = this.convertToConfurorEvent(csvEvent, i);
+      const event = this.convertToConventionEvent(csvEvent, i);
       if (event) {
         events.push(event);
       }
@@ -110,8 +110,8 @@ export class CSVEventReader {
     return result;
   }
 
-  // Convert CSV event to ConfurorEvent format
-  private static convertToConfurorEvent(csvEvent: CSVEvent, index: number): ConventionEvent | null {
+  // Convert CSV event to ConventionEvent format
+  private static convertToConventionEvent(csvEvent: CSVEvent, index: number): ConventionEvent | null {
     try {
       // Parse day
       const dayMap: Record<string, 'Thursday' | 'Friday' | 'Saturday' | 'Sunday'> = {
@@ -136,19 +136,6 @@ export class CSVEventReader {
       // Generate event ID
       const id = `event_${index}`;
 
-      // Map category to track
-      const trackMap: Record<string, string> = {
-        'art': 'Art',
-        'social': 'Social',
-        'educational': 'Educational',
-        'fursuit': 'Fursuit',
-        'gaming': 'Gaming',
-        'music': 'Music',
-        'workshop': 'Workshop'
-      };
-
-      const track = trackMap[csvEvent.category.toLowerCase()] || 'General';
-
       return {
         id,
         title: csvEvent.title,
@@ -156,14 +143,7 @@ export class CSVEventReader {
         startTime: startTime.toISO(),
         endTime: endTime.toISO(),
         location: csvEvent.location,
-        room: csvEvent.location.split(':')[1]?.trim() || undefined,
-        track,
-        difficulty: 'All Levels',
-        capacity: undefined,
-        currentAttendees: undefined,
-        imageUrl: undefined,
         panelist: csvEvent.hosted_by || undefined,
-        tags: [csvEvent.category.toLowerCase(), day.toLowerCase()],
         day,
         timeSlot,
         isSelected: false
@@ -177,19 +157,73 @@ export class CSVEventReader {
   // Parse time string to DateTime
   private static parseTime(timeStr: string, day: 'Thursday' | 'Friday' | 'Saturday' | 'Sunday'): any | null {
     try {
-      const [hours, minutes] = timeStr.trim().split(':');
-      const hour = parseInt(hours);
-      const minute = parseInt(minutes || '0');
-      const date = new Date(2025, 9, day === 'Thursday' ? 23 : day === 'Friday' ? 24 : day === 'Saturday' ? 25 : 26, hour, minute);
-      return {
-        toISO: () => date.toISOString(),
-        format: (format: string) => {
-          if (format === 'HH:mm') {
-            return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-          }
-          return date.toISOString();
+      const trimmedTime = timeStr.trim();
+      
+      // Handle format: "03:00:00 PM" or "03:00:00 AM"
+      const timeMatch = trimmedTime.match(/^(\d{1,2}):(\d{2}):(\d{2})\s*(AM|PM)$/i);
+      
+      if (timeMatch) {
+        let [, hoursStr, minutesStr, secondsStr, period] = timeMatch;
+        let hours = parseInt(hoursStr);
+        const minutes = parseInt(minutesStr);
+        const seconds = parseInt(secondsStr);
+        
+        // Convert to 24-hour format
+        if (period.toUpperCase() === 'PM' && hours !== 12) {
+          hours += 12;
+        } else if (period.toUpperCase() === 'AM' && hours === 12) {
+          hours = 0;
         }
-      };
+        
+        // Create date for October 2025 (month 9, 0-indexed)
+        const dayMap = {
+          'Thursday': 23,
+          'Friday': 24,
+          'Saturday': 25,
+          'Sunday': 26
+        };
+        
+        const date = new Date(2025, 9, dayMap[day], hours, minutes, seconds);
+        
+        return {
+          toISO: () => date.toISOString(),
+          format: (format: string) => {
+            if (format === 'HH:mm') {
+              return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            }
+            return date.toISOString();
+          }
+        };
+      }
+      
+      // Fallback: try to parse as simple HH:MM format
+      const [hoursStr, minutesStr] = trimmedTime.split(':');
+      const hour = parseInt(hoursStr);
+      const minute = parseInt(minutesStr || '0');
+      
+      if (!isNaN(hour) && !isNaN(minute)) {
+        const dayMap = {
+          'Thursday': 23,
+          'Friday': 24,
+          'Saturday': 25,
+          'Sunday': 26
+        };
+        
+        const date = new Date(2025, 9, dayMap[day], hour, minute);
+        
+        return {
+          toISO: () => date.toISOString(),
+          format: (format: string) => {
+            if (format === 'HH:mm') {
+              return `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+            }
+            return date.toISOString();
+          }
+        };
+      }
+      
+      console.warn('Unable to parse time format:', timeStr);
+      return null;
     } catch (error) {
       console.error('Error parsing time:', timeStr, error);
       return null;
@@ -223,7 +257,9 @@ export class CSVEventReader {
       filteredEvents = filteredEvents.filter(event => 
         event.title.toLowerCase().includes(searchQuery) ||
         event.description.toLowerCase().includes(searchQuery) ||
-        event.tags.some(tag => tag.toLowerCase().includes(searchQuery))
+        event.panelist?.toLowerCase().includes(searchQuery) ||
+        event.location.toLowerCase().includes(searchQuery) ||
+        event.timeSlot.toLowerCase().includes(searchQuery)
       );
     }
 

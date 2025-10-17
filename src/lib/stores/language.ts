@@ -30,6 +30,7 @@ export interface Translations {
   skipped: string;
   eventOf: string;
   of: string;
+  unseenEvents: string;
   
   // Event card
   addToCalendar: string;
@@ -78,6 +79,7 @@ export interface Translations {
   alreadyInSchedule: string;
   noEventsFound: string;
   searching: string;
+  revisitSkipped: string;
 }
 
 const translations: Record<Language, Translations> = {
@@ -102,6 +104,7 @@ const translations: Record<Language, Translations> = {
     skipped: 'Omitidos',
     eventOf: 'Evento',
     of: 'de',
+    unseenEvents: 'Eventos no vistos',
     
     addToCalendar: 'Agregar al Calendario',
     skipEvent: 'Omitir Evento',
@@ -145,7 +148,8 @@ const translations: Record<Language, Translations> = {
     addToSchedule: '+ Agregar al horario',
     alreadyInSchedule: '✓ Ya en horario',
     noEventsFound: 'No se encontraron eventos para tu búsqueda',
-    searching: 'Buscando...'
+    searching: 'Buscando...',
+    revisitSkipped: 'Revisar eventos omitidos'
   },
   en: {
     appTitle: '🐾 Pawsistente',
@@ -168,6 +172,7 @@ const translations: Record<Language, Translations> = {
     skipped: 'Skipped',
     eventOf: 'Event',
     of: 'of',
+    unseenEvents: 'Unseen events',
     
     addToCalendar: 'Add to Calendar',
     skipEvent: 'Skip Event',
@@ -211,7 +216,8 @@ const translations: Record<Language, Translations> = {
     addToSchedule: '+ Add to schedule',
     alreadyInSchedule: '✓ Already in schedule',
     noEventsFound: 'No events found for your search',
-    searching: 'Searching...'
+    searching: 'Searching...',
+    revisitSkipped: 'Review skipped events'
   }
 };
 

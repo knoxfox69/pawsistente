@@ -4,12 +4,13 @@
 -->
 
 <script lang="ts">
-  import { Clock, MapPin, Users, Star, X, Check, AlertTriangle } from 'lucide-svelte';
+  import { Clock, MapPin, Star, X, AlertTriangle } from 'lucide-svelte';
   import { fade, scale } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
   import type { ConventionEvent } from '$lib/convention/types';
   import { languageStore } from '$lib/stores/language';
-  import { ConflictDetector, type EventConflict } from '$lib/utils/conflictDetector';
+  import { ConflictDetector } from '$lib/utils/conflictDetector';
+  import { getDayAbbreviation } from '$lib/utils/dateUtils';
 
   interface Props {
     event: ConventionEvent;
@@ -234,10 +235,15 @@
     <!-- Header with time -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center gap-3">
-        <Clock class="w-5 h-5 text-blue-400" />
-        <span class="font-mono text-white text-lg">
-          {formatTime(event.startTime)} - {formatTime(event.endTime)}
-        </span>
+        <Clock class="w-6 h-6 text-blue-400" />
+        <div class="flex flex-col">
+          <span class="font-mono text-white text-line-height-1">
+            {getDayAbbreviation(event.day)}
+          </span>
+          <span class="font-mono text-white text-lg">
+            {formatTime(event.startTime)} - {formatTime(event.endTime)}
+          </span>
+        </div>
       </div>
     </div>
 

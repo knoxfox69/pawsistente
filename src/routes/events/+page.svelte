@@ -8,13 +8,13 @@
   import { fade, scale } from 'svelte/transition';
   import { quintOut } from 'svelte/easing';
   import { goto } from '$app/navigation';
-  import { HelpCircle, Calendar, RotateCcw, ArrowLeft, Check, Plus } from 'lucide-svelte';
+  import { HelpCircle, Calendar, Plus } from 'lucide-svelte';
   import { languageStore } from '$lib/stores/language';
   import { appState } from '$lib/stores/appState';
   import Header from '$lib/components/Header.svelte';
   import AddEventOverlay from '$lib/components/AddEventOverlay.svelte';
-  import type { ConventionEvent, DaySelection, EventGroup } from '$lib/convention/types';
-  import { ConfurorAPI, mockEvents } from '$lib/convention/api';
+  import type { ConventionEvent, DaySelection } from '$lib/convention/types';
+  import { ConfurorAPI } from '$lib/convention/api';
   import DaySelector from '$lib/components/DaySelector.svelte';
   import EventCard from '$lib/components/EventCard.svelte';
 
@@ -27,8 +27,6 @@
   let allEventsCache: ConventionEvent[] = $state([]);
   let selectedEvents: ConventionEvent[] = $state(appState.selectedEvents);
   let rejectedEvents: Set<string> = $state(new Set(appState.rejectedEvents));
-  let eventGroups: EventGroup[] = $state([]);
-  let currentGroupIndex = $state(appState.currentGroupIndex);
   let currentEventIndex = $state(appState.currentEventIndex);
   let isLoading = $state(false);
   let error: string | null = $state(null);
@@ -36,8 +34,16 @@
   let currentDay = $state<Day | null>(null);
   let showAddEventOverlay = $state(false);
   let currentLanguage = $state(languageStore.currentLanguage);
+  let includeRejectedAgain = $state(false); // When true, re-include skipped (rejected) events but still exclude selected
 
   let t = $state(languageStore.translations);
+
+  // Apply filters when events are loaded or when explicitly needed
+  const applyFiltersIfNeeded = () => {
+    if (allEventsCache.length > 0) {
+      applyEventFilters();
+    }
+  };
 
   // Load events for selected days
   const loadEvents = async (dayToLoad?: Day) => {
@@ -48,7 +54,6 @@
       // Use real API with fallback to mock data
       const events = await ConfurorAPI.getEventsForDays(selectedDays);
       allEventsCache = events;
-      allEvents = events;
       
       // Load manually added events from localStorage
       const manuallyAddedEvents = localStorage.getItem('manually-added-events');
@@ -70,8 +75,8 @@
         currentDay = selectedDays[0];
       }
       
-      // Group events by time slot
-      groupEventsByTimeSlot();
+      // Apply filters after selectedEvents potentially updated
+      applyFiltersIfNeeded();
       
       currentState = 'event-browsing';
       // Show swipe overlay with delay only if user has no selected events
@@ -88,8 +93,40 @@
     }
   };
 
+  // Apply filters to events based on user progress
+  const applyEventFilters = () => {
+    // Purpose: Produce the working list of events considering selections and skips
+    // Context: Hide seen events by default; optionally re-include rejected (skipped) ones
+    const selectedIds = new Set(selectedEvents.map(e => e.id));
+    const previousLength = allEvents.length;
+    
+    allEvents = allEventsCache.filter((e) => {
+      if (selectedIds.has(e.id)) return false; // never show chosen events again
+      if (!includeRejectedAgain && rejectedEvents.has(e.id)) return false; // hide skipped unless revisiting
+      return true;
+    });
+    
+    // Ensure currentEventIndex is within bounds after filtering
+    if (currentEventIndex >= allEvents.length) {
+      currentEventIndex = Math.max(0, allEvents.length - 1);
+      appState.setCurrentEventIndex(currentEventIndex);
+    }
+    
+    // If we're revisiting skipped events and the list changed, reset to beginning
+    if (includeRejectedAgain && allEvents.length !== previousLength) {
+      currentEventIndex = 0;
+      appState.setCurrentEventIndex(0);
+    }
+  };
+
   // Check if we should load events on mount
   onMount(() => {
+    // Sync with app state
+    selectedEvents = appState.selectedEvents;
+    rejectedEvents = new Set(appState.rejectedEvents);
+    currentEventIndex = appState.currentEventIndex;
+    currentState = appState.currentState as AppState;
+    
     // If we have selected days and no events loaded, load them
     if (selectedDays.length > 0 && allEvents.length === 0) {
       loadEvents();
@@ -101,36 +138,15 @@
     });
   });
 
-  // Group events by time slot for navigation
-  const groupEventsByTimeSlot = () => {
-    // Simple grouping by time slot with chronological sorting
-    const grouped: Record<string, ConventionEvent[]> = {};
-    
-    allEvents.forEach(event => {
-      if (!grouped[event.timeSlot]) {
-        grouped[event.timeSlot] = [];
-      }
-      grouped[event.timeSlot].push(event);
-    });
 
-    eventGroups = Object.entries(grouped).map(([timeSlot, events]) => ({
-      timeSlot,
-      events: events.sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()),
-      currentIndex: 0
-    }));
-
-    // Sort groups by time
-    eventGroups.sort((a, b) => {
-      const timeA = a.events[0].startTime;
-      const timeB = b.events[0].startTime;
-      return new Date(timeA).getTime() - new Date(timeB).getTime();
-    });
-  };
+  // Remaining unseen events counter
+  const remainingUnseen = $derived(
+    allEvents.length === 0 ? 0 : allEvents.length - currentEventIndex
+  );
 
 
-  // Get current event
-  let currentEvent = $derived(eventGroups[currentGroupIndex]?.events[currentEventIndex] || null);
-  let currentGroup = $derived(eventGroups[currentGroupIndex]);
+  // Get current event from flat list
+  let currentEvent = $derived(allEvents[currentEventIndex] || null);
 
   // Handle day selection
   const handleDaysChange = (days: Day[]) => {
@@ -165,42 +181,25 @@
 
   // Navigation functions
   const nextEvent = () => {
-    if (currentEventIndex < currentGroup.events.length - 1) {
+    if (currentEventIndex < allEvents.length - 1) {
       currentEventIndex++;
       appState.setCurrentEventIndex(currentEventIndex);
     } else {
-      // Move to next time slot
-      if (currentGroupIndex < eventGroups.length - 1) {
-        currentGroupIndex++;
-        currentEventIndex = 0;
-        appState.setCurrentGroupIndex(currentGroupIndex);
-        appState.setCurrentEventIndex(currentEventIndex);
-      } else {
-        // All events viewed, go to feed page
-        goto('/feed');
-      }
+      // We're at the last event, advance past it to trigger "no more events" state
+      currentEventIndex = allEvents.length; // This will make currentEvent null
+      appState.setCurrentEventIndex(currentEventIndex);
     }
   };
 
-  // Navigation actions
-  const handleAddMoreDays = () => {
-    currentState = 'day-selection';
-    appState.setCurrentState('day-selection');
-  };
-
-  const handleStartOver = () => {
-    selectedDays = [];
-    selectedEvents = [];
-    rejectedEvents.clear();
-    currentGroupIndex = 0;
+  // Revisit skipped events: show all non-chosen events again
+  const revisitSkippedEvents = () => {
+    includeRejectedAgain = true;
+    applyFiltersIfNeeded();
     currentEventIndex = 0;
-    currentState = 'day-selection';
-    appState.clearState();
+    appState.setCurrentEventIndex(0);
+    currentState = 'event-browsing';
+    appState.setCurrentState('event-browsing');
   };
-
-
-
-
 
   // Language store subscription
   let unsubscribe: (() => void) | undefined;
@@ -218,51 +217,39 @@
 >
   <!-- Header with controls -->
   <Header 
-    showBackButton={false}
+    showBackButton={true}
+    showLanguageSelector={false}
+    {currentState}
+    showBackground={true}
+    showOutline={true}
+    showSeparator={true}
     anchored={false}
     overlay={true}
-    className="top-4 left-4 right-4"
+    className=""
   >
-    {#snippet left()}
-      {#if currentState === 'event-browsing'}
-        <!-- Event counter -->
+    {#snippet center()}
+      {#if currentState === 'event-browsing' && remainingUnseen > 0}
+        <!-- Unseen events counter -->
         <div class="bg-gray-800/50 backdrop-blur-sm rounded-lg px-4 py-2 text-white">
           <div class="font-mono text-sm text-gray-300">
-            {t.eventOf} {currentGroupIndex + 1} {t.of} {eventGroups.length}
+            {t.unseenEvents}: {remainingUnseen}
           </div>
         </div>
-        
-        <!-- View Selected Events Buttons -->
-        {#if selectedEvents.length > 0}
-          <a
-            href="/schedule"
-            class="bg-green-500/20 backdrop-blur-sm rounded-lg px-4 py-2 text-green-400 hover:bg-green-500/30 transition-colors flex items-center gap-2"
-            title={languageStore.currentLanguage === 'es' ? 'Ver horario' : 'View schedule'}
-          >
-            <Calendar class="w-4 h-4" />
-            <span class="font-mono text-sm">{selectedEvents.length}</span>
-          </a>
-          <a
-            href="/feed"
-            class="bg-blue-500/20 backdrop-blur-sm rounded-lg px-4 py-2 text-blue-400 hover:bg-blue-500/30 transition-colors flex items-center gap-2"
-            title={languageStore.currentLanguage === 'es' ? 'Ver todos los eventos' : 'View all events'}
-          >
-            <Calendar class="w-4 h-4" />
-          </a>
-        {/if}
       {/if}
     {/snippet}
 
     {#snippet right()}
-      {#if currentState === 'event-browsing'}
-        <button
-          onclick={() => showAddEventOverlay = true}
-          class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50 flex items-center justify-center"
-          aria-label="Add events manually"
+      {#if selectedEvents.length > 0}
+        <a
+          href="/schedule"
+          class="bg-green-500/20 backdrop-blur-sm rounded-lg px-4 py-2 text-green-400 hover:bg-green-500/30 transition-colors flex items-center gap-2"
+          title={languageStore.currentLanguage === 'es' ? 'Ver horario' : 'View schedule'}
         >
-          <Plus class="h-5 w-5 text-gray-400" />
-        </button>
+          <Calendar class="w-4 h-4" />
+          <span class="font-mono text-sm">{selectedEvents.length}</span>
+        </a>
       {/if}
+      {#if currentState !== 'event-browsing'}
       <a
         href="/about"
         class="rounded-full bg-gray-800/50 p-2 backdrop-blur-sm transition-colors hover:bg-gray-700/50 flex items-center justify-center"
@@ -270,6 +257,7 @@
       >
         <HelpCircle class="h-5 w-5 text-gray-400" />
       </a>
+      {/if}
     {/snippet}
   </Header>
 
@@ -406,13 +394,13 @@
               {currentLanguage === 'es' ? 'Ver Horario' : 'View Schedule'}
             </a>
             
-            <a
-              href="/feed"
+            <button
+              onclick={revisitSkippedEvents}
               class="px-8 py-4 bg-gradient-to-r from-blue-400 to-blue-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center gap-3 justify-center"
             >
-              <Calendar class="w-5 h-5" />
-              {currentLanguage === 'es' ? 'Ver Todos los Eventos' : 'View All Events'}
-            </a>
+              <Plus class="w-5 h-5" />
+              {currentLanguage === 'es' ? t.revisitSkipped : t.revisitSkipped}
+            </button>
           </div>
         </div>
       </div>
