@@ -1,10 +1,10 @@
 // Purpose: API functions for fetching Confuror event data
 // Context: Handles data fetching from CSV files instead of MongoDB
 
-import type { ConventionEvent, DaySelection, EventFilters } from './types';
+import type { ConventionEvent, EventFilters } from './types';
 import { CSVEventReader } from '$lib/utils/csvReader';
 
-export class ConfurorAPI {
+export class ConventionAPI {
   // Fetch all events for selected days
   static async getEventsForDays(days: string[]): Promise<ConventionEvent[]> {
     try {
@@ -334,7 +334,7 @@ export const mockEvents: ConventionEvent[] = [
   {
     id: '13',
     title: 'Closing Ceremony',
-    description: 'Ceremonia de clausura de Confuror 2024. ¡Gracias por ser parte de esta increíble experiencia!',
+    description: 'Ceremonia de clausura de Confuror 2025. ¡Gracias por ser parte de esta increíble experiencia!',
     startTime: '2024-03-26T14:00:00-06:00',
     endTime: '2024-03-26T15:00:00-06:00',
     location: 'Main Hall',

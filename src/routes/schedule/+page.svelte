@@ -12,7 +12,7 @@
   import { languageStore } from '$lib/stores/language';
   import { formatDayWithDate } from '$lib/utils/dateUtils';
   import { CalendarExporter } from '$lib/convention/calendar';
-  import { ConfurorAPI } from '$lib/convention/api';
+  import { ConventionAPI } from '$lib/convention/api';
   import AddEventOverlay from '$lib/components/AddEventOverlay.svelte';
   import Header from '$lib/components/Header.svelte';
   import type { ConventionEvent } from '$lib/convention/types';
@@ -206,7 +206,7 @@
 
     isSearching = true;
     try {
-      const results = await ConfurorAPI.searchEvents(searchQuery);
+      const results = await ConventionAPI.searchEvents(searchQuery);
       searchResults = results;
       showSearchResults = true;
     } catch (error) {

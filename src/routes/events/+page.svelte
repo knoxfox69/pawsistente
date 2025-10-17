@@ -12,8 +12,8 @@
   import { appState } from '$lib/stores/appState';
   import Header from '$lib/components/Header.svelte';
   import AddEventOverlay from '$lib/components/AddEventOverlay.svelte';
-  import type { ConventionEvent, DaySelection } from '$lib/convention/types';
-  import { ConfurorAPI } from '$lib/convention/api';
+  import type { ConventionEvent } from '$lib/convention/types';
+  import { ConventionAPI } from '$lib/convention/api';
   import DaySelector from '$lib/components/DaySelector.svelte';
   import EventCard from '$lib/components/EventCard.svelte';
 
@@ -51,7 +51,7 @@
     
     try {
       // Use real API with fallback to mock data
-      const events = await ConfurorAPI.getEventsForDays(selectedDays);
+      const events = await ConventionAPI.getEventsForDays(selectedDays);
       allEventsCache = events;
       
       // Load manually added events from localStorage

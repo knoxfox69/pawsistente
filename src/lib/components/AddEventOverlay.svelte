@@ -10,7 +10,7 @@
   import { languageStore } from '$lib/stores/language';
   import { appState } from '$lib/stores/appState';
   import type { ConventionEvent } from '$lib/convention/types';
-  import { ConfurorAPI } from '$lib/convention/api';
+  import { ConventionAPI } from '$lib/convention/api';
 
   interface Props {
     onClose: () => void;
@@ -34,7 +34,7 @@
     
     try {
       const selectedDays = appState.selectedDays;
-      allEvents = await ConfurorAPI.getEventsForDays(selectedDays);
+      allEvents = await ConventionAPI.getEventsForDays(selectedDays);
     } catch (err) {
       error = 'Failed to load events. Please try again.';
       console.error('Error loading events:', err);
