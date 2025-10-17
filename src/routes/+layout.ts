@@ -1,5 +1,5 @@
-// Purpose: Root layout configuration for static site generation
-// Context: Needed to enable prerendering for GitHub Pages deployment
+// Purpose: Root layout configuration for static site generation with access control
+// Context: Needed to enable prerendering for GitHub Pages deployment while maintaining access control
 import posthog from 'posthog-js'
 import { browser } from '$app/environment';
 import { languageStore } from '$lib/stores/language';
