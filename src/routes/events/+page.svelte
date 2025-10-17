@@ -305,7 +305,7 @@
       </div>
     {:else if currentEvent}
       <div class="h-screen w-full snap-y snap-mandatory overflow-y-scroll">
-        <div class="relative flex h-screen w-full snap-start items-center justify-center pt-20 pb-20">
+        <div class="relative flex h-screen w-full snap-start items-center justify-center pt-25 pb-10 px-5">
           <EventCard
             event={currentEvent}
             isSelected={selectedEvents.some(e => e.id === currentEvent.id)}
