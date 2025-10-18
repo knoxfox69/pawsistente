@@ -71,7 +71,7 @@
         <Header 
           showBackButton={false} 
           padding="sm"
-          anchored={true}
+          anchored={false}
           sticky={true}
           overlay={true}
           glassmorphic={false}
@@ -87,7 +87,7 @@
             alt="Pawsistente Logo" 
             class="w-24 h-24 mx-auto mb-4"
           />
-          <h1 class="text-5xl font-serif mb-2 text-white font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h1 class="text-5xl font-sans mb-2 text-white font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
             Pawsistente
           </h1>
           <p class="text-xl text-gray-300 mb-8">{t.appSubtitle}</p>
@@ -115,7 +115,7 @@
             </p>
           </div>
 
-          <div class="space-y-6 text-gray-300 font-serif">
+          <div class="space-y-6 text-gray-300 font-sans">
             <p
               class="text-sm text-gray-400 mt-6 italic"
               in:fade={{ delay: 800, duration: 800 }}

@@ -210,12 +210,12 @@
         {#if title || subtitle || showVersion}
           <div>
             {#if title}
-              <h1 class="text-4xl font-serif text-white mb-2 mt-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              <h1 class="text-4xl font-sans text-white mb-2 mt-2 bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 {title}
               </h1>
             {/if}
             {#if subtitle}
-              <p class="text-gray-400 font-serif text-lg">{subtitle}</p>
+              <p class="text-gray-400 font-sans text-lg">{subtitle}</p>
             {/if}
             {#if showVersion}
               <p class="text-gray-400 font-mono text-sm">{t.version} {APP_VERSION}</p>
