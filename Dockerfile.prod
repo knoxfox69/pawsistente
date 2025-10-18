@@ -1,0 +1,214 @@
+# Purpose: Production-optimized Dockerfile with ARM support and nginx
+# Context: Multi-stage build for production deployment with static file serving
+
+# Build stage
+FROM --platform=$BUILDPLATFORM node:18-alpine AS builder
+
+# Install build dependencies
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build the application
+RUN npm run build
+
+# Production stage with nginx
+FROM --platform=$TARGETPLATFORM nginx:alpine AS runner
+
+# Install Node.js for running the SvelteKit server
+RUN apk add --no-cache nodejs npm
+
+WORKDIR /app
+
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 sveltekit
+
+# Copy built application from builder stage
+COPY --from=builder --chown=sveltekit:nodejs /app/build ./build
+COPY --from=builder --chown=sveltekit:nodejs /app/package*.json ./
+COPY --from=builder --chown=sveltekit:nodejs /app/static ./static
+
+# Install only production dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Configure nginx for static files and API proxying
+RUN mkdir -p /var/cache/nginx/client_temp && \
+    mkdir -p /var/cache/nginx/proxy_temp && \
+    mkdir -p /var/cache/nginx/fastcgi_temp && \
+    mkdir -p /var/cache/nginx/uwsgi_temp && \
+    mkdir -p /var/cache/nginx/scgi_temp
+
+# Create nginx configuration
+COPY <<EOF /etc/nginx/nginx.conf
+user nginx;
+worker_processes auto;
+error_log /var/log/nginx/error.log notice;
+pid /var/run/nginx.pid;
+
+events {
+    worker_connections 1024;
+    use epoll;
+    multi_accept on;
+}
+
+http {
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    # Logging format
+    log_format main '\$remote_addr - \$remote_user [\$time_local] "\$request" '
+                    '\$status \$body_bytes_sent "\$http_referer" '
+                    '"\$http_user_agent" "\$http_x_forwarded_for"';
+
+    access_log /var/log/nginx/access.log main;
+
+    # Performance optimizations
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    client_max_body_size 16M;
+
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types
+        text/plain
+        text/css
+        text/xml
+        text/javascript
+        application/json
+        application/javascript
+        application/xml+rss
+        application/atom+xml
+        image/svg+xml;
+
+    # Security headers
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header Referrer-Policy "strict-origin-when-cross-origin";
+
+    server {
+        listen 80;
+        server_name _;
+        root /app/build/client;
+        index index.html;
+
+        # Static files caching
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+            try_files \$uri =404;
+        }
+
+        # API routes to SvelteKit server
+        location /api/ {
+            proxy_pass http://127.0.0.1:3000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade \$http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+            proxy_cache_bypass \$http_upgrade;
+            proxy_read_timeout 86400;
+        }
+
+        # All other routes to SvelteKit
+        location / {
+            try_files \$uri @sveltekit;
+        }
+
+        location @sveltekit {
+            proxy_pass http://127.0.0.1:3000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade \$http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+            proxy_cache_bypass \$http_upgrade;
+            proxy_read_timeout 86400;
+        }
+
+        # Health check endpoint
+        location /health {
+            access_log off;
+            return 200 "healthy\n";
+            add_header Content-Type text/plain;
+        }
+    }
+}
+EOF
+
+# Create startup script
+COPY <<EOF /app/start.sh
+#!/bin/sh
+set -e
+
+# Create necessary directories with proper permissions
+mkdir -p /var/cache/nginx/client_temp /var/cache/nginx/proxy_temp /var/cache/nginx/fastcgi_temp /var/cache/nginx/uwsgi_temp /var/cache/nginx/scgi_temp
+chown -R nginx:nginx /var/cache/nginx
+
+# Start SvelteKit server in background as sveltekit user
+cd /app
+su sveltekit -s /bin/sh -c "node build" &
+SVELTEKIT_PID=\$!
+
+# Wait a moment for SvelteKit to start
+sleep 2
+
+# Start nginx in foreground as root (needed for port 80)
+nginx -g "daemon off;" &
+NGINX_PID=\$!
+
+# Function to handle shutdown
+cleanup() {
+    echo "Shutting down..."
+    kill \$SVELTEKIT_PID \$NGINX_PID 2>/dev/null || true
+    wait
+    exit 0
+}
+
+# Set up signal handlers
+trap cleanup SIGTERM SIGINT
+
+# Wait for both processes
+wait \$SVELTEKIT_PID \$NGINX_PID
+EOF
+
+RUN chmod +x /app/start.sh
+
+# Keep root user for nginx to bind to port 80
+# USER sveltekit
+
+# Expose port
+EXPOSE 80
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost/health || exit 1
+
+# Start the application with nginx
+CMD ["/app/start.sh"]

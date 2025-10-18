@@ -1,0 +1,12 @@
+# Purpose: Grafana datasource configuration for Prometheus
+# Context: Automatically configures Prometheus as a datasource in Grafana
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true
