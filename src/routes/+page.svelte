@@ -82,8 +82,13 @@
           className="mb-2"
         />
         <div in:fade={{ delay: 200, duration: 800 }}>
+          <img 
+            src="/icons/logo.svg" 
+            alt="Pawsistente Logo" 
+            class="w-24 h-24 mx-auto mb-4"
+          />
           <h1 class="text-5xl font-serif mb-2 text-white font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            🐾 Pawsistente
+            Pawsistente
           </h1>
           <p class="text-xl text-gray-300 mb-8">{t.appSubtitle}</p>
 
@@ -92,14 +97,14 @@
             <div class="flex items-center justify-center gap-2 mb-2">
               <span class="text-orange-400 text-lg font-bold">🚧</span>
               <p class="text-orange-400 text-sm font-mono font-bold">
-                {currentLanguage === 'es' ? 'VERSIÓN ALPHA' : 'ALPHA VERSION'}
+                {currentLanguage === 'es' ? 'VERSIÓN BETA' : 'BETA VERSION'}
               </p>
               <span class="text-orange-400 text-lg font-bold">🚧</span>
             </div>
             <p class="text-orange-300 text-xs text-center">
               {currentLanguage === 'es' 
-                ? 'Esta es una versión temprana. Puede contener errores y funcionalidades incompletas.' 
-                : 'This is an early version. It may contain bugs and incomplete features.'}
+                ? 'Esta es una versión beta. Puede contener errores y funcionalidades incompletas.' 
+                : 'This is a beta version. It may contain bugs and incomplete features.'}
             </p>
           </div>
 

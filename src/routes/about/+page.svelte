@@ -38,7 +38,7 @@
 
 <div class="min-h-screen bg-gradient-to-b from-gray-900 to-black">
   <Header 
-    title="{t.about} 🐾 Pawsistente"
+    title="{t.about} Pawsistente"
     showVersion={true}
     padding="sm"
   />
@@ -47,8 +47,14 @@
 
     <!-- Main Content -->
     <div class="space-y-8">
+
       <!-- Project Description -->
       <div class="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-8" in:scale={{ duration: 600, delay: 200 }}>
+          <img 
+            src="/icons/logo.svg" 
+            alt="Pawsistente Logo" 
+            class="w-24 h-24 mx-auto mb-4"
+          />
         <p class="text-lg text-gray-300 font-serif leading-relaxed mb-4">
           {t.projectDescription}
         </p>

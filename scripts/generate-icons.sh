@@ -62,9 +62,9 @@ echo -e "${YELLOW}📋 Generating site.webmanifest...${NC}"
 # Create site.webmanifest
 cat > static/site.webmanifest << EOF
 {
-  "name": "🐾 Pawsistente - Confuror Calendar",
+  "name": "Pawsistente",
   "short_name": "Pawsistente",
-  "description": "Plan your perfect schedule for Confuror 2025! Swipe, select, and sync with your favorite calendar app.",
+  "description": "Una aplicación para que los furros planifiquen su horario de Confuror 2025. Desliza, selecciona y sincroniza con tu calendario favorito.",
   "start_url": "/",
   "id": "/",
   "display": "standalone",

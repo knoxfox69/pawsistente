@@ -26,12 +26,12 @@ export class CSVEventReader {
 
     try {
       // Try to load the appropriate language file, fallback to Spanish
-      const csvPath = language === 'es' ? '/schedule_spanish.csv' : '/schedule_english.csv';
+      const csvPath = language === 'es' ? '/schedule.csv' : '/schedule_english.csv';
       const response = await fetch(csvPath);
       
       if (!response.ok) {
         // Fallback to Spanish if language-specific file doesn't exist
-        const fallbackResponse = await fetch('/schedule_spanish.csv');
+        const fallbackResponse = await fetch('/schedule.csv');
         if (!fallbackResponse.ok) {
           throw new Error('No CSV file found');
         }

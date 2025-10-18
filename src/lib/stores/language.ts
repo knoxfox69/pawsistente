@@ -4,7 +4,7 @@
 export type Language = 'es' | 'en';
 
 // Unified version constant
-export const APP_VERSION = '0.3.9-alpha';
+export const APP_VERSION = '0.9.5-beta';
 
 export interface Translations {
   // Landing page
@@ -84,7 +84,7 @@ export interface Translations {
 
 const translations: Record<Language, Translations> = {
   es: {
-    appTitle: '🐾 Pawsistente',
+    appTitle: 'Pawsistente',
     appSubtitle: '¡Planifica tu horario perfecto para Confuror 2025!',
     browseEvents: 'Explorar Eventos',
     
@@ -126,7 +126,7 @@ const translations: Record<Language, Translations> = {
     language: 'Idioma',
     about: 'Acerca de',
     version: 'Versión',
-    projectDescription: 'Una aplicación estilo TikTok para que los furros planifiquen su horario de Confuror 2025. Desliza, selecciona y sincroniza con tu calendario favorito.',
+    projectDescription: 'Una aplicación para que los furros planifiquen su horario de Confuror 2025. Desliza, selecciona y sincroniza con tu calendario favorito.',
     madeFor: 'Hecho con ❤️ para la comunidad furry',
     
     thursday: 'Jueves',
@@ -152,7 +152,7 @@ const translations: Record<Language, Translations> = {
     revisitSkipped: 'Revisar eventos omitidos'
   },
   en: {
-    appTitle: '🐾 Pawsistente',
+    appTitle: 'Pawsistente',
     appSubtitle: 'Plan your perfect schedule for Confuror 2025!',
     browseEvents: 'Browse Events',
     
@@ -194,7 +194,7 @@ const translations: Record<Language, Translations> = {
     language: 'Language',
     about: 'About',
     version: 'Version',
-    projectDescription: 'A TikTok-style app for furries to plan their Confuror 2025 schedule. Swipe, select, and sync with your favorite calendar app.',
+    projectDescription: 'An app for furries to plan their Confuror 2025 schedule. Swipe, select, and sync with your favorite calendar app.',
     madeFor: 'Built with ❤️ for the furry community :3',
     
     thursday: 'Thursday',

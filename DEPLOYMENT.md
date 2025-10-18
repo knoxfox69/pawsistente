@@ -15,7 +15,7 @@ This is an **ALPHA VERSION** of Pawsistente. It may contain bugs and incomplete 
 ## 🗂️ Data Source
 
 The application now reads event data from CSV files instead of MongoDB:
-- `static/schedule_spanish.csv` - Spanish events (fallback)
+- `static/schedule.csv` - Spanish events (fallback)
 - `static/schedule_english.csv` - English events
 
 ## 🚀 Deployment Options
@@ -35,7 +35,7 @@ The app can be deployed as a static site to platforms like:
 
 2. **Deploy the `build/` directory** to your static hosting platform.
 
-3. **Ensure CSV files are accessible** at `/schedule_spanish.csv` and `/schedule_english.csv`.
+3. **Ensure CSV files are accessible** at `/schedule.csv` and `/schedule_english.csv`.
 
 ### Option 2: Docker Deployment
 
@@ -71,7 +71,7 @@ The app can be deployed as a static site to platforms like:
 ## 📁 Required Files
 
 Ensure these files are present in your deployment:
-- `static/schedule_spanish.csv` - Spanish event schedule
+- `static/schedule.csv` - Spanish event schedule
 - `static/schedule_english.csv` - English event schedule (optional)
 - All built assets in `build/` directory
 

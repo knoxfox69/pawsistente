@@ -1,4 +1,4 @@
-# 🐾 Pawsistente - Confuror Calendar
+# Pawsistente - Confuror Calendar
 
 A TikTok-style event browsing app for Mexican furries attending Confuror 2025. Swipe through events, select your favorites, and export to your calendar.
 
@@ -53,7 +53,7 @@ This is **NOT** an official Confuror application. It's a community project built
 
 The app reads event data from CSV files located in the `static/` directory:
 
-- `static/schedule_spanish.csv` - Spanish events (fallback)
+- `static/schedule.csv` - Spanish events (fallback)
 - `static/schedule_english.csv` - English events
 
 ### CSV Format
