@@ -9,7 +9,7 @@ echo "🚀 Deploying Pawsistente Production Stack..."
 
 # Build the production image
 echo "📦 Building production Docker image..."
-docker-compose -f docker-compose.prod.yml build app
+docker compose -f docker-compose.prod.yml build app
 
 echo "✅ Build complete!"
 echo ""
