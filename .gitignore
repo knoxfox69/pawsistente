@@ -24,3 +24,4 @@ vite.config.ts.timestamp-*
 
 # SQLite
 *.db
+static/access_codes.csv
