@@ -199,9 +199,6 @@ RUN chmod +x /app/start.sh
 # Keep root user for nginx to bind to port 80
 # USER sveltekit
 
-# Expose port
-EXPOSE 80
-
 # Set environment variables
 ENV NODE_ENV=production
 ENV PORT=3000

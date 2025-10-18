@@ -1,0 +1,39 @@
+# Purpose: Cosmos Cloud deployment configuration
+# Context: Optimized for Cosmos Cloud routing and port management
+
+version: '3.8'
+
+services:
+  # Main Application for Cosmos Cloud
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.cosmos
+    container_name: pawsistente-cosmos
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+    networks:
+      - pawsistente-network
+    volumes:
+      - ./static:/app/static:ro
+      - app-logs:/app/logs
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Don't expose ports - let Cosmos handle routing
+    expose:
+      - "3000"
+
+networks:
+  pawsistente-network:
+    driver: bridge
+
+volumes:
+  app-logs:
+    driver: local
