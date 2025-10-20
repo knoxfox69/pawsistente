@@ -15,6 +15,7 @@
   import { ConventionAPI } from '$lib/convention/api';
   import AddEventOverlay from '$lib/components/AddEventOverlay.svelte';
   import Header from '$lib/components/Header.svelte';
+  import { NotificationManager } from '$lib/utils/notifications';
   import type { ConventionEvent } from '$lib/convention/types';
   
   let showOverlay = $state(false);
@@ -36,11 +37,18 @@
 
   let unsubscribeAppState: (() => void) | undefined;
   let unsubscribeLanguage: (() => void) | undefined;
+  let notificationManager: NotificationManager;
 
   onMount(() => {
+    // Initialize notification manager
+    notificationManager = NotificationManager.getInstance();
+    notificationManager.initialize();
+
     // Subscribe to app state changes
     unsubscribeAppState = appState.subscribe(() => {
       selectedEvents = appState.selectedEvents;
+      // Schedule notifications for newly selected events
+      scheduleEventNotifications();
     });
 
     // Subscribe to language changes
@@ -48,6 +56,9 @@
       t = languageStore.translations;
       currentLanguage = languageStore.currentLanguage;
     });
+
+    // Schedule notifications for existing events
+    scheduleEventNotifications();
 
     // Set initial day to today or first day with events
     const now = new Date();
@@ -74,6 +85,22 @@
       unsubscribeLanguage();
     }
   });
+
+  // Purpose: Schedule notifications for selected events
+  // Context: Sets up reminder notifications based on user preferences
+  function scheduleEventNotifications() {
+    if (!notificationManager || !notificationManager.canNotify()) {
+      return;
+    }
+
+    selectedEvents.forEach(event => {
+      // Parse event start time
+      const eventDate = new Date(event.startTime);
+      if (eventDate && !isNaN(eventDate.getTime())) {
+        notificationManager.scheduleEventReminder(event.title, eventDate);
+      }
+    });
+  }
 
   const formatTime = (timeString: string) => {
     const date = new Date(timeString);

@@ -9,6 +9,9 @@
   "background_color": "#111827",
   "theme_color": "#3B82F6",
   "categories": ["productivity", "calendar", "events"],
+  "scope": "/",
+  "lang": "es",
+  "dir": "ltr",
   "icons": [
     {
       "src": "/favicon-16x16.png",
@@ -38,6 +41,16 @@
       "name": "Browse Events",
       "url": "/events",
       "description": "Browse and select Confuror events"
+    },
+    {
+      "name": "My Schedule",
+      "url": "/schedule",
+      "description": "View your personal schedule"
+    },
+    {
+      "name": "Settings",
+      "url": "/settings",
+      "description": "App settings and preferences"
     }
   ]
 }

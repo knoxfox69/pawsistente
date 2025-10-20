@@ -6,34 +6,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fade, scale } from 'svelte/transition';
-  import { RotateCcw } from 'lucide-svelte';
   import { languageStore, APP_VERSION } from '$lib/stores/language';
-  import { appState } from '$lib/stores/appState';
-  import { goto } from '$app/navigation';
   import { MessageCircle } from 'lucide-svelte';
   import Header from '$lib/components/Header.svelte';
 
   let t = $derived(languageStore.translations);
-  let showResetConfirm = $state(false);
 
   onMount(() => {
     languageStore.loadFromStorage();
   });
-
-  const handleReset = () => {
-    showResetConfirm = true;
-  };
-
-  const confirmReset = () => {
-    appState.clearState();
-    localStorage.removeItem('manually-added-events');
-    showResetConfirm = false;
-    goto('/');
-  };
-
-  const cancelReset = () => {
-    showResetConfirm = false;
-  };
 </script>
 
 <div class="min-h-screen bg-gradient-to-b from-gray-900 to-black">
@@ -86,47 +67,7 @@
             
           </div>
         </div>
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-5 mt-4">
-            <button
-              onclick={handleReset}
-              class="flex items-center gap-2 px-6 py-3 bg-red-500/20 text-red-400 rounded-lg border border-red-400/30 hover:bg-red-500/30 transition-colors"
-            >
-              <RotateCcw class="w-4 h-4" />
-              <span>{languageStore.currentLanguage === 'es' ? 'Resetear Progreso' : 'Reset Progress'}</span>
-            </button>
-          </div>
       </div>
     </div>
   </div>
-
-  <!-- Reset Confirmation Dialog -->
-  {#if showResetConfirm}
-    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" in:fade={{ duration: 500 }}>
-      <div class="bg-gray-800/95 backdrop-blur-sm rounded-2xl p-8 text-center max-w-lg mx-4" in:scale={{ duration: 600 }}>
-        <div class="text-6xl mb-6">⚠️</div>
-        <h3 class="text-2xl font-serif text-white mb-6">
-          {languageStore.currentLanguage === 'es' ? '¿Resetear Progreso?' : 'Reset Progress?'}
-        </h3>
-        <p class="text-gray-300 mb-8">
-          {languageStore.currentLanguage === 'es' 
-            ? 'Esto eliminará todos tus eventos seleccionados y progreso guardado. Esta acción no se puede deshacer.'
-            : 'This will remove all your selected events and saved progress. This action cannot be undone.'}
-        </p>
-        <div class="flex gap-4 justify-center">
-          <button
-            onclick={cancelReset}
-            class="px-6 py-3 bg-gray-400/20 text-gray-400 rounded-lg border border-gray-400/30 hover:bg-gray-400/30 transition-colors"
-          >
-            {languageStore.currentLanguage === 'es' ? 'Cancelar' : 'Cancel'}
-          </button>
-          <button
-            onclick={confirmReset}
-            class="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-red-500/25"
-          >
-            {languageStore.currentLanguage === 'es' ? 'Resetear' : 'Reset'}
-          </button>
-        </div>
-      </div>
-    </div>
-  {/if}
 </div>
