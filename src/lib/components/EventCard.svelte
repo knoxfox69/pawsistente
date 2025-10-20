@@ -11,7 +11,7 @@
   import { languageStore } from '$lib/stores/language';
   import { ConflictDetector } from '$lib/utils/conflictDetector';
   import { getDayAbbreviation } from '$lib/utils/dateUtils';
-
+  import { Tag, Plus } from 'lucide-svelte';
   interface Props {
     event: ConventionEvent;
     isSelected: boolean;
@@ -257,6 +257,9 @@
       </p>
     </div>
 
+    <!-- Line divider -->
+    <div class="w-full h-px bg-gray-700/50 mb-6"></div>
+
     <!-- Event details -->
     <div class="space-y-3 mb-6">
       <!-- Location -->
@@ -278,15 +281,25 @@
       {/if}
 
       <!-- Category/Track -->
-      {#if event.track}
-        <div class="flex flex-wrap gap-2 mt-4">
-          <span class="px-3 py-1 rounded-full text-sm font-mono {getTrackColor(event.track)}">
-            {t.category}: {event.track}
+      {#if event.category}
+        <div class="flex items-center gap-3">
+          <Tag class="w-4 h-4" />
+          <span class="text-gray-300 font-mono">
+            {event.category}
           </span>
+        </div>
+        {/if}
+      </div>
+      <!-- NSFW Warning: +18 badge, anchored to the right bottom corner of the event card -->
+      {#if event.nsfw}
+        <div class="absolute bottom-4 right-4 z-20">
+          <div class="flex items-center gap-1 px-3 py-1 bg-black/65 rounded-full border border-red-400/40 backdrop-blur-md shadow-lg">
+            <Plus class="w-4 h-4 text-red-400" aria-label="plus" />
+            <span class="font-mono text-sm text-red-400">18</span>
+          </div>
         </div>
       {/if}
     </div>
-  </div>
   </div>
 
   <!-- Action buttons (desktop fallback) -->

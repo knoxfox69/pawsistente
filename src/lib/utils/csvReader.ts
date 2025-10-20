@@ -12,6 +12,7 @@ export interface CSVEvent {
   hosted_by: string;
   category: string;
   description: string;
+  nsfw?: boolean;
 }
 
 export class CSVEventReader {
@@ -72,7 +73,8 @@ export class CSVEventReader {
         title: values[4]?.trim() || '',
         hosted_by: values[5]?.trim() || '',
         category: values[6]?.trim() || '',
-        description: values[7]?.trim() || ''
+        description: values[7]?.trim() || '',
+        nsfw: values[8]?.trim() === '1' ? true : false
       };
 
       // Skip events with empty titles
@@ -146,7 +148,9 @@ export class CSVEventReader {
         panelist: csvEvent.hosted_by || undefined,
         day,
         timeSlot,
-        isSelected: false
+        isSelected: false,
+        category: csvEvent.category || undefined,
+        nsfw: csvEvent.nsfw || false
       };
     } catch (error) {
       console.error('Error converting CSV event:', error, csvEvent);

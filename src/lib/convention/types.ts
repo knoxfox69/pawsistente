@@ -9,16 +9,16 @@ export interface ConventionEvent {
   endTime: string; // ISO 8601 format
   location: string;
   room?: string;
-  track?: string; // e.g., "Art", "Fursuit", "Social", "Educational"
+  category?: string; // e.g., "Art", "Fursuit", "Social", "Educational"
   difficulty?: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
   capacity?: number;
   currentAttendees?: number;
   imageUrl?: string;
   panelist?: string;
-  tags: string[];
   day: 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
   timeSlot: string; // e.g., "10:00-11:00", "14:00-15:30"
   isSelected?: boolean;
+  nsfw?: boolean;
 }
 
 export interface DaySelection {
