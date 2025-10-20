@@ -15,6 +15,7 @@ export class PWAManager {
   private deferredPrompt: BeforeInstallPromptEvent | null = null;
   private isInstalled = false;
   private installPromptCallback: (() => void) | null = null;
+  private userEngagementScore = 0;
 
   private constructor() {
     this.checkInstallStatus();
@@ -37,7 +38,7 @@ export class PWAManager {
     // Listen for the beforeinstallprompt event
     window.addEventListener('beforeinstallprompt', (e) => {
       console.log('beforeinstallprompt event fired', e);
-      e.preventDefault();
+      // Don't prevent default - let browser show its own install UI
       this.deferredPrompt = e as BeforeInstallPromptEvent;
       console.log('PWA install prompt available', this.deferredPrompt);
       
@@ -61,6 +62,10 @@ export class PWAManager {
     
     // Check if already installed
     this.checkInstallStatus();
+    
+    // Track user engagement
+    this.trackUserEngagement();
+    
     console.log('PWA manager initialized. Can install:', this.canInstall());
   }
 
@@ -134,6 +139,96 @@ export class PWAManager {
     return this.isInstalled;
   }
 
+  // Purpose: Track user engagement to help trigger install prompt
+  // Context: Browsers need to see user interaction before showing install prompts
+  private trackUserEngagement(): void {
+    if (typeof window === 'undefined') return;
+
+    // Track clicks
+    document.addEventListener('click', () => {
+      this.userEngagementScore += 1;
+      console.log('User engagement score:', this.userEngagementScore);
+    });
+
+    // Track page interactions
+    document.addEventListener('scroll', () => {
+      this.userEngagementScore += 0.5;
+    });
+
+    // Track form interactions
+    document.addEventListener('input', () => {
+      this.userEngagementScore += 0.5;
+    });
+
+    // Check if we should show install prompt after engagement
+    setTimeout(() => {
+      if (this.userEngagementScore >= 3 && !this.canInstall()) {
+        console.log('High user engagement detected, checking for install prompt...');
+        // Sometimes the prompt becomes available after user interaction
+        this.checkInstallStatus();
+      }
+    }, 10000); // Check after 10 seconds of interaction
+  }
+
+  // Purpose: Check if app meets PWA criteria
+  // Context: Validates PWA requirements for install prompt
+  public checkPWACriteria() {
+    if (typeof window === 'undefined') return { valid: false, reasons: ['Not in browser'] };
+
+    const reasons = [];
+    let valid = true;
+
+    // Check HTTPS
+    if (!window.isSecureContext) {
+      reasons.push('Not HTTPS');
+      valid = false;
+    }
+
+    // Check if already installed
+    if (this.isInstalled) {
+      reasons.push('Already installed');
+      valid = false;
+    }
+
+    // Check if in standalone mode
+    if (window.matchMedia('(display-mode: standalone)').matches) {
+      reasons.push('Already in standalone mode');
+      valid = false;
+    }
+
+    // Check if beforeinstallprompt event fired
+    if (!this.deferredPrompt) {
+      reasons.push('beforeinstallprompt event not fired');
+      valid = false;
+    }
+
+    // Additional checks based on documentation
+    const userAgent = navigator.userAgent.toLowerCase();
+    
+    // Check browser support
+    if (userAgent.includes('firefox') && !userAgent.includes('mobile')) {
+      reasons.push('Firefox desktop does not support PWA installation');
+      valid = false;
+    }
+
+    // Check if iOS and not Safari
+    if (userAgent.includes('iphone') || userAgent.includes('ipad')) {
+      if (!userAgent.includes('safari')) {
+        reasons.push('iOS requires Safari for PWA installation');
+        valid = false;
+      }
+    }
+
+    // Check manifest requirements
+    const manifestLink = document.querySelector('link[rel="manifest"]');
+    if (!manifestLink) {
+      reasons.push('No manifest link found');
+      valid = false;
+    }
+
+    return { valid, reasons };
+  }
+
   // Purpose: Get debug information
   // Context: Returns internal state for debugging
   public getDebugInfo() {
@@ -142,7 +237,11 @@ export class PWAManager {
       isInstalled: this.isInstalled,
       canInstall: this.canInstall(),
       userAgent: typeof window !== 'undefined' ? window.navigator.userAgent : 'N/A',
-      standalone: typeof window !== 'undefined' ? window.matchMedia('(display-mode: standalone)').matches : false
+      standalone: typeof window !== 'undefined' ? window.matchMedia('(display-mode: standalone)').matches : false,
+      isSecureContext: typeof window !== 'undefined' ? window.isSecureContext : false,
+      protocol: typeof window !== 'undefined' ? window.location.protocol : 'N/A',
+      hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A',
+      pwaCriteria: this.checkPWACriteria()
     };
   }
 }

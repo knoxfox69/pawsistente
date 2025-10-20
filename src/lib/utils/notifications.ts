@@ -1,7 +1,7 @@
 // Purpose: Notification management system for event reminders
 // Context: Handles browser notifications with configurable timing
 
-export type NotificationTiming = 'off' | '15min' | '30min';
+export type NotificationTiming = '15min' | '30min' | '60min';
 
 export interface NotificationSettings {
   enabled: boolean;
@@ -12,7 +12,7 @@ export class NotificationManager {
   private static instance: NotificationManager;
   private settings: NotificationSettings = {
     enabled: false,
-    timing: 'off'
+    timing: '15min'
   };
 
   private constructor() {
@@ -80,7 +80,7 @@ export class NotificationManager {
   // Purpose: Schedule event reminder notification
   // Context: Schedules a notification for an event based on timing settings
   public scheduleEventReminder(eventTitle: string, eventStartTime: Date): void {
-    if (!this.canNotify() || this.settings.timing === 'off') {
+    if (!this.canNotify()) {
       return;
     }
 
@@ -94,6 +94,9 @@ export class NotificationManager {
         break;
       case '30min':
         reminderTime = timeDiff - (30 * 60 * 1000);
+        break;
+      case '60min':
+        reminderTime = timeDiff - (60 * 60 * 1000);
         break;
     }
 
@@ -158,7 +161,13 @@ export class NotificationManager {
     try {
       const saved = localStorage.getItem('notificationSettings');
       if (saved) {
-        this.settings = { ...this.settings, ...JSON.parse(saved) };
+        const loadedSettings = JSON.parse(saved);
+        // Migrate 'off' timing to '15min' and disable notifications
+        if (loadedSettings.timing === 'off') {
+          loadedSettings.timing = '15min';
+          loadedSettings.enabled = false;
+        }
+        this.settings = { ...this.settings, ...loadedSettings };
       }
     } catch (error) {
       console.error('Error loading notification settings:', error);

@@ -5,14 +5,11 @@
   import { PWAManager } from '$lib/utils/pwa';
   import { NotificationManager } from '$lib/utils/notifications';
   import Header from '$lib/components/Header.svelte';
-  import { Download, X } from 'lucide-svelte';
 
   let hasVisited = $state(false);
   let visible = $state(false);
   let t = $state(languageStore.translations);
   let currentLanguage = $state(languageStore.currentLanguage);
-  let showInstallPrompt = $state(false);
-  let canInstall = $state(false);
 
   // Language store subscription
   let unsubscribe: (() => void) | undefined;
@@ -32,18 +29,6 @@
     // Initialize PWA manager
     pwaManager = PWAManager.getInstance();
     pwaManager.initialize();
-    
-    // Set up install prompt callback
-    pwaManager.setInstallPromptCallback(() => {
-      canInstall = true;
-      // Show install prompt if user hasn't dismissed it and hasn't seen it before
-      if (!localStorage.getItem('installPromptDismissed') && !localStorage.getItem('hasSeenInstallPrompt')) {
-        setTimeout(() => {
-          showInstallPrompt = true;
-          localStorage.setItem('hasSeenInstallPrompt', 'true');
-        }, 2000);
-      }
-    });
 
     // Initialize notification manager
     notificationManager = NotificationManager.getInstance();
@@ -56,39 +41,7 @@
     }
   });
 
-  const handleInstall = async () => {
-    const success = await pwaManager.promptInstall();
-    if (success) {
-      showInstallPrompt = false;
-      canInstall = false;
-    }
-  };
 
-  const dismissInstallPrompt = () => {
-    showInstallPrompt = false;
-    localStorage.setItem('installPromptDismissed', 'true');
-  };
-
-  // Test notification function
-  const testNotification = async () => {
-    console.log('Testing notification...');
-    if (notificationManager?.canNotify()) {
-      await notificationManager.sendNotification(
-        'Test Notification',
-        {
-          body: 'This is a test notification from Pawsistente!',
-          icon: '/android-chrome-192x192.png',
-          tag: 'test-notification'
-        }
-      );
-      console.log('Test notification sent');
-    } else {
-      console.log('Cannot send notification - permission not granted');
-      alert(currentLanguage === 'es' 
-        ? 'No se pueden enviar notificaciones. Ve a Configuración para habilitarlas.'
-        : 'Cannot send notifications. Go to Settings to enable them.');
-    }
-  };
 </script>
 
 <div class="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-900 via-purple-900/20 to-black">
@@ -209,73 +162,12 @@
               {t.about}
             </a>
 
-            <!-- Notification Test Button -->
-            <button
-              onclick={testNotification}
-              class="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg border border-green-400/30 hover:bg-green-500/30 transition-colors text-sm"
-              in:fade={{ delay: 1300, duration: 800 }}
-            >
-              {currentLanguage === 'es' ? 'Probar Notificación' : 'Test Notification'}
-            </button>
           </div>
         </div>
       </div>
     {/if}
   </div>
 
-  <!-- PWA Install Prompt -->
-  {#if showInstallPrompt}
-    <div class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4" in:fade={{ duration: 500 }}>
-      <div class="bg-gray-800/95 backdrop-blur-sm rounded-2xl p-8 text-center max-w-lg mx-4" in:scale={{ duration: 600 }}>
-        <div class="flex justify-end mb-4">
-          <button
-            onclick={dismissInstallPrompt}
-            class="text-gray-400 hover:text-white transition-colors"
-          >
-            <X class="w-6 h-6" />
-          </button>
-        </div>
-        
-        <div class="text-6xl mb-6">📱</div>
-        <h3 class="text-2xl font-serif text-white mb-6">
-          {currentLanguage === 'es' ? '¡Instala Pawsistente!' : 'Install Pawsistente!'}
-        </h3>
-        <p class="text-gray-300 mb-6">
-          {currentLanguage === 'es' 
-            ? 'Instala la app en tu dispositivo para una mejor experiencia, acceso offline y notificaciones de eventos.'
-            : 'Install the app on your device for a better experience, offline access, and event notifications.'}
-        </p>
-        
-        <!-- Manual Install Instructions -->
-        <div class="bg-gray-700/30 rounded-lg p-4 mb-6 text-left">
-          <h4 class="text-white font-medium mb-2">
-            {currentLanguage === 'es' ? 'Instrucciones de instalación:' : 'Installation instructions:'}
-          </h4>
-          <div class="text-sm text-gray-300 space-y-2">
-            <p><strong>Chrome:</strong> {currentLanguage === 'es' ? 'Toca el menú (⋮) → "Instalar app"' : 'Tap menu (⋮) → "Install app"'}</p>
-            <p><strong>Samsung Browser:</strong> {currentLanguage === 'es' ? 'Toca el menú (⋮) → "Añadir a pantalla de inicio"' : 'Tap menu (⋮) → "Add to Home screen"'}</p>
-            <p><strong>Firefox:</strong> {currentLanguage === 'es' ? 'Toca el menú (⋮) → "Instalar"' : 'Tap menu (⋮) → "Install"'}</p>
-          </div>
-        </div>
-        
-        <div class="flex gap-4 justify-center">
-          <button
-            onclick={dismissInstallPrompt}
-            class="px-6 py-3 bg-gray-400/20 text-gray-400 rounded-lg border border-gray-400/30 hover:bg-gray-400/30 transition-colors"
-          >
-            {currentLanguage === 'es' ? 'Ahora no' : 'Not now'}
-          </button>
-          <button
-            onclick={handleInstall}
-            class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium rounded-lg transition-all duration-200 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 flex items-center gap-2"
-          >
-            <Download class="w-4 h-4" />
-            {currentLanguage === 'es' ? 'Instalar' : 'Install'}
-          </button>
-        </div>
-      </div>
-    </div>
-  {/if}
 
 </div>
 

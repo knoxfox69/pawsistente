@@ -17,7 +17,7 @@
   let canInstall = $state(false);
   let notificationSettings = $state({
     enabled: false,
-    timing: 'off' as NotificationTiming
+    timing: '15min' as NotificationTiming
   });
 
   let pwaManager: PWAManager;
@@ -93,54 +93,15 @@
 
   const getTimingLabel = (timing: NotificationTiming) => {
     switch (timing) {
-      case 'off':
-        return languageStore.currentLanguage === 'es' ? 'Desactivado' : 'Off';
       case '15min':
         return languageStore.currentLanguage === 'es' ? '15 minutos antes' : '15 minutes before';
       case '30min':
         return languageStore.currentLanguage === 'es' ? '30 minutos antes' : '30 minutes before';
+      case '60min':
+        return languageStore.currentLanguage === 'es' ? '60 minutos antes' : '60 minutes before';
     }
   };
 
-  // Test notification function
-  const testNotification = async () => {
-    console.log('Testing notification...');
-    if (notificationManager.canNotify()) {
-      await notificationManager.sendNotification(
-        'Test Notification',
-        {
-          body: 'This is a test notification from Pawsistente!',
-          icon: '/android-chrome-192x192.png',
-          tag: 'test-notification'
-        }
-      );
-      console.log('Test notification sent');
-    } else {
-      console.log('Cannot send notification - permission not granted');
-      alert(languageStore.currentLanguage === 'es' 
-        ? 'No se pueden enviar notificaciones. Verifica los permisos en la configuración del navegador.'
-        : 'Cannot send notifications. Check browser permissions.');
-    }
-  };
-
-  // Test event reminder function
-  const testEventReminder = async () => {
-    console.log('Testing event reminder...');
-    if (notificationManager.canNotify()) {
-      // Schedule a test event reminder for 5 seconds from now
-      const testEventTime = new Date(Date.now() + 5000);
-      notificationManager.scheduleEventReminder('Test Event', testEventTime);
-      console.log('Test event reminder scheduled for 5 seconds from now');
-      alert(languageStore.currentLanguage === 'es' 
-        ? 'Recordatorio de evento de prueba programado para 5 segundos.'
-        : 'Test event reminder scheduled for 5 seconds.');
-    } else {
-      console.log('Cannot send notification - permission not granted');
-      alert(languageStore.currentLanguage === 'es' 
-        ? 'No se pueden enviar notificaciones. Verifica los permisos en la configuración del navegador.'
-        : 'Cannot send notifications. Check browser permissions.');
-    }
-  };
 </script>
 
 <div class="min-h-screen bg-gradient-to-b from-gray-900 to-black">
@@ -169,19 +130,39 @@
         {#if canInstall}
           <button
             onclick={handleInstall}
-            class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:scale-105 transition-transform"
+            class="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:scale-105 transition-transform mb-4"
           >
             {languageStore.currentLanguage === 'es' ? 'Instalar Ahora' : 'Install Now'}
           </button>
         {:else}
-          <div class="text-center">
-            <p class="text-gray-400 text-sm">
-              {languageStore.currentLanguage === 'es' 
-                ? 'La app ya está instalada o no se puede instalar en este dispositivo.'
-                : 'App is already installed or cannot be installed on this device.'}
-            </p>
+          <div class="text-center mb-4">
           </div>
         {/if}
+
+        <!-- Manual Install Instructions -->
+        <div class="bg-gray-700/30 rounded-lg p-4">
+          <h4 class="text-white font-medium mb-3">
+            {languageStore.currentLanguage === 'es' ? 'Instrucciones de instalación manual:' : 'Manual installation instructions:'}
+          </h4>
+          <div class="text-sm text-gray-300 space-y-3">
+            <div>
+              <p class="font-medium text-gray-200 mb-1">📱 <strong>Android (Chrome/Samsung/Edge):</strong></p>
+              <p>{languageStore.currentLanguage === 'es' ? 'Toca el menú (⋮) → "Instalar app" o "Añadir a pantalla de inicio"' : 'Tap menu (⋮) → "Install app" or "Add to Home screen"'}</p>
+            </div>
+            <div>
+              <p class="font-medium text-gray-200 mb-1">💻 <strong>Desktop (Chrome/Edge):</strong></p>
+              <p>{languageStore.currentLanguage === 'es' ? 'Toca el icono de instalación en la barra de direcciones o menú (⋮) → "Instalar app"' : 'Tap install icon in address bar or menu (⋮) → "Install app"'}</p>
+            </div>
+            <div>
+              <p class="font-medium text-gray-200 mb-1">🍎 <strong>iOS (Safari):</strong></p>
+              <p>{languageStore.currentLanguage === 'es' ? 'Toca el botón Compartir (□↑) → "Añadir a pantalla de inicio"' : 'Tap Share button (□↑) → "Add to Home Screen"'}</p>
+            </div>
+            <div>
+              <p class="font-medium text-gray-200 mb-1">🦊 <strong>Firefox:</strong></p>
+              <p>{languageStore.currentLanguage === 'es' ? 'Solo funciona en móviles: menú (⋮) → "Instalar"' : 'Mobile only: menu (⋮) → "Install"'}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Notifications Section -->
@@ -226,7 +207,7 @@
                 {languageStore.currentLanguage === 'es' ? 'Recordar eventos' : 'Remind me'}
               </p>
               <div class="space-y-2">
-                {#each ['off', '15min', '30min'] as timing}
+                {#each ['15min', '30min', '60min'] as timing}
                   <label class="flex items-center gap-3 cursor-pointer">
                     <input
                       type="radio"
@@ -242,33 +223,6 @@
             </div>
           {/if}
 
-          <!-- Test Notifications Section -->
-          {#if notificationSettings.enabled}
-            <div class="mt-6 pt-4 border-t border-gray-600">
-              <p class="text-gray-300 font-medium mb-3">
-                {languageStore.currentLanguage === 'es' ? 'Probar Notificaciones' : 'Test Notifications'}
-              </p>
-              <div class="flex gap-2">
-                <button
-                  onclick={testNotification}
-                  class="px-4 py-2 bg-blue-500/20 text-blue-400 rounded-lg border border-blue-400/30 hover:bg-blue-500/30 transition-colors text-sm"
-                >
-                  {languageStore.currentLanguage === 'es' ? 'Notificación de Prueba' : 'Test Notification'}
-                </button>
-                <button
-                  onclick={testEventReminder}
-                  class="px-4 py-2 bg-green-500/20 text-green-400 rounded-lg border border-green-400/30 hover:bg-green-500/30 transition-colors text-sm"
-                >
-                  {languageStore.currentLanguage === 'es' ? 'Recordatorio de Prueba' : 'Test Reminder'}
-                </button>
-              </div>
-              <p class="text-gray-400 text-xs mt-2">
-                {languageStore.currentLanguage === 'es' 
-                  ? 'El recordatorio de prueba se enviará en 5 segundos'
-                  : 'Test reminder will be sent in 5 seconds'}
-              </p>
-            </div>
-          {/if}
         </div>
       </div>
 
