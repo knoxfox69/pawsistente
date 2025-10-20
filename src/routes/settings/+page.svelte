@@ -269,8 +269,8 @@
           <h3 class="text-lg font-serif text-white mb-2">Pawsistente</h3>
           <p class="text-gray-400 text-sm mb-4">
             {languageStore.currentLanguage === 'es' 
-              ? 'Versión Beta - Confuror 2025'
-              : 'Beta Version - Confuror 2025'}
+              ? 'Prod - Confuror 2025'
+              : 'Prod - Confuror 2025'}
           </p>
           <div class="bg-yellow-400/10 border border-yellow-400/30 rounded-lg p-3">
             <p class="text-yellow-400 text-xs font-mono">

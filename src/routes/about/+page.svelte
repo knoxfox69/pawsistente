@@ -64,7 +64,19 @@
               <MessageCircle class="w-5 h-5" />
               <span>@knoxfox69</span>
             </a>
-            
+          </div>
+          <div class="flex flex-col items-center justify-center gap-4 mt-4">
+            <div class="flex flex-col items-center">
+              <img 
+                src="/icons/logo.svg" 
+                alt="Pawsistente logo by @joseph_yosh"
+                class="w-20 h-20 rounded-full border-2 border-gray-700 shadow-lg mb-2 backdrop-blur-sm"
+                loading="lazy"
+              />
+              <span class="text-gray-400 text-xs font-mono">
+                Logo by <a href="https://t.me/joseph_yosh" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:underline">@joseph_yosh</a>
+              </span>
+            </div>
           </div>
         </div>
       </div>
