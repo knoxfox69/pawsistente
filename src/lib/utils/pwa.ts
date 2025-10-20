@@ -33,28 +33,21 @@ export class PWAManager {
   public initialize(): void {
     if (typeof window === 'undefined') return;
 
-    console.log('Initializing PWA manager...');
-
     // Listen for the beforeinstallprompt event
     window.addEventListener('beforeinstallprompt', (e) => {
-      console.log('beforeinstallprompt event fired', e);
       // Don't prevent default - let browser show its own install UI
       this.deferredPrompt = e as BeforeInstallPromptEvent;
-      console.log('PWA install prompt available', this.deferredPrompt);
       
       // Notify callback if set
       if (this.installPromptCallback) {
-        console.log('Calling install prompt callback');
         this.installPromptCallback();
       }
     });
 
     // Listen for the appinstalled event
     window.addEventListener('appinstalled', () => {
-      console.log('App installed event fired');
       this.isInstalled = true;
       this.deferredPrompt = null;
-      console.log('PWA was installed');
     });
 
     // Register service worker
@@ -65,8 +58,6 @@ export class PWAManager {
     
     // Track user engagement
     this.trackUserEngagement();
-    
-    console.log('PWA manager initialized. Can install:', this.canInstall());
   }
 
   // Purpose: Set callback for when install prompt becomes available
@@ -127,7 +118,6 @@ export class PWAManager {
 
     try {
       const registration = await navigator.serviceWorker.register('/sw.js');
-      console.log('Service Worker registered successfully:', registration);
     } catch (error) {
       console.error('Service Worker registration failed:', error);
     }
@@ -147,7 +137,6 @@ export class PWAManager {
     // Track clicks
     document.addEventListener('click', () => {
       this.userEngagementScore += 1;
-      console.log('User engagement score:', this.userEngagementScore);
     });
 
     // Track page interactions
@@ -163,7 +152,6 @@ export class PWAManager {
     // Check if we should show install prompt after engagement
     setTimeout(() => {
       if (this.userEngagementScore >= 3 && !this.canInstall()) {
-        console.log('High user engagement detected, checking for install prompt...');
         // Sometimes the prompt becomes available after user interaction
         this.checkInstallStatus();
       }

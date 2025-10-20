@@ -1,11 +1,11 @@
 {
-  "dashboard": {
-    "id": null,
-    "title": "Pawsistente - System Metrics",
-    "tags": ["pawsistente", "system", "containers"],
-    "style": "dark",
-    "timezone": "browser",
-    "panels": [
+  "id": null,
+  "uid": "pawsistente-system",
+  "title": "Pawsistente - System Metrics",
+  "tags": ["pawsistente", "system", "containers"],
+  "style": "dark",
+  "timezone": "browser",
+  "panels": [
       {
         "id": 1,
         "title": "Container CPU Usage",
@@ -171,4 +171,3 @@
     "version": 1,
     "links": []
   }
-}

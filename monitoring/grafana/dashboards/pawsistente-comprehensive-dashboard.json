@@ -1,11 +1,11 @@
 {
-  "dashboard": {
-    "id": null,
-    "title": "Pawsistente - Comprehensive Monitoring",
-    "tags": ["pawsistente", "monitoring"],
-    "style": "dark",
-    "timezone": "browser",
-    "panels": [
+  "id": null,
+  "uid": "pawsistente-comprehensive",
+  "title": "Pawsistente - Comprehensive Monitoring",
+  "tags": ["pawsistente", "monitoring"],
+  "style": "dark",
+  "timezone": "browser",
+  "panels": [
       {
         "id": 1,
         "title": "Request Rate (RPS)",
@@ -267,4 +267,3 @@
     "version": 1,
     "links": []
   }
-}

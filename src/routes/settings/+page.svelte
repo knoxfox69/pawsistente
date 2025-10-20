@@ -32,14 +32,12 @@
     
     // Set up install prompt callback
     pwaManager.setInstallPromptCallback(() => {
-      console.log('Settings: Install prompt callback triggered');
       canInstall = true;
     });
     
     // Check current install status
     setTimeout(() => {
       canInstall = pwaManager.canInstall();
-      console.log('Settings: Initial canInstall check:', canInstall);
     }, 1000);
 
     // Initialize notification manager
