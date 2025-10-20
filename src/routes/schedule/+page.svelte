@@ -232,6 +232,13 @@
   const isSearchResultSelected = (eventId: string) => {
     return selectedEvents.some(e => e.id === eventId);
   };
+
+  // Automatically press the button for the first day with events
+  onMount(() => {
+    if (daysWithEvents.length > 0) {
+      selectedDay = daysWithEvents[0];
+    }
+  });
 </script>
 
 <div class="min-h-screen bg-gradient-to-b from-gray-900 to-black">
@@ -354,10 +361,6 @@
                 <div class="flex-1">
                   <h3 class="text-lg font-serif text-white mb-2">{event.title}</h3>
                   
-                  {#if event.description}
-                    <p class="text-gray-300 text-sm mb-3 line-clamp-2">{event.description}</p>
-                  {/if}
-
                   <div class="flex flex-wrap items-center gap-3 text-sm">
                     <div class="flex items-center gap-2 text-blue-400">
                       <Clock class="w-4 h-4" />
@@ -427,8 +430,12 @@
         </div>
 
         <!-- Timeline View -->
+        <!--
+          Only show hours that have at least one upcoming event.
+          We filter the hours array to only include hours where some event for that hour is upcoming.
+        -->
         <div class="space-y-8">
-          {#each hours as hour}
+          {#each hours.filter(hour => (eventsByHour()[hour] || []).some(event => isUpcoming(event.startTime))) as hour}
             <div class="flex gap-6" in:fade={{ duration: 400, delay: hour * 20 }}>
               <!-- Hour marker -->
               <div class="w-24 flex-shrink-0 pt-2">
@@ -463,12 +470,6 @@
                           {event.title}
                         </h3>
                         
-                        {#if event.description}
-                          <p class="text-sm {upcoming ? 'text-gray-300' : 'text-gray-500'} mb-3">
-                            {event.description}
-                          </p>
-                        {/if}
-
                         <div class="flex flex-wrap items-center gap-4 text-sm">
                           <div class="flex items-center gap-2 {upcoming ? 'text-blue-400' : 'text-gray-500'}">
                             <Clock class="w-4 h-4" />
