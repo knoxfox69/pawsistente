@@ -1,153 +1,147 @@
-day,start_time,end_time,location,title,hosted_by,category,description
-thursday,13:00,22:00,Jalisco A: Foro I,Registro,,,
-thursday,02:00:00 PM,03:00:00 PM,Jalisco B: Main Stage,Show Pink Dog Corto,,,
-thursday,04:30:00 PM,05:30:00 PM,Jalisco B: Main Stage,Rufus Rooskram En Vivo,,,
-thursday,06:00:00 PM,08:00:00 PM,Jalisco B: Main Stage,Preparación Drink & Draw,,,
-thursday,08:00:00 PM,01:00:00 AM,Jalisco B: Main Stage,Drink & Draw,,,
-thursday,02:00:00 PM,04:00:00 PM,Jalisco B: Artist Alley,Aprende y juega a poke/digimon TCG,,,
-thursday,02:00:00 PM,03:30:00 PM,Jalisco B: Foro II,El pinche taller de dibujo de los furros mamados,,,
-thursday,03:45:00 PM,04:45:00 PM,Jalisco B: Foro II,Duelo de Espadas ¿Qué es el rol neutro?,,,
-thursday,05:00:00 PM,06:00:00 PM,Jalisco B: Foro II,Como el dinero cambia mi videojuego,,,
-thursday,06:15:00 PM,07:45:00 PM,Jalisco B: Foro II,Taller de dibujo con modelo al desnudo,,,
-thursday,08:00:00 PM,09:00:00 PM,Jalisco B: Foro II,Neopets a media noche,,,
-thursday,02:00:00 PM,03:30:00 PM,Jalisco B: Foro III,"Pelo, Plumas y Escamas para el alma",,,
-thursday,03:45:00 PM,05:15:00 PM,Jalisco B: Foro III,Mapa de VR Chat Confuror,,,
-thursday,05:30:00 PM,06:30:00 PM,Jalisco B: Foro III,¿Qué o quiénes son los furros?,,,
-thursday,06:45:00 PM,07:45:00 PM,Jalisco B: Foro III,Cansado de contar cabras,,,
-thursday,08:00:00 PM,09:30:00 PM,Jalisco B: Foro III,El arquetipo y el totem,,,
-thursday,02:00:00 PM,03:30:00 PM,Jalisco B: Workshop Corner,Kakimashō! Aprendamos caligrafía japonesa,,,
-thursday,03:45:00 PM,05:15:00 PM,Jalisco B: Workshop Corner,Unidad de manada: Consejos para crear una comunidad desde 0,,,
-thursday,05:30:00 PM,06:30:00 PM,Jalisco B: Workshop Corner,El origen de las ideas,,,
-thursday,06:45:00 PM,08:45:00 PM,Jalisco B: Workshop Corner,Diversidad furra,,,
-thursday,09:00:00 PM,10:00:00 PM,Jalisco B: Workshop Corner,Una huella en la pista,,,
-thursday,03:15:00 PM,05:15:00 PM,Jalisco B: Meeting room,Digimon meet & greet,,,
-thursday,05:30:00 PM,07:00:00 PM,Jalisco B: Meeting room,Fatfur meeting,,,
-thursday,07:15:00 PM,09:45:00 PM,Jalisco B: Meeting room,Panel de inflables,,,
-friday,08:00:00 AM,10:00:00 PM,Pasillo Jalisco A-B: Recepción,Registro,,,
-friday,10:00:00 AM,11:30:00 AM,Jalisco B: Main Stage,Ceremonia de apertura,Confuror,,
-friday,11:30:00 AM,12:30:00 PM,Jalisco B: Main Stage,Confuror 101,Confuror,,
-friday,12:45:00 PM,01:45:00 PM,Jalisco B: Main Stage,Presentación del cómic oficial,,,Yuri and the quest for the happy ending
-friday,02:00:00 PM,02:45:00 PM,Jalisco B: Main Stage,Cheetah Paws,,,
-friday,03:15:00 PM,05:15:00 PM,Jalisco B: Main Stage,Show de talentos,"Wolfhug, Confuror",,
-friday,06:00:00 PM,07:00:00 PM,Jalisco B: Main Stage,621 Trukos,,,
-friday,07:00:00 PM,08:00:00 PM,Jalisco B: Main Stage,Aizack: Fur The Night – Under the Neon Moon,Aizack,,
-friday,08:00:00 PM,09:00:00 PM,Jalisco B: Main Stage,UwUri x Metalpup (Siberian Scratch),"Uwuri, Metalpup",,
-friday,09:00:00 PM,10:00:00 PM,Jalisco B: Main Stage,Pawlymarchs: DJ Shusho B2B DJ Noise,"Shusho, Noise",,
-friday,10:00:00 AM,04:00:00 PM,Jalisco B: Artist Alley,Artist Alley,Confuror,,
-friday,05:00:00 PM,07:45:00 PM,Jalisco B: Artist Alley,Torneo de Digimon Card Game 2025,,,
-friday,08:00:00 PM,10:00:00 PM,Jalisco B: Artist Alley,Mercadito de artistas,,,
-friday,12:15:00 PM,01:45:00 PM,Jalisco A: Foro I (Montaje Escuela),"Auxilio, estoy atrapado en el elevador",,,
-friday,02:00:00 PM,04:00:00 PM,Jalisco A: Foro I (Montaje Escuela),Ghosting: ¿Qué hago si no me contesta?,,,
-friday,07:00:00 PM,09:00:00 PM,Jalisco A: Foro I,Howling Gala (Cena),,,
-friday,12:45:00 PM,01:45:00 PM,Jalisco A: Foro I (Lounge general),FURRY SKETCH BATTLES,,,
-friday,02:00:00 PM,04:00:00 PM,Jalisco A: Foro I (Lounge general),¡Jugemos Furrylotería!,,,
-friday,11:30:00 AM,12:30:00 PM,Jalisco B: Foro II,Finanzas personales explicadas con patitas y patitos,,,
-friday,12:45:00 PM,02:15:00 PM,Jalisco B: Foro II,"Build-a-Bear: Cuerpos Fuertes, Almas Peludas",,,
-friday,02:30:00 PM,04:00:00 PM,Jalisco B: Foro II,Salud y Cotorreo de (a) pelos,,,
-friday,04:15:00 PM,05:15:00 PM,Jalisco B: Foro II,El Bestiario (Animales Fantásticos),,,
-friday,05:30:00 PM,06:30:00 PM,Jalisco B: Foro II,Fat Fur Art: Los cuerpos gordos en el arte furry,,,
-friday,06:45:00 PM,08:45:00 PM,Jalisco B: Foro II,Pokemeet 2.0,,,
-friday,09:00:00 PM,10:00:00 PM,Jalisco B: Foro II,Bestias y Bocetos,,,
-friday,11:30:00 AM,12:30:00 PM,Jalisco B: Foro III,"Yo sólo vine a jugar, y terminé sin espacio para más juegos",,,
-friday,12:45:00 PM,01:45:00 PM,Jalisco B: Foro III,"El universo en la semilla: Stop Motion, Biodiversidad y Sustentabilidad",,,
-friday,02:00:00 PM,03:00:00 PM,Jalisco B: Foro III,Hacia lo salvaje: Cómo llegue a trabajar con lobos,Khaos Coyote,,
-friday,03:15:00 PM,05:15:00 PM,Jalisco B: Foro III,100 furros dijeron,,,
-friday,05:30:00 PM,06:30:00 PM,Jalisco B: Foro III,I think I like you,,,
-friday,06:45:00 PM,07:45:00 PM,Jalisco B: Foro III,Las bases de crear un buen cómic,,,
-friday,08:00:00 PM,10:00:00 PM,Jalisco B: Foro III,Uso de sustancias y reducción de riesgos,,,
-friday,11:45:00 AM,01:15:00 PM,Jalisco B: Workshop Corner,Diseño de cornamenta para personajes,,,
-friday,01:30:00 PM,02:30:00 PM,Jalisco B: Workshop Corner,Proceso creativo: desarrollo de historias,,,
-friday,02:45:00 PM,04:45:00 PM,Jalisco B: Workshop Corner,Personajes mágicos con acuarelas,,,
-friday,05:00:00 PM,06:00:00 PM,Jalisco B: Workshop Corner,Entre colas y cámaras: Taller de fotografía creativa,,,
-friday,06:15:00 PM,07:15:00 PM,Jalisco B: Workshop Corner,Arma tú PC GAMER,,,
-friday,07:30:00 PM,08:30:00 PM,Jalisco B: Workshop Corner,Cómo acampar y no morir en el intento,,,
-friday,09:00:00 PM,10:00:00 PM,Jalisco B: Workshop Corner,Melones y bananas,,,
-friday,10:00:00 AM,11:45:00 AM,Jalisco B: Meeting room,Floor Wars (Eliminatoria),"Furry Trash, Confuror",,
-friday,12:00:00 PM,02:00:00 PM,Jalisco B: Meeting room,Concurso de baile en fursuit (eliminatoria),"Astral, Confuror",,
-friday,02:15:00 PM,03:45:00 PM,Jalisco B: Meeting room,Awoo!! TF Meet & Greet: Nuestras historias y comunidad,,,
-friday,04:00:00 PM,05:30:00 PM,Jalisco B: Meeting room,Confuloid,,,
-friday,05:45:00 PM,07:00:00 PM,Jalisco B: Meeting room,¡El gran canta con nostros/trivia Disney!,,,
-friday,07:30:00 PM,08:30:00 PM,Jalisco B: Meeting room,"Un hotdog, ¿es un sándwich?",,,
-friday,08:45:00 PM,09:45:00 PM,Jalisco B: Meeting room,¿Tienes ideas y proyectos? Networking: Conectando mentes con talentos,,,
-saturday,08:00:00 AM,10:00:00 PM,Pasillo Jalisco A-B: Recepción,Registro,,,
-saturday,10:00:00 AM,11:00:00 AM,Jalisco B: Main Stage,Cómo puedo ayudar a la naturaleza desde casa,,,
-saturday,11:15:00 AM,12:15:00 PM,Jalisco B: Main Stage,¡Conociendo a takemoto!,,,
-saturday,12:30:00 PM,01:30:00 PM,Jalisco B: Main Stage,Retos y riesgos del trabajo con fauna silvestre en México,Proyecto Tamandua (Organización de caridad),,
-saturday,01:45:00 PM,02:45:00 PM,Jalisco B: Main Stage,FurMonic Orchestra,,,
-saturday,02:45:00 PM,03:45:00 PM,Jalisco B: Main Stage,¡Pepper Coyote en vivo!,,,
-saturday,04:00:00 PM,06:00:00 PM,Jalisco B: Main Stage,Floor Wars (Final),"Furry Trash, Confuror",,
-saturday,06:30:00 PM,08:00:00 PM,Jalisco B: Main Stage,Eliminatoria pasarela,"La Manada Horny, Confuror",,Fiesta pagana
-saturday,08:00:00 PM,09:00:00 PM,Jalisco B: Main Stage,Noche retro,DJ Mosca,,Fiesta pagana
-saturday,09:00:00 PM,10:00:00 PM,Jalisco B: Main Stage,Pasarela,"La Manada Horny, Confuror",,Fiesta pagana
-saturday,10:00:00 PM,11:00:00 PM,Jalisco B: Main Stage,Funkhaus Fever,"Knox, Khatru",,Fiesta pagana
-saturday,11:00:00 PM,12:00:00 AM,Jalisco B: Main Stage,Bellakeo Fur Vol 3.0?!,Furry Trash,,Fiesta pagana
-saturday,12:00:00 AM,01:00:00 AM,Jalisco B: Main Stage,DJ Charlie,DJ Charlie,,Fiesta pagana
-saturday,10:00:00 AM,04:00:00 PM,Jalisco B: Artist Alley,Artist Alley,Confuror,,
-saturday,05:15:00 PM,07:15:00 PM,Jalisco B: Artist Alley,¡Crea tú propia novela visual!,,,
-saturday,07:45:00 PM,10:00:00 PM,Jalisco B: Artist Alley,Torneo LoreFurry,,,
-saturday,10:00:00 AM,11:30:00 AM,Jalisco A: Foro I (Montaje Escuela),Anatomía comparada: ¿Qué hace diferente a un lobo de un mapache?,,,
-saturday,11:45:00 AM,12:45:00 PM,Jalisco A: Foro I (Montaje Escuela),Cómo tener una relación poli y no morir en el intento,,,
-saturday,01:00:00 PM,02:00:00 PM,Jalisco A: Foro I (Montaje Escuela),De cuento a leyenda: Mejora tú redacción,,,
-saturday,02:15:00 PM,03:00:00 PM,Jalisco A: Foro I (Montaje Escuela),Yury y Raucous: Meet & Greet,"Yury, Raucous",,
-saturday,08:00:00 PM,01:00:00 AM,Jalisco A: Foro I,Night Market,,,
-saturday,10:00:00 AM,12:00:00 PM,Jalisco A: Foro I (Lounge general),Soft combat,,,
-saturday,12:15:00 PM,01:15:00 PM,Jalisco A: Foro I (Lounge general),Garabatos para la caridad,,,
-saturday,01:30:00 PM,03:00:00 PM,Jalisco A: Foro I (Lounge general),¡Coffee and draw!,,,
-saturday,10:00:00 AM,11:30:00 AM,Jalisco B: Foro II,Cómo la música académica dejó de resonar en la cultura popular,,,
-saturday,11:45:00 AM,12:45:00 PM,Jalisco B: Foro II,Cómo despertar a la princesa (Primeros auxilios básicos en la vida),,,
-saturday,01:00:00 PM,02:30:00 PM,Jalisco B: Foro II,Furros sin bañar; ¿Porqué nos atraé el olor corporal?,,,
-saturday,02:45:00 PM,04:15:00 PM,Jalisco B: Foro II,Hagamos un Collab,,,
-saturday,04:30:00 PM,06:30:00 PM,Jalisco B: Foro II,Transfuror,,,
-saturday,06:45:00 PM,08:15:00 PM,Jalisco B: Foro II,"Gestión desplaceres: Salud, Educación y Sexualidad",,,
-saturday,08:30:00 PM,10:00:00 PM,Jalisco B: Foro II,Crayones nocturnos: Party Soft!,,,
-saturday,10:00:00 AM,11:00:00 AM,Jalisco B: Foro III,Story Hour,,,
-saturday,11:15:00 AM,12:45:00 PM,Jalisco B: Foro III,Perros que cambian vidas,,,
-saturday,01:00:00 PM,02:30:00 PM,Jalisco B: Foro III,Convenciones furry en Chile: La historia detrás de SAFE y Pawstral,,,
-saturday,02:45:00 PM,04:45:00 PM,Jalisco B: Foro III,Furros sin fronteras,,,
-saturday,05:00:00 PM,06:30:00 PM,Jalisco B: Foro III,Colores polarizados,,,
-saturday,06:45:00 PM,08:15:00 PM,Jalisco B: Foro III,MXN Makers vol. 2,,,
-saturday,08:30:00 PM,10:00:00 PM,Jalisco B: Foro III,Yo sólo soy un furro ¿A mí que me importa la política?,,,
-saturday,10:00:00 AM,12:00:00 PM,Jalisco B: Workshop Corner,Taller de actuación de voz y doblaje,,,
-saturday,12:15:00 PM,02:15:00 PM,Jalisco B: Workshop Corner,Esto es Pro Tools,,,
-saturday,02:30:00 PM,04:00:00 PM,Jalisco B: Workshop Corner,"Jazztubo (O Jazz en todos lados, al mismo tiempo)",,,
-saturday,04:30:00 PM,06:30:00 PM,Jalisco B: Workshop Corner,"Caligrafitti, la magia de los trazos",,,
-saturday,06:45:00 PM,07:45:00 PM,Jalisco B: Workshop Corner,Cómo crear un mundo literario,,,
-saturday,08:00:00 PM,10:00:00 PM,Jalisco B: Workshop Corner,Dibuja rico: Anatomía furry con sabor ,,,
-saturday,10:00:00 AM,11:30:00 AM,Jalisco B: Meeting room,Protomeet & Beep 2: Electronic Boogaloo,,,
-saturday,11:45:00 AM,01:15:00 PM,Jalisco B: Meeting room,Cómo dejar de ser vergonzudo,,,
-saturday,01:30:00 PM,03:00:00 PM,Jalisco B: Meeting room,¡Duros y rudos en el Ring 2ndo round!,,,
-saturday,03:15:00 PM,04:45:00 PM,Jalisco B: Meeting room,Punchis-Punchis: Una exploración de la música electrónica,,,
-saturday,05:00:00 PM,06:30:00 PM,Jalisco B: Meeting room,El club de las patas,,,
-saturday,06:45:00 PM,08:15:00 PM,Jalisco B: Meeting room,Bienvenidos a la grieta del poliamor (Meet up),,,
-saturday,08:30:00 PM,10:00:00 PM,Jalisco B: Meeting room,FatFur meeting,,,
-sunday,08:00:00 AM,03:00:00 PM,Pasillo Jalisco A-B: Recepción,Registro,,,
-sunday,11:15:00 AM,12:15:00 PM,Jalisco B: Main Stage,Tamandua mexicana criatura silenciosahabitante de diversos ecosistemas,Proyecto Tamandua (Organización de caridad),,
-sunday,12:30:00 PM,02:00:00 PM,Jalisco B: Main Stage,Q&A: Artistas invitados,Confuror,,
-sunday,02:15:00 PM,04:00:00 PM,Jalisco B: Main Stage,Concuros de baile (Final),"Astral, Confuror",,
-sunday,04:30:00 PM,06:45:00 PM,Jalisco B: Main Stage,Subasta caridad,Confuror,,
-sunday,07:00:00 PM,08:00:00 PM,Jalisco B: Main Stage,Clausura del evento,Confuror,,
-sunday,10:00:00 AM,04:00:00 PM,Jalisco B: Artist Alley,Artist Alley,Confuror,,
-sunday,10:00:00 AM,11:30:00 AM,Jalisco A: Foro I (Montaje Escuela),Retroalimentación Confuror,Confuror,,
-sunday,11:45:00 AM,01:15:00 PM,Jalisco A: Foro I (Montaje Escuela),Baile: 101,,,
-sunday,02:15:00 PM,03:45:00 PM,Jalisco A: Foro I (Montaje Escuela),Diseñando y mejorando a tú fursona,,,
-sunday,10:00:00 AM,11:15:00 AM,Jalisco A: Foro I (Lounge general),Charadas en Fursuit,,,
-sunday,11:30:00 AM,12:30:00 PM,Jalisco A: Foro I (Lounge general),Crea tú propia raza furra para D&D,,,
-sunday,12:45:00 PM,01:45:00 PM,Jalisco A: Foro I (Lounge general),Que TTRPG puedo elegir sin morir en el intento?,,,
-sunday,02:00:00 PM,04:00:00 PM,Jalisco A: Foro I (Lounge general),"Sticker Swap Furry: Comparte, Intercambia y Conecta",,,
-sunday,10:00:00 AM,11:30:00 AM,Jalisco B: Foro II,"Recuerdios del ayer, animación y pasión",,,
-sunday,11:45:00 AM,01:15:00 PM,Jalisco B: Foro II,Los secretos del arte digital,,,
-sunday,01:30:00 PM,03:00:00 PM,Jalisco B: Foro II,Diseño y creación de videojuegos,,,
-sunday,03:15:00 PM,05:00:00 PM,Jalisco B: Foro II,Quieres dibujar musculos,,,
-sunday,10:00:00 AM,11:30:00 AM,Jalisco B: Foro III,Salud mental para furries,,,
-sunday,11:45:00 AM,12:45:00 PM,Jalisco B: Foro III,Cómo crear tú propio sistema de magia,,,
-sunday,01:00:00 PM,02:00:00 PM,Jalisco B: Foro III,"Yokai Daruma, Aprendendiendo de la resilencia del daruma para hacer un proyecto realidad",,,
-sunday,02:15:00 PM,03:15:00 PM,Jalisco B: Foro III,Color y personalidad en el diseño de personajes,,,
-sunday,03:30:00 PM,05:00:00 PM,Jalisco B: Foro III,Cómo realizar un documental furry,,,
-sunday,10:00:00 AM,11:30:00 AM,Jalisco B: Workshop Corner,Peludo y estampado: Taller de playeras,,,
-sunday,11:45:00 AM,01:45:00 PM,Jalisco B: Workshop Corner,Ház tú primer peluche,,,
-sunday,02:00:00 PM,03:45:00 PM,Jalisco B: Workshop Corner,El círculo de fuego,,,
-sunday,04:15:00 PM,05:45:00 PM,Jalisco B: Workshop Corner,"La web indie: Un blog al puro estilo de MySpace, en 2025",,,
-sunday,10:00:00 AM,11:30:00 AM,Jalisco B: Meeting room,K-Furs Meeting,,,
-sunday,11:45:00 AM,01:15:00 PM,Jalisco B: Meeting room,Meet: Howl & Bone,,,
-sunday,01:30:00 PM,03:00:00 PM,Jalisco B: Meeting room,Furry TikTok Meetup,,,
-sunday,03:15:00 PM,04:45:00 PM,Jalisco B: Meeting room,VRChat con Chasito y amigos,"Chasito, amigos",,
+day,start_time,end_time,location,title,hosted_by,category,description,nsfw
+thursday,02:00:00 PM,03:00:00 PM,Jalisco B: Main Stage,Show Pink Dog Corto,Pink Dog,Concierto,"Balada pop, trap rap con mesclas de rnb contemporáneo, con el propósito de darle un par de baladas lindas.",0
+thursday,04:30:00 PM,05:30:00 PM,Jalisco B: Main Stage,Rufus Rooskram En Vivo,Rufus Rooskram,Concierto,Un concierto en el que estaré cantando todo mi repertorio disponible en Spotify además de una canción original nueva que estaré estrenando para la convención.,0
+thursday,08:00:00 PM,01:00:00 AM,Jalisco B: Main Stage,Drink & Draw,Arty Chikle,Social,,1
+thursday,02:00:00 PM,04:00:00 PM,Jalisco B: Artist Alley,Aprende y juega a poke/digimon TCG,Max Weredragon,Meet,"La manada Pokefur te invita a este espacio para aprender a jugar algunos TCG Pokemon, digimon, lorcana, asi como tambien conocer a mas furros con tu mismo gusto o intercambiar cartas si es tu preferencia, ven a mostrar tus dotes en el TCG y diviértete.",0
+thursday,02:00:00 PM,03:30:00 PM,Jalisco B: Foro II,El pinche taller de dibujo de los furros mamados,Rom Howler,Taller,Tips y consejos para dibujar musculos y bara,1
+thursday,03:45:00 PM,04:45:00 PM,Jalisco B: Foro II,Duelo de Espadas ¿Qué es el rol neutro?,"Katsu ""Las Garras del Ring""",Experiencias de vida,"El panel informara al publico acerca de lo que es el rol sexual Neutro. A pesar de que es un rol que sigue adquiriendo mas visibilidad, aún hay muchas personas que estan completamente desinformadas en cuanto a este tema y que incluso piensan que es lo mismo que el rol Versatil.",1
+thursday,05:00:00 PM,06:00:00 PM,Jalisco B: Foro II,Como el dinero cambia mi videojuego,Akiro Akita Inu,Programacion,"charla enfocada en el diseño de videojuegos, desde la perspectiva de como el generar dinero puede influenciar en el diseño y las mecánicas de mi videojuego",0
+thursday,06:15:00 PM,07:45:00 PM,Jalisco B: Foro II,Taller de dibujo con modelo al desnudo,Rom Howler,Taller,Taller de dibujo con modelo al desnudo en vivo,1
+thursday,08:00:00 PM,09:00:00 PM,Jalisco B: Foro II,Neopets a media noche,Corvus Cantum,Arte y Cultura,"Aprende sobre Neopets y todo aquello que atrae a los más pervertidos de Neopia: Hadas Lésbicas, Furros Mamados, Transformación, Juguetes Inflables y... Moco? Este panel es una invitación a explorar el lado más cachondo de Neopia.",1
+thursday,02:00:00 PM,03:30:00 PM,Jalisco B: Foro III,"Pelo, Plumas y Escamas para el alma",Psi. Kiwo Bison,Conferencia,Uso de la fursona como herramienta de bienestar mental,1
+thursday,05:00:00 PM,06:00:00 PM,Jalisco B: Foro III,¿Qué o quiénes son los furros?,Dr. Caballo,Conferencia,"¿Qué sígnica ser un furro? ¿Qué es un furro? En este panel trataré de dar respuesta a estas preguntas. Entre mejor nos conozcamos como comunidad, podremos ayudar a desmentir muchos los estigmas y prejuicios negativos que la personas suelen atribuirle al furry fandom.",
+thursday,06:00:00 PM,07:45:00 PM,Jalisco B: Foro III,Mapa de VR Chat Confuror,Ian the Doggo,Conferencia,"Ven a descubrir nuestro mundo en VRChat. En este panel podrás probar una versión offline del juego, hacer preguntas, escuchar cómo nació el proyecto y, claro, vivir un pedacito de la experiencia en realidad virtual junto a nosotros.",1
+thursday,08:00:00 PM,09:30:00 PM,Jalisco B: Foro III,El arquetipo y el totem,Kiwo Bison,Conferencia,"Una mirada desde la psicología y la etnología a la identificación del ser humano con un tótem animal, y su relevancia en el mundo contemporáneo.",1
+thursday,02:00:00 PM,03:30:00 PM,Jalisco B: Workshop Corner,Kakimashō! Aprendamos caligrafía japonesa,Yuushi,Taller,"En este taller aprenderás las bases de la caligrafía japonesa, un poco de su historia y, sobre todo, practicarás con pincel y tinta letras japonesas. Podrás aprender a escribir tu nombre y palabras básicas en japonés.",0
+thursday,03:45:00 PM,05:15:00 PM,Jalisco B: Workshop Corner,Unidad de manada: Consejos para crear una comunidad desde 0,Kovua,Debate,"Este conversatorio quiere enseñar a crear actividades novedosas, dar tips y advertir de problemas a aquellos que buscan crear o revivir un grupo. Para eso hay que saber relacionarse, y este panel enseña a relacionarse con cualquier persona en pocos minutos.",1
+thursday,05:30:00 PM,06:30:00 PM,Jalisco B: Workshop Corner,El origen de las ideas,Frost Draw,Conferencia,"Las ideas tienen un origen, no llegan de la nada. Como creativos, debemos estar conscientes de como desarrollarlas y encontrar nuestra voz. Enfocado en el dibujo, trataré de explicar cómo darle vida y estructurar los nuestros pensamientos para convertirlos en conceptos tangibles.",0
+thursday,06:45:00 PM,08:45:00 PM,Jalisco B: Workshop Corner,Diversidad furra,IZAC,Conferencia,"Exploramos convenciones furro en todo el mundo, con datos curiosos, cultura y diversidad. Presentación con imágenes y videos, más una mini clase para aprender idiomas fácilmente. Todo público, ¡ven a descubrir y compartir!",0
+thursday,09:00:00 PM,10:00:00 PM,Jalisco B: Workshop Corner,Una huella en la pista,Whiteli Loyd,,"Soy Whiteli Loyd y me dedico al deporte como profesional desde los 10 años. Muchos crecimos viendo a Checó Pérez correr como el orgullo de México, pero en esta plática hablaremos del desafío que es estar en este deporte, de las oportunidades que hay de incursionar y las formas en qué uno puede llegar a la grandeza de este deporte y a dejar su huella.",0
+thursday,03:15:00 PM,05:15:00 PM,Jalisco B: Meeting room,Digimon meet & greet,Los Digiamigos,Social,¡Reunión para fans de Digimon! Ven y conoce a otros fans de la franquicia. Tendremos actividades y regalos para quienes nos visiten.,0
+thursday,05:30:00 PM,07:00:00 PM,Jalisco B: Meeting room,Fatfur meeting,Fat fur meeting,Social,Es un espacio donde las personas puedes conocer a otros con intereses similares a los personajes gorditos.,1
+thursday,07:15:00 PM,09:45:00 PM,Jalisco B: Meeting room,Panel de inflables,Squeak Squad,Meet,!Llega la cuarta edición del panel mas chirriante de toda la con!,0
+friday,10:00:00 AM,11:30:00 AM,Jalisco B: Main Stage,Ceremonia de apertura,Confuror,Eventos principales,,0
+friday,11:30:00 AM,12:30:00 PM,Jalisco B: Main Stage,Confuror 101,Confuror,,,0
+friday,12:45:00 PM,01:45:00 PM,Jalisco B: Main Stage,"Presentación del cómic oficial: ""Yuri and the Quest for the Happy Ending.""",Dacachi,Conferencia,"En esta charla compartiré el proceso creativo detrás de ""Yuri and the Quest for the Happy Ending"", una historia corta en la que Yuri se ve arrastrado a un mundo desconocido y tendrá que enfrentarse a una amenaza que podría destruirlo todo.",0
+friday,02:00:00 PM,02:45:00 PM,Jalisco B: Main Stage,Cheetah Paws,Cheetah Paws,Conferencia,Ven a disfrutar de una demostración de arte en vivo y conocer más a Cheetah paws. ,0
+friday,03:15:00 PM,05:15:00 PM,Jalisco B: Main Stage,Show de talentos,"Wolfhug, Confuror",Entretenimiento,,0
+friday,06:00:00 PM,07:00:00 PM,Jalisco B: Main Stage,621 Trukos,Jacob Kuznetsov,DJ Set,,1
+friday,07:00:00 PM,08:00:00 PM,Jalisco B: Main Stage,Aizack: Fur The Night – Under the Neon Moon,Aizack,DJ Set,,0
+friday,08:00:00 PM,09:00:00 PM,Jalisco B: Main Stage,UwUri x Metalpup (Siberian Scratch),"Uwuri, Metalpup",DJ Set,,1
+friday,09:00:00 PM,10:00:00 PM,Jalisco B: Main Stage,Pawlymarchs: DJ Shusho B2B DJ Noise,"Shusho, Noise",DJ Set,,0
+friday,10:00:00 AM,04:00:00 PM,Jalisco B: Artist Alley,Artist Alley,Confuror,Eventos principales,,0
+friday,05:00:00 PM,07:45:00 PM,Jalisco B: Artist Alley,Torneo de Digimon Card Game 2025,Silver Dragon,Torneo,¡El 4to torneo anual de Digimon Card Game en Confuror esta aquí! Ven y participa con tu mejor mazo y juega por el tapete de campeón y sobres de la expansión más reciente. Los espectadores son bienvenidos. English friendly!,0
+friday,08:00:00 PM,10:00:00 PM,Jalisco B: Artist Alley,Mercadito de artistas,Nainty,Meet,Igual que ediciones pasadas se llevará acabo un espacio donde artistas/asistentes podrán intercambiar merch creada por ellos y obras de su autoría de unos a otros,0
+friday,12:15:00 PM,01:45:00 PM,Jalisco A: Foro I (Montaje Escuela),"Auxilio, estoy atrapado en el elevador",Nardo “El Zorro” Virlan,Conferencia,"En todas las convenciones usamos el transporte vertical (ascensores y escaleras electricas). Los usamos sin pensar mucho en cómo funcionan, menos en cómo nos cuidan. Las películas desinforman cómo una máquina sube, baja, y consume electricidad dentro del edificio.",0
+friday,02:00:00 PM,04:00:00 PM,Jalisco A: Foro I (Montaje Escuela),Ghosting: ¿Qué hago si no me contesta?,Israel (Orga-zmo),Conferencia,Platiquemos (echemos chisme) sobre las veces que hemos ghosteado o nos los han hecho. ¿Qué podemos hacer con las emociones que quedan? ,1
+friday,07:00:00 PM,09:00:00 PM,Jalisco A: Foro I,Howling Gala (Cena),Confuror,Ceremonia,,0
+friday,12:45:00 PM,01:45:00 PM,Jalisco A: Foro I (Lounge general),FURRY SKETCH BATTLES,Deivid Utailus Bear,Social,"Aprenderemos como hacer bocetos rapidamente que a futuro podrán generar contenido en redes sociales y productos potenciales para distribuir, fusionando al final del panel, un momento de practica haremos sketches en una agradable competencia.",0
+friday,02:00:00 PM,04:00:00 PM,Jalisco A: Foro I (Lounge general),¡Jugemos Furrylotería!,Rom Howler,Torneo,Varias rondas de juego de lotería con premios y sorpresas!,0
+friday,11:30:00 AM,12:30:00 PM,Jalisco B: Foro II,Finanzas personales explicadas con patitas y patitos,Muky Sam,Experiencia de vida,Esta presentación se basa en enseñarle a la comunidad maneras de como manejar sus finanzas personales de una forma simple y sencilla temas de educación financiera para que puedan lograr sus metas a corto y largo plazo.,0
+friday,12:45:00 PM,02:15:00 PM,Jalisco B: Foro II,"Build-a-Bear: Cuerpos Fuertes, Almas Peludas",Ryom Bear,"Deportes, salud","Ryom Bear presentará un panel para iniciar el camino hacia tus metas físicas, con bases en ejercicio y nutrición, y estrategias para enfrentar la dismorfia corporal y la timidez. Un espacio para crecer fuerte, seguro y consciente.",1
+friday,02:30:00 PM,04:00:00 PM,Jalisco B: Foro II,Salud y Cotorreo de (a) pelos,Odder / VIHveLibre,Conferencia,"DiVIHnas de Alaín Pinzón, Confuror Edition. Aprende de prevención, detección, tratamiento y experiencias; este año más interactivo! ¿Cómo puedo realizarme la prueba en casa? ¿Cómo puedo protegerme? ¿Qué hago si salgo reactivo? Acércate, resuelve dudas y pásatela de (a) pelos!",1
+friday,04:15:00 PM,05:15:00 PM,Jalisco B: Foro II,El Bestiario (Animales Fantásticos),Skittles,Conferencia,"¡Hadas, Dragones, Manticoras, Esfinges, y mucho más! En esta nueva edición de Animales Fantásticos, acompañanos a explorar los mitos y leyendas reales detrás de las criaturas que encontramos en los cuentos, historias y juegos más populares.",0
+friday,05:30:00 PM,06:30:00 PM,Jalisco B: Foro II,Fat Fur Art: Los cuerpos gordos en el arte furry,Lean Lion,Conferencia,"¿Interesado en dibujar cuerpo grandes? En esta plática tendrás una introducción, tips y comentarios para que empieces a dibujar una diversidad de cuerpos.",1
+friday,06:45:00 PM,08:45:00 PM,Jalisco B: Foro II,Pokemeet 2.0,Nekori Snowfield,Social,"Es un panel para reunir a los furros que tengan el gusto especial a pokemon, en esta meet habrá concursos, trivias, platicas sobre la experiencia dentro del juego de pokemon y muchas cosas mas",0
+friday,09:00:00 PM,10:00:00 PM,Jalisco B: Foro II,Bestias y Bocetos,Kiba2412,Taller,"Taller para práctica del dibujo al desnudo con modelo presencial, enfocado para las personas que disfrutan del bara. Un espacio cómodo y seguro para explorar la anatomía.",1
+friday,11:30:00 AM,12:30:00 PM,Jalisco B: Foro III,"Yo sólo vine a jugar, y terminé sin espacio para más juegos",Furiduri,Conferencia,"Los juegos de mesa, no solo dan diversión, también te ayudan a aprender, mejorar y conectar con personas. Durante este panel te contaré mi experiencia de mi regreso al mundo de los juegos de mesa, el como, y el porqué se han vuelto algo esencial, he irremplazable en mi vida.",0
+friday,12:45:00 PM,01:45:00 PM,Jalisco B: Foro III,"El universo en la semilla: Stop Motion, Biodiversidad y Sustentabilidad",Arturo Tornero Aceves,Conferencia,"Con la animación Stop Motion podemos historias que ayuden a fomentar el cuidado de la biodiversidad. En esta charla conocerás la manera de implementar estrategias de sustentabilidad y el uso de biomateriales en proyectos animados como el cortometraje ""El Universo en la Semilla"".",0
+friday,02:00:00 PM,03:00:00 PM,Jalisco B: Foro III,Hacia lo salvaje: Cómo llegue a trabajar con lobos,Khaos Coyote,Conferencia,En esta charla compartiré cómo descubrí que los sueños imposibles pueden abrir caminos y convertirse en historias de conservación.,0
+friday,03:15:00 PM,05:15:00 PM,Jalisco B: Foro III,100 furros dijeron,100 furros dijeron,Torneo,"Quieres jugar un juego? intenta adivinar las respuestas más populares dadas por 100 furros a una serie de preguntas, reune a tus amigos para hacer un equipo y participar en este juego.",0
+friday,05:30:00 PM,06:30:00 PM,Jalisco B: Foro III,I think I like you,SydYeen y Herutastic,Conferencia,"Armando un episodio de I Think I Like You. Como trabajar en equipo con otros artistas, como administrar tiempos y como dividir tareas eficientemente. Charlas sobre lore, personajes, historia y futuro de I Think I Like You",0
+friday,06:45:00 PM,07:45:00 PM,Jalisco B: Foro III,Las bases de crear un buen cómic,Tigerlion Moikana,Conferencia,"Una plática de cómo se construye un buen cómic desde la narrativa visual: ritmo, viñetas, composición y claridad. Aprende a sumergir a la gente en tu historia y evitar errores comunes comunes que desconectan a los lectores.",0
+friday,08:00:00 PM,10:00:00 PM,Jalisco B: Foro III,Uso de sustancias y reducción de riesgos,Levy Dawncatcher,Conferencia,"Panel dedicado a acercar información objetiva, concisa, oportuna y sin prejuicios acerca de las sustancias que más se utilizan en el fandom mexicano y cómo reducir los riesgos al utilizarlas para mantener a la población segura.",1
+friday,11:45:00 AM,01:15:00 PM,Jalisco B: Workshop Corner,Diseño de cornamenta para personajes,Chutkat,Taller,Diseño & dibujo de diferentes tipos de cornamenta para personajes,0
+friday,01:30:00 PM,02:30:00 PM,Jalisco B: Workshop Corner,Proceso creativo: desarrollo de historias,Sakary Yoliztli,Conferencia,"Hablare de mi proceso para crear un mundo post humanos, donde la tecnología se 'apago ' hace siglos', y un día recuperan un objeto que los lleva en un viaje al rededor del mundo a la gran biblioteca. La tecnología de repente despierta -",0
+friday,02:45:00 PM,04:45:00 PM,Jalisco B: Workshop Corner,Personajes mágicos con acuarelas,Dacachi,Taller,"Acompaña a Yuri en una aventura mágica y ayúdale a despertar sus poderes como cuentacuentos. Aprenderás conceptos clave de armonía cromática, técnicas básicas de aplicación y cómo transformar una ilustración de Yuri en un escenario lleno de emoción y fantasía",0
+friday,05:00:00 PM,06:00:00 PM,Jalisco B: Workshop Corner,Entre colas y cámaras: Taller de fotografía creativa,Polux Procyon,Taller,"Taller práctico para aprender fundamentos de fotografía: manejo de luz, encuadre, ángulos y edición básica. Enfocado en capturar fursuits y actividades del fandom para mejorar la calidad de tus fotos en redes sociales",0
+friday,06:15:00 PM,07:15:00 PM,Jalisco B: Workshop Corner,Arma tú PC GAMER,Dr. Caballo,Conferencia,"Una platica sobre todo lo que necesitas para armar tu PC Gamer. No importa si eres principiante o ya eres un gamer con experiencia, este es un espacio abierto para compartir consejos y recomendaciones entre la comunidad.",0
+friday,07:30:00 PM,08:30:00 PM,Jalisco B: Workshop Corner,Cómo acampar y no morir en el intento,Kairos,Taller,Hablaremos y pondremos en práctica conceptos básicos sobre el campismo,0
+friday,09:00:00 PM,10:00:00 PM,Jalisco B: Workshop Corner,Melones y bananas,Mika Academy,Taller,"Una botella, un plátano, una ramita... todo objeto esconde una forma más interesante si lo miras con ojos traviesos. Así enseñamos anatomía: con imaginación, picardía y objetos simples que insinúan más de lo que parecen. Porque el cuerpo también se sugiere.",1
+friday,10:00:00 AM,11:45:00 AM,Jalisco B: Meeting room,Floor Wars (Eliminatoria),"Furry Trash, Confuror",Torneo,,0
+friday,12:00:00 PM,02:00:00 PM,Jalisco B: Meeting room,Concurso de baile en fursuit (eliminatoria),"Astral, Confuror",Torneo,,0
+friday,02:15:00 PM,03:45:00 PM,Jalisco B: Meeting room,Awoo!! TF Meet & Greet: Nuestras historias y comunidad,Kasey/Siân,Meet,"Awoo!!! Si amas las Transformations (TF) o solo tienes curiosidad, únete a esta amena charla ""Meet & Greet"" Compartiremos historias, ideas y anécdotas, desde cambios mágicos hasta los más salvajes!! en un ambiente divertido, diverso y creativo!",1
+friday,04:00:00 PM,05:30:00 PM,Jalisco B: Meeting room,Confuloid,Kiba2412,Meet,Un espacio de convivencia para furros que aman los sintetizadores de voz (Vocaloid/UTAU/SynthV/etcétera).,0
+friday,05:45:00 PM,07:00:00 PM,Jalisco B: Meeting room,¡El gran canta con nostros/trivia Disney!,"Katsu ""Las Garras del Ring""",Torneo,El panel consistiria de sets de canciones Disney en las que los asistentes podran cantar y bailar juntos para despues participar en retos de trivia disney que otorgaran pequeños premios a los ganadores.,0
+friday,07:30:00 PM,08:30:00 PM,Jalisco B: Meeting room,"Un hotdog, ¿es un sándwich?",KnoxFox,Debate,"El panel se centrará en debatir si un hotdog se puede considerar un sándwich. Se dará una pequeña presentación acerca del concepto del debate, junto con el procedimiento. El resto del panel será poner a los asistentes en dos bloques, uno a favor, y otro en contra, debatiendo.",0
+friday,08:45:00 PM,09:45:00 PM,Jalisco B: Meeting room,¿Tienes ideas y proyectos? Networking: Conectando mentes con talentos,Tigerlion Moikana,Meet,"¿Tienes una idea pero te faltan personas con otras habilidades? Ven conectar con talentos, ideas o inversionistas. Una hora para encontrar equipo y que los proyectos se vuelvan reales.",0
+saturday,10:00:00 AM,11:00:00 AM,Jalisco B: Main Stage,Cómo puedo ayudar a la naturaleza desde casa,Almita Otter,Conferencia,"Todos podemos aportar incluso estado desde el hogar, si tenemos o no un talento o habilidad, lo importante es tener la voluntad. Te mostraremos como.",0
+saturday,11:15:00 AM,12:15:00 PM,Jalisco B: Main Stage,¡Conociendo a takemoto!,Takemoto,Conferencia,En esta charla podremos conocer más de Takemoto y su Trayectoria además de que la audiencia podrá llevarse unas sorpresas preparadas por él. ,0
+saturday,12:30:00 PM,01:30:00 PM,Jalisco B: Main Stage,Retos y riesgos del trabajo con fauna silvestre en México,Proyecto Tamandua (Organización de caridad),Conferencia,,0
+saturday,01:45:00 PM,02:45:00 PM,Jalisco B: Main Stage,FurMonic Orchestra,Ensamble Músical,Concierto,,0
+saturday,02:45:00 PM,03:45:00 PM,Jalisco B: Main Stage,¡Pepper Coyote en vivo!,Pepper Coyote,Concierto,Pepper returns to Mexico for his 4th (5th?) Confuror and he’s bringing his voice and guitar! Come hear furry favorites and cover songs alike. Guaranteed at least one song in Spanish!,0
+saturday,04:00:00 PM,06:00:00 PM,Jalisco B: Main Stage,Floor Wars (Final),"Furry Trash, Confuror",Torneo,,0
+saturday,06:30:00 PM,08:00:00 PM,Jalisco B: Main Stage,Eliminatoria pasarela,"La Manada Horny, Confuror",Torneo,Fiesta pagana,1
+saturday,08:00:00 PM,09:00:00 PM,Jalisco B: Main Stage,Noche retro,DJ Mosca,DJ Set,"Desde Madonna y Rick Astley hasta Caló, OV7 y más",1
+saturday,09:00:00 PM,10:00:00 PM,Jalisco B: Main Stage,Pasarela,"La Manada Horny, Confuror",DJ Set,Fiesta pagana,1
+saturday,10:00:00 PM,11:00:00 PM,Jalisco B: Main Stage,Funkhaus Fever,"Knox, Khatru",DJ Set,"Un duo de DJ y bajo apasionado por el Disco, House y los buenos clásicos. Cuerdas gruesas y tornamesas para ponerte a bailar. ",1
+saturday,11:00:00 PM,12:00:00 AM,Jalisco B: Main Stage,Bellakeo Fur Vol 3.0?!,Furry Trash,DJ Set,"Presentación de un DJ set de una hora de ritmos latinos mesclados con EDM, trayendo consigo la escencia de una fiesta al más estilo mexa al lado furro. Una presentación con todo el sabor del regueton, tech y guaracha; sazonado con bellakeo para un perreo sin limites.",1
+saturday,12:00:00 AM,01:00:00 AM,Jalisco B: Main Stage,Bell-k,DJ Charlie,DJ Set,Fiesta pagana,1
+saturday,10:00:00 AM,04:00:00 PM,Jalisco B: Artist Alley,Artist Alley,Confuror,Eventos principales,,0
+saturday,05:15:00 PM,07:15:00 PM,Jalisco B: Artist Alley,¡Crea tú propia novela visual!,Quetzal Kintori,Taller,"En este taller veremos cómo desarrollar nuestra propia novela gráfica desde 0. Veremos los puntos más importantes a considerar al escribirla, así como las herramientas que podemos usar para ayudarnos.",0
+saturday,07:45:00 PM,10:00:00 PM,Jalisco B: Artist Alley,Torneo LoreFurry,Torneo Furrycana,Torneo,"Torneo de Disney Lorcana donde solo se permitirán decks con personajes furry en formato estándar (Zootopia, Rey León, Mickey Mouse, etc.). El ganador se llevará una carta Enchanted de Scar, Heartless Hunter. Se puede jugar con cartas rotadas.",0
+saturday,10:00:00 AM,11:30:00 AM,Jalisco A: Foro I (Montaje Escuela),Anatomía comparada: ¿Qué hace diferente a un lobo de un mapache?,Sakary Yoliztli,Taller,"Clase corta y practica de dibujo sobre anatomía comparada entre diferentes especies [Mamíferos, anfibios aves y reptiles ]",1
+saturday,11:45:00 AM,12:45:00 PM,Jalisco A: Foro I (Montaje Escuela),Cómo tener una relación poli y no morir en el intento,"Knut, Grizz, Jat",Conferencia,"Experiencias, anecdotas y consejos para todos aquellos interesados en iniciar o mantener una relación poliamorosa, las cosas no son faciles pero la comunicación es clave.",1
+saturday,01:00:00 PM,02:00:00 PM,Jalisco A: Foro I (Montaje Escuela),De cuento a leyenda: Mejora tú redacción,SeiferWolfDragon,Conferencia,"Panel sobre cómo mejorar la redacción y el storytelling, abordando el uso de clichés, tropos y estructura narrativa, así como cómo aprovecharlos al máximo y de manera creativa.",0
+saturday,02:15:00 PM,03:00:00 PM,Jalisco A: Foro I (Montaje Escuela),Yuri y Raucous,"Yuri, Racucous",Meet,"Yuri es un tlacuache que siempre está ocupado y nunca lo encuentras disponible, es por eso que quiere apartar una hora dentro de la convención para poder convivir, tomarse fotos e interactuar con sus amigos de Confuror. Acompañado de su amigo Raucous.",0
+saturday,08:00:00 PM,01:00:00 AM,Jalisco A: Foro I,Night Market,,Eventos principales,,1
+saturday,10:00:00 AM,12:00:00 PM,Jalisco A: Foro I (Lounge general),SoftCombat,Dox,Torneo,"El Softcombat es un combate con armas comunmente relacionadas a la era medieval, espadas largas, espadas cortas, dagas, escudos, hachas, lanzas, etc. pudiendo considerarse como deporte y que a los años se ha visto muy a la sombra y comunmente en eventos de LARP",0
+saturday,12:15:00 PM,01:15:00 PM,Jalisco A: Foro I (Lounge general),Garabatos para la caridad,Paco Panda y Roni,Eventos principales,"Fursuiters con crayones gigantes dibujando para ti. Aunque no sean obras maestras, puedes conseguir un dibujo de alguno de nuestros artistas donando durante este evento, el cual será destinado para la caridad.",0
+saturday,01:30:00 PM,03:00:00 PM,Jalisco A: Foro I (Lounge general),¡Coffee and draw!,Nainty,Meet,"La versión apta para todo el público, compartiendo una buena bebida (no alcohólica) mientras trabajas en pendientes o simplemente decides dibujar libremente, también para conocer gente nueva o empaparte de la comunidad artística furry",0
+saturday,10:00:00 AM,11:30:00 AM,Jalisco B: Foro II,Cómo la música académica dejó de resonar en la cultura popular,,Conferencia,,0
+saturday,11:45:00 AM,12:45:00 PM,Jalisco B: Foro II,Cómo despertar a la princesa (Primeros auxilios básicos en la vida),Butter Doggy,Conferencia,Disponible para todo aquel furrito que este interesado en saber como responder ante algunas emergencias de la vida. Esta platica te ayudara a tener las herramientas básicas para poder ayudar durante una emergencia hasta el arribo de una ambulancia o que llegues al hospital.,0
+saturday,01:00:00 PM,02:30:00 PM,Jalisco B: Foro II,Furros sin bañar; ¿Porqué nos atraé el olor corporal?,Sasanntai,Conferencia,"Furros sin bañar y axilas es un panel orientado a responder la pregunta “¿por qué nos atrae el olor corporal?” desde un enfoque científico, así como tratar de elucidar por qué es algo tan prevalente dentro del Furry fandom, siendo un punto de encuentro para entusiastas del musk.",1
+saturday,02:45:00 PM,04:15:00 PM,Jalisco B: Foro II,Hagamos un Collab,Oren Juice,Taller,"Es una actividad para poner manos a la obra, entre todos vamos a idear y dibujar. No importa si no eres un experto ideando o dibujando personajes originales, mediante ejercicios creativos daremos vida a estos personajes.",0
+saturday,04:30:00 PM,06:30:00 PM,Jalisco B: Foro II,Transfuror,Anju Hope e Impulso Trans,Conferencia,"Reunión para personas Trans (transexuales, no binaries, agénero, etc.). Este año, Impulso Trans es nuestro invitado,nos hablaran sobre su asociación, resolverá dudas y ofrecerá información sobre los servicios que existen en Jalisco.",0
+saturday,06:45:00 PM,08:15:00 PM,Jalisco B: Foro II,"Gestión de placeres: salud, educación y sexualidad",It Gets Better México,Conferencia,"Esta charla busca generar un espacio seguro, respetuoso y libre de prejuicios donde se aborden temas fundamentales relacionados con el autocuidado físico, emocional y sexual. Invitando a la reflexión y la importancia de cuidarse a si mismos.",1
+saturday,08:30:00 PM,10:00:00 PM,Jalisco B: Foro II,Crayones nocturnos: Party Soft!,Confetti Catto,Torneo,¿Quieres seguir la fiesta pero la rave es muy ruidosa o mucho para ti? Ven a colorear con crayones o con tus propios materiales en un ambiente tranquilo y conviviendo con otros. ¡Party Soft!,0
+saturday,10:00:00 AM,11:00:00 AM,Jalisco B: Foro III,Story Hour,Uncle Kage,Conferencia (Ingles),Classic,0
+saturday,11:15:00 AM,12:45:00 PM,Jalisco B: Foro III,Perros que cambian vidas,Paola Ramos,Conferencia,"Aprenderán sobre los perros de asistencia, su impacto en la vida de las personas con discapacidad o condiciones crónicas de salud (epilepsia, diabetes, autismo, etc.) y cómo les apoyan a recuperar su autonomía y bienestar.",0
+saturday,01:00:00 PM,02:30:00 PM,Jalisco B: Foro III,Convenciones furry en Chile: La historia detrás de SAFE y Pawstral,Loki Krampus,Conferencia,"Convenciones al extremo sur del continente ¿Cómo va eso? En esta charla te mostramos el trabajo de SAFE y Pawstral, como fueron sus primeras ediciones, sus virtudes y desafíos. Que se viene para Chile el próximo año y que debes saber si quieres viajar y participar en ellas.",1
+saturday,02:45:00 PM,04:45:00 PM,Jalisco B: Foro III,Furros sin fronteras,"Sacris, Max",Meet,"Prepárate para un recorrido del fandom por Latinoamérica. En este panel, exploramos cómo el furry fandom, desde los tacos de México hasta las arepas de Colombia. A través de anécdotas, comparaciones culturales hablaremos de nuestras diferencias, coincidencias.",0
+saturday,05:00:00 PM,06:30:00 PM,Jalisco B: Foro III,Colores polarizados,ASTEREETO,Conferencia,"En esta plática, hablaremos de manera avanzada la teoría del color, iremos desde las bases hasta lo más experimentado para entenderla y hablar el color de una forma estandarizada para que puedas reconocer como funciona el color y los diferentes modelos de color que existen.",0
+saturday,06:45:00 PM,08:15:00 PM,Jalisco B: Foro III,MXN Makers vol. 2,Katsu and friends,Conferencia,"Exploraremos el proceso de creación de fursuits: desde el diseño y elección de materiales, hasta técnicas, herramientas y consejos para nuevos y curiosos makers. Todo lo se que necesitas saber para dar vida a tu personaje.",0
+saturday,08:30:00 PM,10:00:00 PM,Jalisco B: Foro III,Yo sólo soy un furro ¿A mí que me importa la política?,Sandy Cooper,Conferencia,"El panel pretende (desechando la política partidista) explorar las percepciones y actitudes que se tienen desde el fandom hacia la política, la politización (y despolitización) del arte, y las consecuencias de la política nacional e internacional en el fandom y en nuestras vidas.",1
+saturday,10:00:00 AM,12:00:00 PM,Jalisco B: Workshop Corner,Taller de actuación de voz y doblaje,SkyroStar,Taller,¿Te gustaria empezar a dar los primeros pasos para hacer doblaje profesional? Pues este es el lugar para ti. En este taller de doblaje aprenderas desde lo mas basico del doblaje hasta consejos y tips de profesionales.,0
+saturday,12:15:00 PM,02:15:00 PM,Jalisco B: Workshop Corner,Esto es Pro Tools,Naveed Ishtar,Taller,"Planeo enseñarle a los asistentes como plasmar una partitura en pro tools, usando plugins de instrumentos, enseñarles como empezar y dar algunos consejos en general",0
+saturday,02:30:00 PM,04:00:00 PM,Jalisco B: Workshop Corner,"Jazztubo (O Jazz en todos lados, al mismo tiempo)",KentaMutt & AmyPuppy,Taller,"Analizaremos desde 0 un standard de jazz, demostraremos por qué este género es más sencillo de lo que crees y cómo la influencia del mismo afectó a la música y está en todos lados, al mismo tiempo. No necesitas conocimientos previos!",0
+saturday,04:30:00 PM,06:30:00 PM,Jalisco B: Workshop Corner,"Caligrafitti, la magia de los trazos",Jedah Missile,Taller,"En este taller apenderás las bases del caligrafitti, movimientos del pincel y como generar figuras para crear ornamentos que adornarán tus ilustraciones. Llevate un glifo de caligrafitti hecho por ti!",0
+saturday,06:45:00 PM,07:45:00 PM,Jalisco B: Workshop Corner,Cómo crear un mundo literario,Lobo Sapiens,Conferencia,"En este panel buscamos explicar como crear un mundo literario, los elementos que lo componen y los factores principales a considerar para crearlo, así como mostrar algunos ejemplos y la influencia que tienen sobre las historias.",0
+saturday,08:00:00 PM,10:00:00 PM,Jalisco B: Workshop Corner,Dibuja rico: Anatomía furry con sabor ,Mika Academy,Taller,"Taller NSFW para aprender a dibujar cuerpos sabrosos, expresivos y bien armados. Domina poses, volumen y actitud con puro estilo. Dibujando sin pena y rico.",1
+saturday,10:00:00 AM,11:30:00 AM,Jalisco B: Meeting room,Protomeet & Beep 2: Electronic Boogaloo,Tostadora Gang MX,Meet,"Este es un panel para que protogens y gente que les gustan los mismos puedan tener una convivencia y así mismo gente pueda conocer mas sobre ellos, su historia e incluso el como se hace uno, todos están bienvenidos",0
+saturday,11:45:00 AM,01:15:00 PM,Jalisco B: Meeting room,Cómo dejar de ser vergonzudo,Drek,Taller,"Diseñado por y para furros con problemas para hablar con mas gente, este panel esta hecho para ayudarte a romper con silencios incomodos, mejorar tu fluidez al hablar. Y sobre todo ayudarte a conectar con mas personas y dejar a un lado la timidez ",0
+saturday,01:30:00 PM,03:00:00 PM,Jalisco B: Meeting room,¡Duros y rudos en el Ring 2ndo round!,"Katsu ""Las Garras del Ring""",Taller,"En esta edicion buscamos no solo presentar informacion de como encontrar oponentes para disfrutar de este fetiche de manera segura. También queremos poder enseñar y practicar en grupo algunos de los movimientos basicos de sumo, lucha y boxeo para ayudar a furros primerizos.",1
+saturday,03:15:00 PM,04:45:00 PM,Jalisco B: Meeting room,Punchis-Punchis: Una exploración de la música electrónica,Vulpeko,Conferencia,"Desde el House de Chicago y el Techno de Detroit, esta charla es un viaje a través de sus géneros principales, variedad de subgéneros y diversidad de estilos a través de su historia, lugares, DJs y productores que la llevaron a ser el fenómeno cultural que es hoy en día.",0
+saturday,05:00:00 PM,06:30:00 PM,Jalisco B: Meeting room,El club de las patas,Rockey Pawsy,Meet,"(Actividad +18) Similar a la ""Noche de Patas"" o a la ""Fat Fur Meeting"", el nombrado ""Club de las Patas"" busca regresar y compartir un espacio para aquellos amantes de las patas o aquellos curiosos que quieran explorar este gusto del fandom en un ambiente seguro y divertido.",1
+saturday,06:45:00 PM,08:15:00 PM,Jalisco B: Meeting room,Bienvenidos a la grieta del poliamor (Meet up),"Los Boyos (Alvaradog, Berngruff, Nawy)",Meet,"Te identificas como Poliamor o tienes curiosidad de lo que esto implica, lo bonito y lo complicado de tener una relación con mas de una persona. En este espacio tendremos actividades con el fin de conocer otras personas en el mismo barco, únete en compartir tus experiencias.",0
+saturday,08:30:00 PM,10:00:00 PM,Jalisco B: Meeting room,FatFur meeting,Fat fur meeting,Meet,Es un espacio donde las personas puedes conocer a otros con intereses similares a los personajes gorditos. Se proponen dinámicas para iniciar la conversación como una pequeña encuesta y al final que la gente pueda interactuar entre ellos usando el semáforo de consentimiento. ,1
+sunday,11:15:00 AM,12:15:00 PM,Jalisco B: Main Stage,Tamandua mexicana criatura silenciosahabitante de diversos ecosistemas,Proyecto Tamandua (Organización de caridad),Conferencia,"En esta plática conoceremos las generalidades del Tamandua mexicana: su hábitat, características y el papel fundamental que desempeña en los ecosistemas donde habita",0
+sunday,12:30:00 PM,02:00:00 PM,Jalisco B: Main Stage,Q&A: Artistas invitados,Confuror,Conferencia,,0
+sunday,02:15:00 PM,04:00:00 PM,Jalisco B: Main Stage,Concuros de baile (Final),"Astral, Confuror",Torneo,,0
+sunday,04:30:00 PM,06:45:00 PM,Jalisco B: Main Stage,Subasta caridad,Confuror,Eventos principales,,0
+sunday,07:00:00 PM,08:00:00 PM,Jalisco B: Main Stage,Clausura del evento,Confuror,Eventos principales,,0
+sunday,10:00:00 AM,04:00:00 PM,Jalisco B: Artist Alley,Artist Alley,Confuror,Eventos principales,,0
+sunday,10:00:00 AM,11:30:00 AM,Jalisco A: Foro I (Montaje Escuela),Retroalimentación Confuror,Confuror,,,0
+sunday,11:45:00 AM,01:15:00 PM,Jalisco A: Foro I (Montaje Escuela),Baile: 101,Chris Reyri,Taller,"Quieres aprender a perder el miedo al escenario? Te gustaria aprender un poco de estilos urbanos para ver cual te gusta más? Que esperas para vivir tu primera clase de baile, donde veremos un poco de todo lo basico para aprender a perder el miedo al escenario y empezar a bailar",0
+sunday,02:15:00 PM,03:45:00 PM,Jalisco A: Foro I (Montaje Escuela),Diseñando y mejorando a tú fursona,It Gets Better México / WizardBearG,Taller,"Taller Práctico donde les asistentes aplicarían la teoría de diseño de personajes como formas y colores para resolver, mejorar y aplicar al diseño a sus fursonas o si aun no tienen una tener una idea clara para tener un buen resultado.",0
+sunday,10:00:00 AM,11:15:00 AM,Jalisco A: Foro I (Lounge general),Charadas en Fursuit,Paco Panda,Torneo,"Fursuiters jugado charadas, donde actuarán palabras y frases sin decir ninguna palabra. Aquí todos juegan. ¡Incluso la audiencia! ¿Tienes fursuit y quiere jugar? ¡Llega temprano e inscríbete!¡El cupo es limitado!",0
+sunday,11:30:00 AM,12:30:00 PM,Jalisco A: Foro I (Lounge general),Crea tú propia raza furra para D&D,Sheru,Taller,En este taller se te proporcionará una breve descripción de los diferentes tipos de raza y se mostrarán lineamientos posibles para seguir en la creación de una raza jugarle para tu juego de Rol favorito.,0
+sunday,12:45:00 PM,01:45:00 PM,Jalisco A: Foro I (Lounge general),Que TTRPG puedo elegir sin morir en el intento?,Sheru,Conferencia,"Ya sea que es tu primera vez jugando o quieres encontrar un sistema de juego nuevo para empezar a jugar, aquí te mostraré diversos sistemas de juego que puedan interesarte.",0
+sunday,02:00:00 PM,04:00:00 PM,Jalisco A: Foro I (Lounge general),"Sticker Swap Furry: Comparte, Intercambia y Conecta","Sticker Swap Furry: Comparte, Intercambia y Conecta",Social,"Sticker Swap Furry: Comparte, Intercambia y Conecta es un espacio para mostrar, intercambiar o regalar stickers y pines. Trae tus colecciones, descubre nuevos artistas y llévate recuerdos únicos en un ambiente divertido y creativo",0
+sunday,10:00:00 AM,11:30:00 AM,Jalisco B: Foro II,"Recuerdios del ayer, animación y pasión",Haru the Cat,Conferencia,"Presentacion de un nuevo proyecto de animacion elaborado por furrys con tematica psicologica y emocional , describiendo a detalle el proceso de realizacion y como se produce un elemento animado con estandares de la industria.",0
+sunday,11:45:00 AM,01:15:00 PM,Jalisco B: Foro II,Los secretos del arte digital,WizardBear,Conferencia,¿Qué es lo que te falta para mejorar en el dibujo? ¿Cuáles son las técnicas secretas que los grandes maestros del dibujo emplean? ¿Cómo puedo lograr dibujar como mis artistas favoritos? ven a platicar de todos los secretos que nadie te cuenta acerca del dibujo y pintura digital.,0
+sunday,01:30:00 PM,03:00:00 PM,Jalisco B: Foro II,Diseño y creación de videojuegos,SeiferWolfDragon,Conferencia,Charla de lo que se necesita saber al momento de inicar con un proyecto de creación de un videojuego. Más enfocado en principiantes y en la idea de lo que se necesita más que en la programación del propio videojuego.,0
+sunday,03:15:00 PM,05:00:00 PM,Jalisco B: Foro II,Quieres dibujar musculos,Quieres Dibujar Musculos,Taller,Aprende a dibujar anatomía muscular en personajes Furro. Exploraremos las partes musculares más importantes para que puedas aplicar esos mismos principios en cualquier tipo de dibujo.,1
+sunday,10:00:00 AM,11:30:00 AM,Jalisco B: Foro III,"Ohren ""Taro"" Tochtli",Creación e interpretación de personajes en la actuación de voz,Conferencia,"Me animo a realizar esta ""conferencia"" para compartir consejos y ayudas para la creación e interpretación de personajes para aquellos que deseen hacer voces para sus animaciones, para encontrar la ""voz"" para su fursona o incluso Incursionar en el mundo del doblaje.",0
+sunday,11:45:00 AM,12:45:00 PM,Jalisco B: Foro III,Cómo crear tú propio sistema de magia,Letkuan Nexus,Taller,"En este panel buscamos explicar qué es un sistema de magia, los elementos que los componen, ventajas y desventajas de los distintos tipos, así como mostrar algunos ejemplos y su función dentro de la narrativa.",0
+sunday,01:00:00 PM,02:00:00 PM,Jalisco B: Foro III,"Yokai Daruma, Aprendendiendo de la resilencia del daruma para hacer un proyecto realidad",LS Kuroyami,Conferencia,"Los Daruma un amuleto de resiliencia en Japón ayudan para cumplir tus metas. Usándolos como inspiración cree a los Yokai Daruma lo que me llevo a aprender de la resiliencia que se necesita para empezar un proyecto y en como levantarte aún cuando no resulta, para volver a empezar",0
+sunday,02:15:00 PM,03:15:00 PM,Jalisco B: Foro III,Color y personalidad en el diseño de personajes,Cinna,Conferencia,"¿Porqué Algunos personajes destacan más que otros? En este panel platicaremos de cómo usar (y romper) la teoría del color para darle personalidad y vida a tus fursonas o personajes originales. Veremos trucos sencillos, ejemplos visuales y cómo dejar que tu instinto creativo hable más fuerte que las reglas.",0
+sunday,03:30:00 PM,05:00:00 PM,Jalisco B: Foro III,Cómo realizar un documental furry,Hannah Millers,Conferencia,"¿Siempre se han preguntado que es lo que conlleva hacer un documental furry? Furry o no, el mundo del documental es un tema muy interesante mostrar una realidad del mundo. Hablare sobre mi experiencia, tips y respondere preguntas referente al tema.",0
+sunday,10:00:00 AM,11:30:00 AM,Jalisco B: Workshop Corner,Peludo y estampado: Taller de playeras,Mika Academy,Taller,"Taller para furritos que quieren ver sus diseños en playeras. Aprende serigrafía y DTF para estampar sus diseños, con estilo y mucha sabrosura. Porque si vas a imprimir tus furros, que sea grande, vistoso y con toda la actitud.",0
+sunday,11:45:00 AM,01:45:00 PM,Jalisco B: Workshop Corner,Ház tú primer peluche,el_shabo_,Taller,"En este taller aprenderas paso a paso desde lo mas basico de la costura hasta hacer un peluche sencillo ya sea tu solo o en parejas, te guiaremos y resolveremos todas tus dudas en el proceso, si te interesa el mundo de los peluches esta es tu oportunidad. (El kit para hacer el peluche tendra un costo de 100mxn).",0
+sunday,02:00:00 PM,04:00:00 PM,Jalisco B: Workshop Corner,El círculo de fuego,sakary Yoliztli,Torneo,"Partida de rol rapida- Ha llegado el momento, has alcanzado la mayoria de edad, y puedes ir a Anderel. Pero antes debes probar qu estas listo para sobrevivir a los peligros que aguardan fuera de tu cálido y seguro hogar, para eso debes ir al circulo de fuego y probar tus habilidades.",0
+sunday,04:15:00 PM,05:45:00 PM,Jalisco B: Workshop Corner,"La web indie: Un blog al puro estilo de MySpace, en 2025",Ekadex,Conferencia,"En este panel aprenderás qué recursos puedes usar para crear tu propia página web o blog personalizado como lo desees. Abordaremos temas como opciones de hosting, un poco de programación en HTML/ CSS y cómo puedes dar a conocer tu sitio, al igual que algunos otros consejos.",0
+sunday,10:00:00 AM,11:30:00 AM,Jalisco B: Meeting room,K-Furs Meeting,Furs on Top,Meet,"Nuestro panel tiene como propósito reunir a más fans del K-POP dentro de la comunidad furry en un espacio seguro, donde podrán disfrutar de música, Random Dance, convivir con más K-Popers y pasar un rato agradable.",0
+sunday,11:45:00 AM,01:15:00 PM,Jalisco B: Meeting room,Meet: Howl & Bone,Morte Redgrave,Meet,Una convivencia entre furries Skull de todo tipo para conocer a más de la misma especie con algunas actividades de por medio,0
+sunday,01:30:00 PM,03:00:00 PM,Jalisco B: Meeting room,Furry TikTok Meetup,HMRtuti,Meet,"Espacio para que tanto creadores de contenido de video corto como fanáticos e interesados en comenzar puedan convivir entre si platicando, conociéndose, darse consejos así como para grabar contenido ahí mismo.",0
+sunday,03:15:00 PM,04:45:00 PM,Jalisco B: Meeting room,VRChat con Chasito y amigos,Chasito,Meet,"Chasito Furry ⭐🐾 a los interesados que les guste jugar en línea con juegos de vrchat y tambien con las.gafas.de realidad.virtual, hacer un equipo y a los que no conocen que vivan la experiencia y conozcan más de.esta plataforma",0
