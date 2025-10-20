@@ -1,0 +1,174 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Pawsistente - System Metrics",
+    "tags": ["pawsistente", "system", "containers"],
+    "style": "dark",
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Container CPU Usage",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(container_cpu_usage_seconds_total{name=~\"pawsistente.*\"}[5m]) * 100",
+            "refId": "A",
+            "legendFormat": "{{name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 70},
+                {"color": "red", "value": 90}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Container Memory Usage",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "container_memory_usage_bytes{name=~\"pawsistente.*\"} / 1024 / 1024",
+            "refId": "A",
+            "legendFormat": "{{name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "MB",
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": null},
+                {"color": "yellow", "value": 500},
+                {"color": "red", "value": 1000}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Container Memory Limit",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "container_spec_memory_limit_bytes{name=~\"pawsistente.*\"} / 1024 / 1024",
+            "refId": "A",
+            "legendFormat": "{{name}} limit"
+          },
+          {
+            "expr": "container_memory_usage_bytes{name=~\"pawsistente.*\"} / 1024 / 1024",
+            "refId": "B",
+            "legendFormat": "{{name}} usage"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "MB"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 4,
+        "title": "Container Restart Count",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "container_start_time_seconds{name=~\"pawsistente.*\"}",
+            "refId": "A",
+            "legendFormat": "{{name}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "short"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 5,
+        "title": "Network I/O",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(container_network_receive_bytes_total{name=~\"pawsistente.*\"}[5m])",
+            "refId": "A",
+            "legendFormat": "{{name}} RX"
+          },
+          {
+            "expr": "rate(container_network_transmit_bytes_total{name=~\"pawsistente.*\"}[5m])",
+            "refId": "B",
+            "legendFormat": "{{name}} TX"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "Bps"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16}
+      },
+      {
+        "id": 6,
+        "title": "Disk I/O",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(container_fs_reads_bytes_total{name=~\"pawsistente.*\"}[5m])",
+            "refId": "A",
+            "legendFormat": "{{name}} Read"
+          },
+          {
+            "expr": "rate(container_fs_writes_bytes_total{name=~\"pawsistente.*\"}[5m])",
+            "refId": "B",
+            "legendFormat": "{{name}} Write"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "color": {"mode": "palette-classic"},
+            "unit": "Bps"
+          }
+        },
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16}
+      },
+      {
+        "id": 7,
+        "title": "Container Health Status",
+        "type": "table",
+        "targets": [
+          {
+            "expr": "container_last_seen{name=~\"pawsistente.*\"}",
+            "refId": "A"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 24, "x": 0, "y": 24}
+      }
+    ],
+    "time": {
+      "from": "now-1h",
+      "to": "now"
+    },
+    "refresh": "5s",
+    "schemaVersion": 27,
+    "version": 1,
+    "links": []
+  }
+}

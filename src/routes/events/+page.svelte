@@ -10,6 +10,7 @@
   import { HelpCircle, Calendar, Plus } from 'lucide-svelte';
   import { languageStore } from '$lib/stores/language';
   import { appState } from '$lib/stores/appState';
+  import { trackClientPageView, trackClientPageLoad } from '$lib/utils/metricsMiddleware';
   import Header from '$lib/components/Header.svelte';
   import AddEventOverlay from '$lib/components/AddEventOverlay.svelte';
   import type { ConventionEvent } from '$lib/convention/types';
@@ -109,6 +110,10 @@
 
   // Check if we should load events on mount
   onMount(() => {
+    // Track page metrics
+    trackClientPageView('events');
+    trackClientPageLoad('events');
+    
     // Sync with app state
     selectedEvents = appState.selectedEvents;
     rejectedEvents = new Set(appState.rejectedEvents);
@@ -165,6 +170,18 @@
 
   // Handle event swipes
   const handleSwipeLeft = (event: ConventionEvent) => {
+    // Track event removal
+    fetch('/api/metrics/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'event_removed',
+        eventId: event.id,
+        eventName: event.title,
+        day: event.day
+      })
+    }).catch(console.error);
+    
     // Remove from unseen and add to rejected
     unseenEvents.delete(event.id);
     rejectedEvents.add(event.id);
@@ -176,6 +193,18 @@
   };
 
   const handleSwipeRight = (event: ConventionEvent) => {
+    // Track event addition
+    fetch('/api/metrics/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: 'event_added',
+        eventId: event.id,
+        eventName: event.name,
+        day: event.day
+      })
+    }).catch(console.error);
+    
     const newEvent = { ...event, isSelected: true };
     selectedEvents = [...selectedEvents, newEvent];
     // addSelectedEvent will automatically remove from unseen events

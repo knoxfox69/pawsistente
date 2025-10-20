@@ -4,6 +4,7 @@
   import { languageStore, APP_VERSION } from '$lib/stores/language';
   import { PWAManager } from '$lib/utils/pwa';
   import { NotificationManager } from '$lib/utils/notifications';
+  import { trackClientPageView, trackClientAppVisit, trackClientPageLoad } from '$lib/utils/metricsMiddleware';
   import Header from '$lib/components/Header.svelte';
 
   let hasVisited = $state(false);
@@ -33,6 +34,18 @@
     // Initialize notification manager
     notificationManager = NotificationManager.getInstance();
     notificationManager.initialize();
+
+    // Track app visit if first time
+    if (!hasVisited) {
+      trackClientAppVisit('home');
+      localStorage.setItem('hasVisitedPawsistente', 'true');
+    }
+
+    // Track page load time
+    trackClientPageLoad('home');
+    
+    // Track page view
+    trackClientPageView('home');
   });
 
   onDestroy(() => {

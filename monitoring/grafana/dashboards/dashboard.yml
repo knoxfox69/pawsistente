@@ -13,3 +13,12 @@ providers:
     allowUiUpdates: true
     options:
       path: /etc/grafana/provisioning/dashboards
+  - name: 'pawsistente-dashboards'
+    orgId: 1
+    folder: 'Pawsistente'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
