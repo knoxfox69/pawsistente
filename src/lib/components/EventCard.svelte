@@ -66,7 +66,7 @@
     isDragging = false;
     cardElement.style.transition = 'all 0.4s ease-out';
     
-    const threshold = 80; // Reduced threshold for easier swiping
+    const threshold = 50; // Further reduced threshold for easier swiping
     
     if (Math.abs(currentX) > threshold) {
       if (currentX > 0) {
@@ -129,7 +129,7 @@
   <!-- Event Card Content -->
   <div 
     bind:this={cardElement}
-    class="relative w-full h-full bg-gradient-to-b from-gray-900 to-black flex flex-col border-2 border-gray-700 rounded-2xl overflow-hidden"
+    class="relative w-full h-full bg-gradient-to-b from-gray-900 to-black flex flex-col border-2 border-gray-700 rounded-2xl overflow-hidden p-4 sm:p-6"
     style="transform: translateX({currentX}px) rotate({currentX * 0.1}deg); opacity: {Math.max(0.3, 1 - Math.abs(currentX) / 200)};"
     ontouchstart={handleTouchStart}
     ontouchmove={handleTouchMove}
@@ -231,16 +231,16 @@
   {/if}
 
   <!-- Main content -->
-  <div class="flex-1 p-6 flex flex-col relative z-10">
+  <div class="flex-1 flex flex-col relative z-10">
     <!-- Header with time -->
-    <div class="flex items-center justify-between mb-4">
-      <div class="flex items-center gap-3">
-        <Clock class="w-6 h-6 text-blue-400" />
+    <div class="flex items-center justify-between mb-3 sm:mb-4">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <Clock class="w-5 h-5 sm:w-6 sm:h-6 text-blue-400 flex-shrink-0" />
         <div class="flex flex-col">
-          <span class="font-mono text-white text-line-height-1">
+          <span class="font-mono text-white text-sm sm:text-base">
             {getDayAbbreviation(event.day)}
           </span>
-          <span class="font-mono text-white text-lg">
+          <span class="font-mono text-white text-base sm:text-lg">
             {formatTime(event.startTime)} - {formatTime(event.endTime)}
           </span>
         </div>
@@ -248,33 +248,33 @@
     </div>
 
     <!-- Event title and description -->
-    <div class="flex-1 mb-6">
-      <h1 class="text-3xl font-serif text-white mb-4 leading-tight">
+    <div class="flex-1 mb-6 flex flex-col min-h-0">
+      <h1 class="text-2xl sm:text-3xl font-serif text-white mb-3 leading-tight">
         {event.title}
       </h1>
-      <p class="text-gray-300 font-mono">
+      <p class="text-gray-300 font-mono text-sm sm:text-base leading-relaxed overflow-hidden line-clamp-3 sm:line-clamp-4 md:line-clamp-5">
         {event.description}
       </p>
     </div>
 
     <!-- Line divider -->
-    <div class="w-full h-px bg-gray-700/50 mb-6"></div>
+    <div class="w-full h-px bg-gray-700/50 mb-4 sm:mb-6"></div>
 
     <!-- Event details -->
-    <div class="space-y-3 mb-6">
+    <div class="space-y-2 sm:space-y-3 mb-4 sm:mb-6">
       <!-- Location -->
-      <div class="flex items-center gap-3">
-        <MapPin class="w-5 h-5 text-gray-400" />
-        <span class="text-gray-300 font-mono">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <MapPin class="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 flex-shrink-0" />
+        <span class="text-gray-300 font-mono text-sm sm:text-base truncate">
           {event.location}{event.room ? ` - ${event.room}` : ''}
         </span>
       </div>
 
       <!-- Panelist -->
       {#if event.panelist}
-        <div class="flex items-center gap-3">
-          <Star class="w-5 h-5 text-yellow-400" />
-          <span class="text-gray-300 font-mono">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <Star class="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 flex-shrink-0" />
+          <span class="text-gray-300 font-mono text-sm sm:text-base truncate">
             {t.hostedBy} {event.panelist}
           </span>
         </div>
@@ -282,14 +282,14 @@
 
       <!-- Category/Track -->
       {#if event.category}
-        <div class="flex items-center gap-3">
-          <Tag class="w-4 h-4" />
-          <span class="text-gray-300 font-mono">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <Tag class="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
+          <span class="text-gray-300 font-mono text-sm sm:text-base truncate">
             {event.category}
           </span>
         </div>
-        {/if}
-      </div>
+      {/if}
+    </div>
       <!-- NSFW Warning: +18 badge, anchored to the right bottom corner of the event card -->
       {#if event.nsfw}
         <div class="absolute bottom-4 right-4 z-20">
@@ -303,16 +303,16 @@
   </div>
 
   <!-- Action buttons (desktop fallback) -->
-  <div class="p-4 flex justify-between gap-3">
+  <div class="p-3 sm:p-4 flex justify-between gap-2 sm:gap-3">
     <button
       onclick={() => onSwipeLeft(event)}
-      class="px-6 py-3 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30 hover:bg-red-500/30 transition-colors font-mono text-sm flex-1 max-w-48"
+      class="px-4 py-2 sm:px-6 sm:py-3 bg-red-500/20 text-red-400 rounded-lg border border-red-500/30 hover:bg-red-500/30 transition-colors font-mono text-xs sm:text-sm flex-1 max-w-48"
     >
       {languageStore.currentLanguage === 'es' ? 'Omitir Evento' : 'Skip Event'}
     </button>
     <button
       onclick={() => onSwipeRight(event)}
-      class="px-6 py-3 bg-green-500/20 text-green-400 rounded-lg border border-green-500/30 hover:bg-green-500/30 transition-colors font-mono text-sm flex-1 max-w-48"
+      class="px-4 py-2 sm:px-6 sm:py-3 bg-green-500/20 text-green-400 rounded-lg border border-green-500/30 hover:bg-green-500/30 transition-colors font-mono text-xs sm:text-sm flex-1 max-w-48"
     >
       {languageStore.currentLanguage === 'es' ? 'Agregar al Calendario' : 'Add to Calendar'}
     </button>

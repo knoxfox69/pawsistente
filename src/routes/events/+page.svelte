@@ -10,7 +10,7 @@
   import { HelpCircle, Calendar, Plus } from 'lucide-svelte';
   import { languageStore } from '$lib/stores/language';
   import { appState } from '$lib/stores/appState';
-  import { trackClientPageView, trackClientPageLoad } from '$lib/utils/metricsMiddleware';
+  import { trackClientPageView, trackClientPageLoad } from '$lib/utils/clientMetrics';
   import Header from '$lib/components/Header.svelte';
   import AddEventOverlay from '$lib/components/AddEventOverlay.svelte';
   import type { ConventionEvent } from '$lib/convention/types';
@@ -200,7 +200,7 @@
       body: JSON.stringify({
         type: 'event_added',
         eventId: event.id,
-        eventName: event.name,
+        eventName: event.title,
         day: event.day
       })
     }).catch(console.error);

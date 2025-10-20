@@ -4,7 +4,7 @@
   import { languageStore, APP_VERSION } from '$lib/stores/language';
   import { PWAManager } from '$lib/utils/pwa';
   import { NotificationManager } from '$lib/utils/notifications';
-  import { trackClientPageView, trackClientAppVisit, trackClientPageLoad } from '$lib/utils/metricsMiddleware';
+  import { trackClientPageView, trackClientAppVisit, trackClientPageLoad } from '$lib/utils/clientMetrics';
   import Header from '$lib/components/Header.svelte';
 
   let hasVisited = $state(false);

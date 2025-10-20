@@ -11,6 +11,20 @@ import tailwindcss from '@tailwindcss/vite';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+	server: {
+		hmr: {
+			port: 5173
+		}
+	},
+	ssr: {
+		noExternal: ['prom-client']
+	},
+	optimizeDeps: {
+		exclude: ['prom-client']
+	},
+	define: {
+		'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
+	},
 	plugins: [
 		sveltekit(),
 		tailwindcss(),
