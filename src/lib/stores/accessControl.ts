@@ -104,7 +104,7 @@ function createAccessControlStore() {
 		// Context: Validates against server time to prevent client manipulation
 		checkLaunchDate(): boolean {
 			// This will be validated server-side, but we can do a basic check here
-			const targetDate = new Date('2025-10-20T21:00:00.000Z'); // 3pm GMT-6 = 9pm UTC
+			const targetDate = new Date('2025-12-08T00:00:00.000Z'); // December 8, 2025
 			const now = new Date();
 			return now >= targetDate;
 		},

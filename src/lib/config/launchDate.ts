@@ -1,8 +1,5 @@
-// Purpose: Centralized launch date configuration for easy testing
-// Context: Change this single date to test the access control system
+// Purpose: Centralized launch date configuration
+// Context: Launch date for Pawsistente for Posada Furcan 2025
 // 
-// FOR TESTING: Simply change this date to a past date to bypass the countdown
-// Example: '2024-01-01T00:00:00.000Z' (already passed)
-// 
-// Current setting: October 20, 2025 at 3:00 PM GMT-6
-export const LAUNCH_DATE = '2025-10-20T21:00:00.000Z'; // 3:00pm GMT-6 = 9:00pm UTC
+// Current setting: December 8, 2025 at 12:00 AM UTC
+export const LAUNCH_DATE = '2025-12-08T00:00:00.000Z'; // December 8, 2025
